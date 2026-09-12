@@ -51,6 +51,16 @@ import { VideoGate } from "@/lib/orbis/video-gate";
 const FIRST_FRAME_TIMEOUT_MS = 30_000;
 /** Let the last "coming to a stop" morph play out before closing the session. */
 const ARRIVAL_LINGER_MS = 4_000;
+/** 429 right after a walk: the old session is still being released. */
+const SESSION_BUSY_RETRY_MS = 3_000;
+const SESSION_BUSY_GIVE_UP_MS = 60_000;
+/** A warmed-up session with no walk started is closed after this. */
+const WARM_IDLE_MS = 90_000;
+
+function isSessionBusy(caught: unknown): boolean {
+  const message = caught instanceof Error ? caught.message : String(caught);
+  return /429|quota_exceeded|concurrent_sessions/i.test(message);
+}
 
 export type WalkPhase =
   | "idle"
@@ -149,33 +159,71 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
 
   useReactorMessage((message) => signals.handle(message));
 
-  // A dead session cannot be reused, so the next warm-up has to mint a new one.
+  const patch = useCallback((next: Partial<WalkSnapshot>) => {
+    setSnapshot((current) => ({ ...current, ...next }));
+  }, []);
+
+  const retryingRef = useRef(false);
+  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // A dead session cannot be reused, so the next warm-up has to mint a new one —
+  // except mid-retry, where a failed attempt also reads as "disconnected".
   useEffect(() => {
-    if (status === "disconnected") connecting.current = null;
+    if (status === "disconnected" && !retryingRef.current) connecting.current = null;
   }, [status]);
 
   /**
    * Connect at most once, and let a second caller wait on the first attempt
    * rather than opening a second session — the account has exactly one slot.
+   *
+   * A 429 (`concurrent_sessions_per_model`) right after a walk is usually the
+   * previous session still being released server-side, so wait and retry for
+   * up to a minute instead of failing the walk. Seen in human testing: Stop
+   * walk, then the setup panel's warm-up reconnected immediately and got 429.
    */
   const ensureConnected = useCallback(async () => {
     if (statusRef.current === "ready") return;
-    connecting.current ??= connect().catch((caught) => {
+    connecting.current ??= (async () => {
+      const giveUpAt = Date.now() + SESSION_BUSY_GIVE_UP_MS;
+      retryingRef.current = true;
+      try {
+        for (;;) {
+          try {
+            await connect();
+            return;
+          } catch (caught) {
+            if (!isSessionBusy(caught) || Date.now() > giveUpAt) throw caught;
+            patch({ statusText: "Waiting for the previous Orbis session to close" });
+            await disconnect().catch(() => {});
+            await new Promise((resolve) => setTimeout(resolve, SESSION_BUSY_RETRY_MS));
+          }
+        }
+      } finally {
+        retryingRef.current = false;
+      }
+    })().catch((caught) => {
       connecting.current = null;
       throw caught;
     });
     await connecting.current;
-  }, [connect]);
+  }, [connect, disconnect, patch]);
 
-  /** Start connecting the moment someone touches the setup panel (~7s saved). */
+  /**
+   * Start connecting the moment someone touches the setup panel (~7s saved).
+   * A warm session nobody walks is closed again after a while — otherwise it
+   * holds the account's only slot for everyone.
+   */
   const warmUp = useCallback(() => {
     if (runRef.current) return;
-    void ensureConnected().catch(() => {});
-  }, [ensureConnected]);
-
-  const patch = useCallback((next: Partial<WalkSnapshot>) => {
-    setSnapshot((current) => ({ ...current, ...next }));
-  }, []);
+    void ensureConnected()
+      .then(() => {
+        if (idleTimer.current) clearTimeout(idleTimer.current);
+        idleTimer.current = setTimeout(() => {
+          if (!runRef.current) void disconnect().catch(() => {});
+        }, WARM_IDLE_MS);
+      })
+      .catch(() => {});
+  }, [disconnect, ensureConnected]);
 
   const context = useMemo<OrbisContext>(
     () => ({
@@ -259,7 +307,10 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
     if (!run) return;
     run.cancelled = true;
     signals.abort("Walk stopped.");
-  }, [signals]);
+    // Free the slot now rather than when the loop next notices; the walk's own
+    // `finally` disconnect afterwards is a no-op.
+    void disconnect().catch(() => {});
+  }, [disconnect, signals]);
 
   /**
    * Real-time conditions: the same route recomputed for a new time, fog or
@@ -283,6 +334,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
       if (runRef.current) return;
       const run: RunHandle = { cancelled: false, conditionsVersion: 0 };
       runRef.current = run;
+      if (idleTimer.current) clearTimeout(idleTimer.current);
       setSnapshot({ ...INITIAL, phase: "connecting", statusText: "Connecting to Orbis" });
 
       try {
@@ -379,10 +431,23 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
       const run = runRef.current;
       if (run) run.cancelled = true;
       signals.abort("Component unmounted.");
+      if (idleTimer.current) clearTimeout(idleTimer.current);
       void disconnect().catch(() => {});
     },
     [disconnect, signals],
   );
+
+  // A reload or tab close doesn't unmount React, so it never reached the cleanup
+  // above and leaked the session until Reactor timed it out. Best effort.
+  useEffect(() => {
+    const onPageHide = () => {
+      const run = runRef.current;
+      if (run) run.cancelled = true;
+      void disconnect().catch(() => {});
+    };
+    window.addEventListener("pagehide", onPageHide);
+    return () => window.removeEventListener("pagehide", onPageHide);
+  }, [disconnect]);
 
   const waypoint = snapshot.route?.waypoints[snapshot.waypointIndex] ?? null;
   const block = snapshot.blocks[snapshot.blockIndex] ?? null;

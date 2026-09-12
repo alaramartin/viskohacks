@@ -12,7 +12,7 @@
 body {
   min-height: 100vh;
   margin: 0;
-  background: radial-gradient(circle at 50% 0, #252117, #0a0a0b 42%);
+  background: #0a0a0b;
 }
 
 button,
@@ -22,112 +22,10 @@ input {
   font: inherit;
 }
 
-main {
-  width: min(1440px, calc(100% - 32px));
-  margin: 0 auto;
-  padding: 56px 0;
-}
-
-header {
-  max-width: 900px;
-  margin-bottom: 28px;
-}
-
-h1 {
-  margin: 4px 0 8px;
-  font-size: clamp(2rem, 5vw, 4.4rem);
-  line-height: 1;
-  letter-spacing: -0.05em;
-}
-
-header p {
-  color: #aaa69a;
-  line-height: 1.5;
-}
-
-.eyebrow {
-  color: #e5c978;
-  font-size: 0.75rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.demo-shell {
-  padding: 18px;
-  border: 1px solid #38352d;
-  border-radius: 18px;
-  background: #111113cc;
-}
-
-.session-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.7fr);
-  gap: 18px;
-}
-
-.player {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: #000;
-  border-radius: 12px;
-}
-
-.player video {
-  width: 100%;
-  height: 100%;
-}
-
-.player-placeholder {
-  display: grid;
-  width: 100%;
-  height: 100%;
-  color: #77746b;
-  font-size: 0.85rem;
-  place-items: center;
-}
-
-.status {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 5px 9px;
-  color: #aaa;
-  font:
-    12px ui-monospace,
-    monospace;
-  background: #191919cc;
-  border-radius: 999px;
-}
-
-.status-ready {
-  color: #8ee59d;
-}
-
-.controls {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-fieldset {
-  margin: 0;
-  padding: 12px;
-  border: 1px solid #3b3932;
-  border-radius: 10px;
-}
-
-legend {
-  padding: 0 6px;
-  color: #ded5b8;
-  font-size: 0.82rem;
-}
-
-.hint {
-  margin: 0 0 12px;
-  color: #77746b;
-  font-size: 0.76rem;
-  line-height: 1.4;
+h2 {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
 }
 
 label {
@@ -147,12 +45,6 @@ input {
   background: #171719;
   border: 1px solid #3b3932;
   border-radius: 8px;
-}
-
-textarea {
-  min-height: 118px;
-  line-height: 1.45;
-  resize: vertical;
 }
 
 button {
@@ -183,7 +75,7 @@ button:disabled {
   gap: 8px;
 }
 
-.secondary button {
+.button-row.secondary button {
   color: #ded5b8;
   background: transparent;
   border-color: #4e4a3e;
@@ -196,97 +88,11 @@ button:disabled {
   gap: 10px;
 }
 
-.selected-image {
-  margin: 10px 0 0;
-  color: #918d82;
-  font-size: 0.76rem;
-  overflow-wrap: anywhere;
-}
-
-.nano-demo {
-  margin-top: 18px;
-  border: 1px solid #3b3932;
-  border-radius: 10px;
-  background: #141416;
-}
-
-.nano-demo summary {
-  padding: 12px;
-  color: #ded5b8;
-  font-size: 0.82rem;
-  cursor: pointer;
-}
-
-.nano-demo[open] summary {
-  border-bottom: 1px solid #3b3932;
-}
-
-.nano-demo-content {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 12px;
-}
-
-.preset-prompt {
-  padding: 10px;
-  color: #aaa69a;
+.hint {
+  margin: 0 0 4px;
+  color: #77746b;
   font-size: 0.76rem;
   line-height: 1.45;
-  background: #0b0b0c;
-  border-radius: 8px;
-}
-
-.preset-prompt strong {
-  color: #ded5b8;
-}
-
-.preset-prompt p {
-  margin: 5px 0 0;
-}
-
-.nano-preview-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.nano-preview {
-  min-width: 0;
-  margin: 0;
-}
-
-.nano-image-frame {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: #000;
-  border-radius: 8px;
-}
-
-.nano-image-frame img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.nano-output-placeholder {
-  display: grid;
-  width: 100%;
-  height: 100%;
-  padding: 16px;
-  color: #77746b;
-  font-size: 0.76rem;
-  text-align: center;
-  place-items: center;
-}
-
-.nano-preview figcaption {
-  margin-top: 5px;
-  color: #77746b;
-  font-size: 0.7rem;
 }
 
 .error {
@@ -298,40 +104,243 @@ button:disabled {
   border-radius: 8px;
 }
 
-aside {
-  padding: 10px;
-  color: #77746b;
-  font-size: 0.76rem;
-  line-height: 1.5;
-  background: #0b0b0c;
-  border-radius: 8px;
+/* ---- shell ------------------------------------------------------------- */
+
+.walk-home {
+  width: min(1440px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0 40px;
 }
 
-aside strong,
-aside code {
-  display: block;
+.shell-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.65fr);
+  gap: 16px;
+  align-items: start;
 }
 
-aside code {
-  margin-top: 4px;
+.shell-left,
+.shell-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.panel {
+  padding: 14px;
+  border: 1px solid #2b2a25;
+  border-radius: 12px;
+  background: #111113;
+}
+
+.setup-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.setup-progress {
+  margin: 0;
+  color: #e5c978;
+  font-size: 0.9rem;
+}
+
+.stub-note {
+  margin: 8px 0 0;
+  color: #6d6a62;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.stub-data {
+  margin: 4px 0 0;
   color: #aaa69a;
+  font-size: 0.8rem;
   overflow-wrap: anywhere;
 }
 
-@media (max-width: 800px) {
-  main {
-    padding: 28px 0;
-  }
+.share-url {
+  color: #8fa9c9;
+}
 
-  .session-grid {
-    grid-template-columns: 1fr;
-  }
+.walk-status {
+  margin: 0;
+  color: #6d6a62;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
 
-  .two-column {
-    grid-template-columns: 1fr;
-  }
+.evidence-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 24px;
+}
 
-  .nano-preview-grid {
+.evidence-facts p {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 3px 0;
+  font-size: 0.82rem;
+}
+
+.fact-label {
+  color: #77746b;
+}
+
+.fact-value {
+  color: #f6f4ed;
+  text-align: right;
+}
+
+/* ---- viewport ---------------------------------------------------------- */
+
+.viewport {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid #2b2a25;
+  border-radius: 12px;
+}
+
+.viewport video,
+.viewport-hold {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The hold canvas sits over the video and carries the frozen last frame of the
+   previous block. Shown and hidden imperatively by VideoGate — a hard cut, no
+   transition of any kind. */
+.viewport-hold {
+  display: none;
+}
+
+.viewport-overlays {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.viewport-direction {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 11px 7px 8px;
+  color: #f6f4ed;
+  font-size: 0.78rem;
+  background: #0a0a0bcc;
+  border-radius: 999px;
+}
+
+.viewport-direction svg {
+  width: 20px;
+  height: 20px;
+  color: #e5c978;
+}
+
+.viewport-condition {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0;
+  padding: 7px 12px;
+  color: #ded5b8;
+  font-size: 0.78rem;
+  background: #0a0a0bcc;
+  border-radius: 8px;
+}
+
+.viewport-modeled {
+  color: #6d6a62;
+  font-size: 0.66rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.viewport-holding {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 6px 10px;
+  color: #aaa69a;
+  font:
+    11px ui-monospace,
+    monospace;
+  background: #0a0a0bcc;
+  border-radius: 999px;
+}
+
+.viewport-mute {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  padding: 6px 12px;
+  color: #ded5b8;
+  font-size: 0.75rem;
+  background: #0a0a0bcc;
+  border-color: #4e4a3e;
+}
+
+.viewport-cover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+  background: #0a0a0b;
+}
+
+.viewport-cover-title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.viewport-cover-detail {
+  max-width: 46ch;
+  margin: 0;
+  color: #77746b;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.viewport-cover-unavailable {
+  background: repeating-linear-gradient(
+    135deg,
+    #141416,
+    #141416 12px,
+    #111113 12px,
+    #111113 24px
+  );
+}
+
+.viewport-cover-unavailable .viewport-cover-title {
+  color: #e5c978;
+}
+
+.viewport-cover-error .viewport-cover-title {
+  color: #ffb2b2;
+}
+
+@media (max-width: 900px) {
+  .shell-grid {
     grid-template-columns: 1fr;
   }
 }

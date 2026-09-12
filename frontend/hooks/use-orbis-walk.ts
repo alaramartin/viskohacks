@@ -53,15 +53,19 @@ import { VideoGate } from "@/lib/orbis/video-gate";
 import { WalkTrace } from "@/lib/orbis/walk-trace";
 
 /**
- * Dev experiment, `?reseed=image`: at every shot that starts on a new block,
- * send that block's real (graded) frame with `set_image` while the generation
- * keeps running — no `reset`. Tests whether a continuous walk can be kept on
- * the real streets by feeding it imagery as it goes (Q7 said it is ignored;
- * re-checked here inside the real walk).
+ * Keep feeding the live generation real imagery: every time the walk reaches a
+ * new block, that block's frame (graded for the current conditions) goes in with
+ * `set_image` while the generation keeps running — no `reset`, no cut, and the
+ * photo itself is never shown. Human decision after the corner-transition
+ * experiment read as a slideshow. `?reseed=off` disables it for comparison.
+ *
+ * Measured caveat (docs/reactor-findings.md, "Walk trace"): in the traced run
+ * Orbis answered `image_accepted` to each mid-run image but the frames did not
+ * visibly change toward it.
  */
 function reseedMode(): string | null {
-  if (typeof window === "undefined" || process.env.NODE_ENV === "production") return null;
-  return new URLSearchParams(window.location.search).get("reseed");
+  if (typeof window === "undefined") return "image";
+  return new URLSearchParams(window.location.search).get("reseed") === "off" ? null : "image";
 }
 
 type ReactorIntrospection = { getSchema?: () => unknown; getCapabilities?: () => unknown };
@@ -420,6 +424,17 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
           );
           if (index !== shownIndex) {
             shownIndex = index;
+            // A new block mid-shot: feed its real frame to the running generation.
+            const reachedBlock = route.waypoints[index].block_id;
+            if (reseed && !seeded.has(reachedBlock) && prepared.has(reachedBlock)) {
+              seeded.add(reachedBlock);
+              void prepared.get(reachedBlock)!.then(async (file) => {
+                if (!file || run.cancelled) return;
+                trace.log("reseed", { mode: reseed, block_id: reachedBlock });
+                const uploaded = await context.uploadFile(file, { name: `seed-${reachedBlock}.jpg` });
+                await context.sendCommand("set_image", { image: uploaded });
+              }).catch(() => {});
+            }
             trace.log("waypoint", {
               index,
               lat: route.waypoints[index].lat,

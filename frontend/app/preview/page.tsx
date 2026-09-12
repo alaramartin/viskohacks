@@ -5,7 +5,7 @@
  *
  * The Walk and Brief screens only appear after a walk's first frame, and Orbis
  * was rate-limited hackathon-wide, so this page renders EvidenceReadout,
- * Minimap, ConditionControls and RouteBrief against a real `/api/routes`
+ * ConditionControls and RouteBrief against a real `/api/routes`
  * response. Step through waypoints, and change conditions the same way the shell
  * does mid-walk: debounce → `store.refreshConditions` → swap in the route if the
  * geometry matches (what `walk.applyConditions` checks). `window.__preview`
@@ -16,7 +16,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ConditionControls, type ConditionSettings } from "@/components/ConditionControls";
 import { EvidenceReadout } from "@/components/EvidenceReadout";
-import { Minimap } from "@/components/Minimap";
 import { RouteBrief } from "@/components/RouteBrief";
 import type { Route, Waypoint } from "@/lib/contract";
 import { buildShareUrl } from "@/lib/share";
@@ -136,7 +135,6 @@ export default function PreviewPage() {
           <EvidenceReadout waypoint={waypoint} previousWaypoint={previous.current} />
         </div>
         <div className="shell-right">
-          <Minimap route={route} waypointIndex={index} />
           <ConditionControls settings={store.conditions} onChange={onConditionsChange} live />
         </div>
       </div>

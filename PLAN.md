@@ -459,6 +459,37 @@ Person 2's shell exposes empty component slots in `frontend/components/`. Fill
 them. Do not touch `Viewport.tsx`, anything under `frontend/lib/orbis/`, or
 `frontend/hooks/use-orbis-*`. These are client components (`"use client"`).
 
+**CORE — real-time condition changes during a walk.** Added after Checkpoint
+2 review. This is what the submission is graded on: Orbis's real-time
+interaction. While a walk is playing, the viewer changes a condition in the
+sidebar (e.g. time 7pm → 11pm) and the *running* video changes to match,
+without restarting the walk. Darkness, lamps, fog, foot traffic and audio all
+change. It sits on top of a smooth start-to-destination walk (Checkpoint 2
+fixes), not instead of it. Person 2 owns applying it to the live session (see
+Person 2 Phase 3); Person 1 owns the data and the controls:
+
+- [ ] **Conditions at a new time without new geometry.** Re-requesting
+      `/api/routes` with only `datetime` (or fog/crowd) changed must return
+      identical routes: same `block_id`s, waypoint indices, `image_url`s.
+      Only `condition` changes. Warm response well under 1s. Add a test that
+      locks geometry across two datetimes.
+- [ ] **Numeric ambient light in the contract.** Today darkness is a
+      yes/no plus prose. The grade needs a dial to move smoothly from 7pm
+      (dusk) to 11pm (night), so add e.g. `condition.ambient = { phase:
+      "day"|"dusk"|"night", sun_altitude_deg, darkness: 0..1 }` from
+      `astral`. Agree the shape with Person 2 first.
+- [ ] **Fog and crowd overrides.** `fog` and `crowd` query parameters on
+      `/api/routes` that override the modeled weather and foot-traffic
+      wording in `video_prompt` / `audio_prompt` / `facts`. Overridden
+      facts must say so (e.g. "Fog (set by you)"), so they aren't mistaken
+      for data.
+- [ ] **`ConditionControls.tsx` drives the live walk** (replaces the
+      refetch-only behaviour below). Time slider/picker plus fog and crowd
+      toggles, usable **while a walk is running**. Debounce, fetch
+      conditions for the new setting, and hand them to the walk controller
+      without stopping it. Changes apply to both routes (shared condition
+      clock).
+
 - [ ] **`EvidenceReadout.tsx`** — horizontal strip beneath the viewport.
       Renders `condition.facts` for the current waypoint verbatim, in two
       columns, with "Modeled estimate" as a persistent label. Updates on every
@@ -827,7 +858,29 @@ Print this to your human and stop:
 >
 > Waiting for your confirmation that this passed.
 
-## Phase 3 — Compare view
+## Phase 3 — Real-time conditions (CORE) and compare view
+
+**CORE — real-time condition changes during a walk.** Added after Checkpoint
+2 review; this is what the submission is graded on. While a walk plays, a
+change from `ConditionControls` (time, fog, crowd) must visibly change the
+*running* video within a couple of seconds, without restarting the walk or
+cutting to "preparing". Layer it on the smooth continuous walk from the
+Checkpoint 2 fixes.
+
+- [ ] **Spike: what actually changes a live render?** Q1 found the seed's
+      lighting beats the prompt. So measure: (a) does a mid-run `set_prompt`
+      alone visibly change darkness/fog/crowd within ~2 chunks, and (b) does
+      a mid-run `set_image` with a re-graded seed (no `reset`) change it
+      faster or more strongly? Record numbers in `docs/reactor-findings.md`.
+- [ ] **Apply condition changes to the live session.** Accept new conditions
+      from the walk controller mid-block. `set_prompt` / `set_audio_prompt`
+      morph right away. Re-grade the current and upcoming seeds from
+      `condition.ambient` + `condition.lighting`, and re-condition the
+      current block through whichever path the spike proved. No reset, no
+      hold card for a condition change.
+- [ ] **Grade driven by ambient light, with a floor.** `nightgrade.ts`
+      takes `darkness` 0..1, so dusk → night is a continuous change, never
+      black. Keep a minimum light floor for the darkest block.
 
 - [ ] **Compare mode.** Two viewports side by side, route A and route B, under
       one shared condition clock — a condition change applies to both at once
@@ -993,6 +1046,49 @@ Update this as you go so the human can `/clear` and resume.
   - **Resolved:** the human assigned `condition.lighting` to Person 1, and it
     shipped in Person 1's Phase 2 with `lamp_lateral_m` added. See Person 1
     Phase 2.
-- [ ] Checkpoint 2 — end-to-end integration
+- [ ] Checkpoint 2 — end-to-end integration — **attempted 2026-09-12, NOT
+      passed.** Both branches are merged to `main` and the pipeline runs
+      end to end in Chrome:
+  - **Working:** real routes and facts reach the UI; autoplay walks every
+    block to "End of route"; one continuous generation per block; hold then
+    hard cut; `condition.lighting` reaches the grade ("lighting from
+    structured"); a block with no imagery shows "Segment unavailable".
+  - **Failed (human review), must fix before Checkpoint 2 passes:**
+    - [ ] **The walk doesn't walk.** It lingers near the start of each block,
+      shows "next block preparing", then cuts ahead to linger near the start
+      of the next one. Wanted: drift down the block as if walking the
+      sidewalk, with the next block loaded behind the scenes and no obvious
+      cut. Cause: by design, each block is `reset` → seed from the block's
+      first frame → 8–15s dwell → ~7s frozen hold → repeat. With one session
+      nothing can preload in parallel.
+      Fix direction:
+      - **(Person 2, spike first)** Does `set_image` sent *mid-generation*
+        (no `reset`) re-condition at a chunk boundary, like `set_prompt`
+        does? If yes, re-seed every ~25–50m with no hold and no cut. If no,
+        keep the reset but start each block's seed where the previous video
+        visually ended, and shorten the hold.
+      - **(Person 1)** Serve a seed frame per waypoint, at its own position
+        and heading, not one per block. Add forward-walking wording to
+        `video_prompt`. Contract change: agree before building.
+    - [ ] **Lighting looks wrong.** Sometimes too dark to see anything, and
+      often "a block with a dark blue filter on the top half". Cause,
+      reproduced offline on real seeds: `nightgrade.ts`'s sky mask
+      (`(blue>0.03 || sat<0.2) && luma>0.42 && row<0.62`) flags 24–52% of
+      every frame. That includes pale asphalt, glass and white facades, all
+      replaced with flat navy and a hard edge at 62% height. Graded targets of
+      0.045–0.068 also render at ~0.03 in Orbis on some blocks.
+      Fix direction:
+      - Sky must be connected to the top edge, no hard row cut-off, and a
+        gradient rather than flat navy.
+      - Minimum light floor for even the darkest block (the human's
+        suggestion): raise the target luma floor and re-test where Orbis
+        starts rendering daytime.
+      - Owner: Person 2 (`lib/orbis/nightgrade.ts`, `lighting.ts`) unless
+        the human reassigns.
+    - [ ] **Person 1 backend nits:** the Mapillary capture-car rig is visible
+      at the bottom of some seeds (tilt the pano crop up or prefer rig-free
+      images); "Road: No road alongside" shows beside obvious roads (street
+      search radius too small).
+  - Not yet checked: audio by ear.
 - [ ] Checkpoint 3 — full demo runthrough
 - [ ] Final submission — branch pushed to Visko-Platform/orbis-hackathon-starter

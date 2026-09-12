@@ -389,3 +389,51 @@ Frames and a JSON report land in `docs/spike/runs/<name>/`. The spike routes
 under `frontend/app/api/spike/` and `frontend/app/spike/` are **dev-only**
 (they refuse to run when `NODE_ENV=production`) and should be deleted before
 anything ships.
+
+## Checkpoint 2 follow-up (Person 1, 2026-09-12)
+
+Human review of the first end-to-end run found two problems: the walk lingers
+at each block's start then cuts ahead, and the lighting is too dark or has "a
+dark blue filter on the top half". Both were investigated on real Mapillary
+seeds from the backend.
+
+### Q7: can a live generation be re-seeded without `reset`?
+
+**No.** Three variants, each on three consecutive night-graded Tenderloin
+blocks (`docs/spike/seeds/midrun-{0,1,2}.jpg`), `-dynamic`, noise seed 42,
+frames captured 1–12s after each re-seed (`/spike?...&seeds=...&midrun=<mode>`):
+
+| Variant | Orbis reply | Did the video become the new block? |
+|---|---|---|
+| `set_image` mid-generation (`midrun=image`) | `image_accepted` in ~1.2s, `has_image` true | **No.** The video keeps evolving the first block. |
+| `set_image` + changed `set_prompt` (`midrun=prompt`) | both accepted | **No.** |
+| `pause` → `set_image` → `resume` (`midrun=pause`) | `generation_paused` / `image_accepted` / `generation_resumed` | **No**, although pause/resume itself is seamless (no gap). |
+
+Evidence: `docs/spike/evidence/10-…`, `11-…`, `12-…` (frames brightened ×3).
+The image only takes effect on the next `start`, i.e. after `reset`, so
+**every change of real geometry costs the ~7s reset→first-frame gap**. Nothing
+can be loaded "behind the scenes" in the one session. What *does* change live
+is `set_prompt` (morphs at the next ~1.8s chunk, Q5). That is the only lever
+for real-time condition changes inside a block.
+
+Side observation: with the spike's default prompt ("amber sodium streetlights,
+wet asphalt…"), the video drifts strongly toward the prompt's look within
+~10s. The seed's lighting sets the start, but the prompt steers where it
+goes. That is good news for real-time time-of-day changes via prompt.
+
+### Night grade: the "blue filter" was the sky mask
+
+`nightgrade.ts` flagged any bright desaturated pixel in the top 62% of the
+frame as sky. On six real seeds that was **24–52% of the frame**: pale asphalt,
+glass, white facades. All of it was replaced with flat navy, ending in a hard
+horizontal edge (`evidence/13-…`). Fixed in `d0b1ddb`:
+
+- sky = smooth, sky-coloured pixels **connected to the top edge**;
+- a navy→haze gradient instead of a flat colour;
+- a small ambient lift so nothing grades to pure black;
+- a light floor: `MIN_TARGET_LUMA` 0.085, lit blocks up to 0.11, where the old
+  targets were 0.045–0.068 and Orbis rendered some blocks at ~0.03.
+
+New mask covers 1–31% (sky only), `evidence/14-…`. **Not yet re-checked in a
+live walk.** Watch whether ~0.09 seeds still render as night rather than
+drifting to day.

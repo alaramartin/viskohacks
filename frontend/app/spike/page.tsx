@@ -108,6 +108,15 @@ export default function SpikePage() {
         .filter((value) => Number.isFinite(value) && value >= 0)
         .sort((a, b) => a - b);
       const holdMs = Number(query.get("hold") || "0");
+      // Checkpoint 2 follow-up: with `seeds=a,b,c&midrun=1`, blocks after the
+      // first are re-seeded with `set_image` while the generation keeps
+      // running — no `reset`, no `start`. Does Orbis pick the new frame up at a
+      // chunk boundary (continuous walk, no hold), or ignore it?
+      // `midrun=image` (or 1): set_image only. `midrun=prompt`: set_image then a
+      // changed set_prompt, in case the image is only read when conditions
+      // change. `midrun=pause`: pause → set_image → resume.
+      const midrunMode = query.get("midrun");
+      const midrun = midrunMode !== null;
 
       const report: SpikeReport = {
         run: runId,
@@ -421,7 +430,13 @@ export default function SpikePage() {
           // that decides whether autoplay is possible on a single session.
           for (let index = 0; index < relaySeeds.length; index += 1) {
             const label = `block${index}`;
-            if (index > 0) {
+            if (index > 0 && midrun) {
+              await capture(`${label}-before`);
+              if (midrunMode === "pause") {
+                await reactor.sendCommand("pause", {});
+                mark(`${label}_pause_sent`);
+              }
+            } else if (index > 0) {
               const wasReset = waitFor("generation_reset");
               await reactor.sendCommand("reset", {});
               mark(`${label}_reset_sent`);
@@ -429,7 +444,18 @@ export default function SpikePage() {
               mark(`${label}_reset_done`);
             }
             await applySeed(relaySeeds[index], label);
-            await startBlock(label, prompt);
+            if (index > 0 && midrun) {
+              mark(`${label}_midrun_seeded`);
+              if (midrunMode === "prompt") {
+                await reactor.sendCommand("set_prompt", { prompt: `${prompt}, block ${index}` });
+                mark(`${label}_prompt_nudged`);
+              } else if (midrunMode === "pause") {
+                await reactor.sendCommand("resume", {});
+                mark(`${label}_resume_sent`);
+              }
+            } else {
+              await startBlock(label, prompt);
+            }
 
             const blockStartedAt = performance.now();
             for (const second of captureAt) {
@@ -454,6 +480,23 @@ export default function SpikePage() {
               await new Promise((resolve) => setTimeout(resolve, waitMs));
             }
             await capture(`t${String(second).padStart(3, "0")}s`);
+          }
+
+          // Continuous-walk test (human decision after Checkpoint 2: no cuts).
+          // `prompts=a|b|c&every=7` morphs through a scripted walk — "turning
+          // right at the corner", "crossing the street" — in ONE generation,
+          // capturing a frame just before each next morph. Answers: does a
+          // generation keep going for minutes, and does it follow motion cues?
+          const script = (query.get("prompts") || "")
+            .split("|")
+            .map((value) => value.trim())
+            .filter(Boolean);
+          const everyMs = Number(query.get("every") || "7") * 1000;
+          for (let index = 0; index < script.length; index += 1) {
+            await reactor.sendCommand("set_prompt", { prompt: script[index] });
+            mark(`prompt${index}_sent`);
+            await new Promise((resolve) => setTimeout(resolve, everyMs));
+            await capture(`p${String(index).padStart(2, "0")}`);
           }
         }
 

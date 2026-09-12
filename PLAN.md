@@ -620,7 +620,7 @@ Print this to your human and stop:
 Only start after Checkpoint 1. Build entirely against the fixture; do not
 depend on Person 1's real pipeline.
 
-- [ ] **App shell.** Next.js (App Router) + TS in `frontend/`, built on
+- [x] **App shell.** Next.js (App Router) + TS in `frontend/`, built on
       the starter (replace `app/page.tsx` / `components/orbis-demo.tsx`
       rather than adding a parallel app). Three screens:
       **Setup** (origin, destination, date, time — nothing else),
@@ -629,17 +629,31 @@ depend on Person 1's real pipeline.
       and `ConditionControls` stacked in the right column; compare and share
       buttons below those. **No top bar** — the right column is the only place
       the world changes, the left column the only place you see it.
-- [ ] **Create empty stub components** for Person 1 to fill:
+  - done. `app/page.tsx` -> `components/walk-home.tsx`. Setup and Walk share one
+    layout and **the viewport stays mounted across both** — that is what lets the
+    session warm while setup is still on screen. Brief is a separate screen.
+    Starter demo deleted (`orbis-demo`, `orbis-controls`, `orbis-player`,
+    `use-orbis-session`) along with the whole Nano Banana example and `dog.png`,
+    per the plan's own note not to build on it. App state is `zustand`
+    (`lib/store.ts`); contract types are `lib/contract.ts`.
+- [x] **Create empty stub components** for Person 1 to fill:
       `EvidenceReadout.tsx`, `Minimap.tsx`, `ConditionControls.tsx`,
       `RouteBrief.tsx`. Each takes typed props from the shared contract and
       renders a placeholder. Commit these early so Person 1 isn't blocked at
       Phase 3.
+  - done. `EvidenceReadout.tsx`, `Minimap.tsx`, `ConditionControls.tsx`,
+    `RouteBrief.tsx` in `frontend/components/`, PascalCase as named here, each
+    with typed props and a visible placeholder. Helpers left for them:
+    `factsDiffer` (change emphasis), `projectPoints` (SVG minimap),
+    `buildShareUrl` (the share link the shell reads back on load).
+    `ConditionSettings` is exported from `ConditionControls.tsx` — Person 1 owns
+    that file, so the shape is theirs to change.
 - [x] **Token endpoint.** Already exists at `frontend/app/api/token/route.ts`
       from the starter. Adjust `max_sessions` per the Q3 finding. Never ship
       the Reactor API key to the browser.
   - done in Phase 1. Takes optional `{model, maxSessions}`; defaults to
     `max_sessions: 1` per Q3. Key stays server-side.
-- [ ] **Session manager** in `frontend/lib/orbis/` (hooks may live in
+- [x] **Session manager** in `frontend/lib/orbis/` (hooks may live in
       `frontend/hooks/`). Generalize the starter's `use-orbis-session.ts`.
       Group the waypoint list by `block_id`. **ONE LONG-LIVED SESSION PER
       ROUTE** — revised from "one session per block" after Q3/Q6: only one
@@ -652,20 +666,36 @@ depend on Person 1's real pipeline.
       on `generation_reset` before re-seeding. **Mint the JWT once and pass
       the string** — a resolver that re-mints per request 403s. Always
       `disconnect()` in a `finally`: a leaked session blocks the only slot.
-- [ ] **Pin the seed** to one value for the whole route via `set_seed`, so
+  - done, as specified. `lib/orbis/session.ts` (command sequences), `signals.ts`
+    (awaitable messages), `blocks.ts` (grouping + dwell), driven by
+    `hooks/use-orbis-walk.ts`. JWT minted once via the cached promise; always
+    `disconnect()` in `finally`, plus on unmount. **One correction to the
+    starter's sequence:** `sendCommand` resolves to `undefined` for `set_seed`,
+    `set_resolution`, `start` and `reset` — only `set_image` answers
+    (`image_accepted`), so treating a missing reply as failure breaks the run at
+    the first command.
+- [x] **Pin the seed** to one value for the whole route via `set_seed`, so
       weather and lighting realization don't diverge wildly between blocks.
       Confirmed safe: `set_seed` and `set_resolution` survive `reset`, so set
       them once at connect and they hold for every block.
-- [ ] **Hold-until-ready.** Never display an unready segment. Hold the
+  - done. The seed is derived from the route id so a rerun of the demo looks the
+    same; set once at connect alongside `set_resolution`, survives every reset.
+- [x] **Hold-until-ready.** Never display an unready segment. Hold the
       current live render and switch when the next block is ready. **Never cut
       to a raw Street View photo** — a daytime JPEG before a night render
       contradicts the premise. **No crossfade** — hard cut when the next block
       arrives. Measured gaps to cover: **~12–16s at route start**, **~7–8s at
       each block boundary** (~2.3s of commands + ~5–6s to first frame).
-- [ ] **Keep block dwell to ~8–15s.** Conditioning drifts off the real
+  - done. The last live frame is frozen onto a canvas over the video before the
+    reset, and the cut happens when real frames resume — detected from the
+    pixels, because `generation_started` fires ~6s early. Measured in the app:
+    **15.7s cold, 8.3s at a block boundary**. No crossfade, no photo, ever.
+- [x] **Keep block dwell to ~8–15s.** Conditioning drifts off the real
       geometry by ~25s (Q1), after which we are showing an invented street.
       Advance to the next block before that, even if waypoints remain.
-- [ ] **Day → night conversion of every seed frame. OWNED BY PERSON 2.** NEW,
+  - done. `blockDwellMs` clamps to 8–15s (4s per waypoint), timed from the cut
+    rather than from `start`.
+- [x] **Day → night conversion of every seed frame. OWNED BY PERSON 2.** NEW,
       after the spike (Q1) — the single step the premise depends on. Orbis
       takes its lighting from the seed and ignores a night prompt, so a
       daytime frame produces sustained daytime video of the right block, which
@@ -676,7 +706,12 @@ depend on Person 1's real pipeline.
       it already taught us: target a graded mean luma of **~0.06** (at ~0.04
       Orbis loses the block entirely), and the sky mask must catch **overcast**
       skies (bright + desaturated), not only blue ones.
-- [ ] **Drive the grade from Person 1's lighting data, not a fixed look.**
+  - done. `lib/orbis/nightgrade.ts` ports the Python to canvas, cover-cropping to
+    Orbis's 640x368 seed frame first. **Improvement on the spike:** exposure is
+    now *solved for* the target mean luma instead of being a constant, so a
+    bright frame and a dim one both land at ~0.06 — that is exactly the failure
+    that lost block B. Measured across the fixture: 0.051-0.064.
+- [x] **Drive the grade from Person 1's lighting data, not a fixed look.**
       Once `condition.lighting` lands (see Person 1 Phase 2), place the glow
       from `lamp_offsets_m` / `side` and darken unlit stretches rather than
       washing every block in the same amber. A block tagged `lit: "no"` with
@@ -684,16 +719,40 @@ depend on Person 1's real pipeline.
       otherwise the render says nothing the facts strip doesn't already say.
       Until that field exists, key off the prose in `facts` and say plainly in
       `docs/reactor-findings.md` that the look is generic.
-- [ ] **Unavailable segments.** When `image_available` is false, render an
+  - done as far as the data allows, and **the look is generic** — said plainly in
+    `docs/reactor-findings.md`. `lib/orbis/lighting.ts` reads
+    `condition.lighting` when it exists and otherwise parses the streetlight and
+    outage facts, using them for exposure and glow strength only: nothing tagged
+    -> ~0.045 mean luma with the glow at 35%, six working lamps -> ~0.068 at full
+    strength. No lamp is *placed* anywhere, because we do not know where any lamp
+    is. The placement code (`paintLampPools`, a pinhole projection from
+    `lamp_offsets_m` + `side`) is written and switched off until Person 1 ships
+    the field.
+- [x] **Unavailable segments.** When `image_available` is false, render an
       explicit unavailable state. Do not generate a street from text alone to
       fill the gap.
-- [ ] **Absorb first-load cost into the Setup screen.** Warm the first block's
+  - done and verified on fixture route B (block `w8918502`): an explicit
+    "Segment unavailable" card, generation reset behind it, nothing invented. The
+    card stays up through the *next* block's seeding too — putting the last frame
+    from before the gap back on screen would read as having walked it.
+- [x] **Absorb first-load cost into the Setup screen.** Warm the first block's
       session while the user is still on setup, so the walk starts
       immediately. One deliberate wait where a wait is expected.
-- [ ] **Autoplay flythrough.** Walk the route end to end automatically,
+  - done, then tightened after Checkpoint 2 review: the session now starts
+    connecting on the walker's **first touch of the form**, not on submit, and
+    the first seed frame is fetched and graded while it connects. Neither needs
+    anything from the form. **Cold start 15.7s -> 9.0s**; the remaining ~5.8s is
+    Orbis priming and is not ours to remove (`native` resolution was measured and
+    does not help — see `docs/reactor-findings.md`). The setup panel is a
+    progress readout while it works, and the screen flips to Walk on the first
+    frame.
+- [x] **Autoplay flythrough.** Walk the route end to end automatically,
       advancing block by block. **This is the primary deliverable.** It must
       work standalone with no interaction.
-- [ ] **Audio on by default, mute toggle only.** Pass `audio_prompt` through.
+  - done. Verified end to end on both fixture routes, 4 blocks each, no
+    interaction. `?route=B` on the root URL walks route B — that is the share
+    link format, and it is how to reach route B for testing.
+- [x] **Audio on by default, mute toggle only.** Pass `audio_prompt` through.
       No other audio UI.
   - **Carried over from Checkpoint 1, still unverified.** The spike confirmed
     the `main_audio` track is negotiated and delivered on every run and that
@@ -701,9 +760,16 @@ depend on Person 1's real pipeline.
     to the output yet. **Verify by ear at Checkpoint 2**: does the audio match
     the block (traffic, wind, footsteps) or is it generic noise? If it is
     generic, try `""` for picture-driven audio instead of our caption.
-- [ ] **Viewport overlays.** Route direction arrow at the correct screen
+  - wired: `set_audio_prompt` is sent per block from the waypoint's
+    `audio_prompt`, audio defaults to on, and the only control is a mute toggle
+    on the viewport. **Still unheard** — the verification runs were headless and
+    headless Chrome fell back to muted playback. Listen at Checkpoint 2.
+- [x] **Viewport overlays.** Route direction arrow at the correct screen
       bearing with distance to next turn. One persistent condition line in a
       corner (the full readout is Person 1's strip below).
+  - done. Direction arrow rotated to the relative bearing of the next turn with
+    the distance to it, and one condition line built from the first two facts,
+    labelled "Modeled estimate".
 
 ### 🛑 CHECKPOINT 2 — end-to-end integration
 

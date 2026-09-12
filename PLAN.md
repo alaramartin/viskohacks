@@ -1088,8 +1088,23 @@ Update this as you go so the human can `/clear` and resume.
         - Motion cues come from route geometry (turns, crossings, street
           names), so **Person 1** adds them to each waypoint's `video_prompt`.
           The walk controller morphs to the next waypoint's prompt on a timer.
-        - **Open (spike next):** does one generation keep running for 2+
-          minutes, and does it actually follow turn/crossing cues?
+        - **Spike (`docs/spike/runs/continuous-walk-script`):** one generation
+          ran **2+ minutes** (65 chunks, no stop, no errors) through 14
+          scripted morphs. It **does follow motion cues**: frames round a curb
+          on "turn right" and step down a curb on "cross". Two problems:
+          - the camera sinks toward ground level after ~20s;
+          - colour drifts to a green cast, with a blurry breakdown around 90s.
+
+          A re-run with anchor wording (head-height camera, natural colour,
+          warm amber light) **failed to start: 429, the single session slot was
+          still held** by the previous run. Not re-run yet.
+        - **Built** (`547924b`, `use-orbis-walk.ts` rewrite): the backend puts
+          a motion cue in every `video_prompt` ("crossing the street at the
+          crosswalk, then turning left onto Leavenworth Street"), plus a
+          "Street imagery" fact. The walk seeds once, then morphs every 6s
+          (`WAYPOINT_DWELL_MS`). `applyConditions(route)` swaps in recomputed
+          conditions and morphs immediately, ready for Phase 3's live
+          controls. Typecheck clean; **not yet watched in the browser**.
     - [ ] **Lighting looks wrong.** Sometimes too dark to see anything, and
       often "a block with a dark blue filter on the top half". Cause,
       reproduced offline on real seeds: `nightgrade.ts`'s sky mask

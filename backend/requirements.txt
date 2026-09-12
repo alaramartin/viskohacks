@@ -1,0 +1,9 @@
+fastapi==0.115.*
+uvicorn[standard]==0.32.*
+pillow==11.*
+python-dotenv==1.*
+
+# tests
+pytest==8.*
+httpx==0.28.*
+jsonschema==4.*

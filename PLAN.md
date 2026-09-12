@@ -189,7 +189,7 @@ brief). You do not touch Orbis or the viewport.
 
 Person 2 is blocked on your fixture. Do this fast and commit it early.
 
-- [ ] Restructure the repo. `main` already exists on GitHub with the starter
+- [x] Restructure the repo. `main` already exists on GitHub with the starter
       at the root. `git mv` the starter (`app/`, `components/`, `hooks/`,
       `lib/`, `dog.png`, `next.config.ts`, `next-env.d.ts`, `package.json`,
       `package-lock.json`, `tsconfig.json`, `.env.example`, `README.md`) into
@@ -198,18 +198,37 @@ Person 2 is blocked on your fixture. Do this fast and commit it early.
       `backend/data/imagery/`). Confirm `cd frontend && npm install && npm run dev`
       still works. Push to `main` right away (Person 2 builds inside
       `frontend/`), then branch `person1`.
-- [ ] Write `shared/waypoint.schema.json` exactly as specified in SHARED
+  - done. `npm run typecheck` clean, `next dev` serves 200 from `frontend/`.
+    Next 16 auto-generated `frontend/AGENTS.md`/`CLAUDE.md` (Next 16 API notes) —
+    committed, worth reading. Root `.env.example` has `MAPILLARY_ACCESS_TOKEN`,
+    `GOOGLE_MAPS_API_KEY`, `CORS_ORIGINS` (keys only needed in Phase 2).
+    Backend venv is Python 3.11 via `uv` (see `backend/README.md`).
+- [x] Write `shared/waypoint.schema.json` exactly as specified in SHARED
       CONTRACT above. Commit and push to `main` immediately — Person 2 needs
       it.
-- [ ] Write `shared/fixture-routes.json`: two hardcoded routes, ~12 waypoints
+  - done. JSON Schema 2020-12 of the full `/api/routes` response. Enforces
+    `image_url: null` iff `image_available: false`. No fields added.
+- [x] Write `shared/fixture-routes.json`: two hardcoded routes, ~12 waypoints
       each, spanning 4–5 distinct `block_id`s, at least one waypoint with
       `image_available: false`. Use real SF coordinates in the Tenderloin or
       SoMa. Realistic `video_prompt` / `audio_prompt` / `facts`. Commit and
       push to `main`.
-- [ ] Scaffold FastAPI in `backend/` with both endpoints from the API
+  - done, with caveats. Both routes go Eddy & Jones → Golden Gate & Hyde (Tenderloin),
+    12 waypoints, 4 blocks each. A: Eddy west, then Hyde south. B: Jones south,
+    then Golden Gate west. Block `w8918502` (B, idx 3–4) has no imagery.
+    PLACEHOLDER: coordinates are approximated on the rotated street grid (not
+    snapped to OSM), `block_id`s are made up, and facts are invented but plausible.
+    Waypoints on the unavailable block still carry a generic non-empty prompt.
+    Phase 2 swaps all of this for real data.
+- [x] Scaffold FastAPI in `backend/` with both endpoints from the API
       contract, returning the fixture verbatim. `uvicorn` on port 8000, CORS
       open to localhost. `GET /api/routes` should work end-to-end against
       hardcoded data before you touch OSM.
+  - done. `backend/main.py`. `/api/routes` validates `datetime` (422 if it isn't ISO)
+    but otherwise ignores query params. `/api/imagery` returns a labeled grey
+    PLACEHOLDER JPEG for covered blocks and 404 for others. CORS allows any
+    localhost/127.0.0.1 port plus `CORS_ORIGINS`. `pytest` checks the response
+    against the schema (4 tests pass).
 
 ### 🛑 CHECKPOINT 1 — contract handshake
 

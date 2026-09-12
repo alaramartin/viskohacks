@@ -19,6 +19,7 @@ from PIL import Image, ImageDraw
 REPO_ROOT = Path(__file__).resolve().parent.parent
 FIXTURE_PATH = REPO_ROOT / "shared" / "fixture-routes.json"
 
+load_dotenv(REPO_ROOT / ".env.local")
 load_dotenv(REPO_ROOT / ".env")
 
 app = FastAPI(title="WALK HOME backend")

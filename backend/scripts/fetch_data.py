@@ -1,6 +1,7 @@
 """Offline data prep. Nothing here runs at request time.
 
     python scripts/fetch_data.py graph      # OSM walk graph   -> data/sf_walk.graphml
+    python scripts/fetch_data.py streets    # OSM street graph -> data/sf_streets.graphml
     python scripts/fetch_data.py osm        # OSM POIs + lamps -> data/sf_pois.json, data/osm_lamps.json
     python scripts/fetch_data.py mapillary  # Mapillary lamps  -> data/mapillary_lamps.json
     python scripts/fetch_data.py 311        # DataSF 311 streetlight cases -> data/311_streetlights.json
@@ -36,6 +37,18 @@ def fetch_graph() -> None:
     graph = ox.graph_from_place(PLACE, network_type="walk")
     ox.save_graphml(graph, DATA / "sf_walk.graphml")
     print(f"graph: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
+
+
+def fetch_streets() -> None:
+    import osmnx as ox
+
+    # The walk graph omits streets whose sidewalks are mapped separately
+    # (sidewalk=separate) — most of downtown, e.g. Jones and Valencia. Road
+    # attributes, street names and centrelines come from this graph instead.
+    ox.settings.useful_tags_way = list(ox.settings.useful_tags_way) + EXTRA_WAY_TAGS
+    graph = ox.graph_from_place(PLACE, network_type="drive_service")
+    ox.save_graphml(graph, DATA / "sf_streets.graphml")
+    print(f"streets: {len(graph.nodes)} nodes, {len(graph.edges)} edges")
 
 
 def fetch_osm() -> None:
@@ -121,7 +134,7 @@ def fetch_311() -> None:
     print(f"311 streetlight cases since {since[:10]}: {len(rows)}")
 
 
-STEPS = {"graph": fetch_graph, "osm": fetch_osm, "mapillary": fetch_mapillary, "311": fetch_311}
+STEPS = {"graph": fetch_graph, "streets": fetch_streets, "osm": fetch_osm, "mapillary": fetch_mapillary, "311": fetch_311}
 
 if __name__ == "__main__":
     DATA.mkdir(exist_ok=True)

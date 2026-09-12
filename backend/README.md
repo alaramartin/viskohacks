@@ -24,6 +24,7 @@ download. To refresh them (none of this runs at request time):
 
 ```sh
 python scripts/fetch_data.py graph      # OSM walk graph, with lit/sidewalk tags (~1 min, ~80MB)
+python scripts/fetch_data.py streets    # OSM drivable streets — road facts, names and centrelines (see below)
 python scripts/fetch_data.py osm        # OSM POIs (opening_hours) + street_lamp nodes
 python scripts/fetch_data.py mapillary  # Mapillary street-light detections for SF (~5 min)
 python scripts/fetch_data.py 311        # DataSF 311 "Streetlights" cases, last 365 days

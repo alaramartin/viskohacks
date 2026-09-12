@@ -15,6 +15,7 @@ from zoneinfo import ZoneInfo
 
 import httpx
 import numpy as np
+import osmnx as ox
 from astral import LocationInfo
 from astral.sun import sun as astral_sun
 from sklearn.neighbors import KDTree
@@ -167,12 +168,28 @@ class ConditionModel:
         self._weather_lock = threading.Lock()
 
     def _build_street_index(self) -> None:
-        points, owners, self.street_edges, self.street_uv = [], [], [], []
-        for u, v, data in self.graph.G.edges(data=True):
-            if u > v or first(data.get("highway")) not in STREET_TYPES:
+        # Streets come from their own graph: the walk graph drops every street whose
+        # sidewalks are mapped separately (most of downtown — Jones, Valencia), which
+        # left those blocks with no road facts, names or centreline.
+        path = DATA / "sf_streets.graphml"
+        if not path.exists():
+            raise FileNotFoundError(f"{path} missing — run `python scripts/fetch_data.py streets`")
+        streets = ox.load_graphml(path)
+
+        points, owners, self.street_edges, self.street_xy = [], [], [], []
+        seen: set[frozenset] = set()
+        for u, v, data in streets.edges(data=True):
+            pair = frozenset((u, v))
+            if pair in seen or first(data.get("highway")) not in STREET_TYPES:
                 continue
-            self.street_uv.append((u, v))
-            xy = np.array(self.graph.edge_xy(u, v, data))
+            seen.add(pair)
+            geometry = data.get("geometry")
+            if geometry is None:
+                coords = [(streets.nodes[u]["x"], streets.nodes[u]["y"]), (streets.nodes[v]["x"], streets.nodes[v]["y"])]
+            else:
+                coords = list(geometry.coords)
+            xy = np.array([to_xy(lat, lng) for lng, lat in coords])
+            self.street_xy.append(xy)
             steps = np.hypot(*np.diff(xy, axis=0).T)
             cum = np.concatenate([[0.0], np.cumsum(steps)])
             for s in np.arange(0, cum[-1] + 1e-6, 10):
@@ -295,8 +312,7 @@ class ConditionModel:
         idx = self.street_tree.query_radius([mid], r=STREET_SEARCH_M, return_distance=True, sort_results=True)[0][0]
         fallback = None
         for i in dict.fromkeys(int(self.street_owner[j]) for j in idx):
-            u, v = self.street_uv[i]
-            street_line = np.array(self.graph.edge_xy(u, v, self.street_edges[i]))
+            street_line = self.street_xy[i]
             if angle_diff(bearing(*street_line[0], *street_line[-1]) % 180, block.heading % 180) > STREET_PARALLEL_DEG:
                 continue
             if np.dot(street_line[-1] - street_line[0], line[-1] - line[0]) < 0:

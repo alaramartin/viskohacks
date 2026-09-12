@@ -43,7 +43,8 @@ WEATHER_TTL_S = 3600
 # (docs/spike/runs/continuous-walk-script).
 CAMERA_ANCHOR = (
     "smooth first-person footage from a camera at head height, walking steadily forward and looking "
-    "straight ahead, natural color balance, warm amber and white streetlight glow"
+    "straight ahead, dark night with deep shadows between streetlights, natural color balance, "
+    "warm amber and white streetlight glow"
 )
 TURN_CUE_DEG = 35
 
@@ -479,7 +480,7 @@ class ConditionModel:
         if street is None:
             road = "narrow pedestrian path between buildings" if own_type != "steps" else "outdoor stairway"
         elif kind.startswith(("primary", "secondary", "trunk")):
-            road = "wide multi-lane city street beside the sidewalk"
+            road = "wide multi-lane city street"
         elif kind.startswith("tertiary"):
             road = "two-lane city street"
         elif kind == "service":
@@ -488,7 +489,9 @@ class ConditionModel:
             road = "narrow residential street"
 
         when = {"night": "at night", "dusk": "at dusk", "dawn": "at dawn", "day": "in daylight"}[sun["phase"]]
-        parts = [f"{road} {when}, seen from the sidewalk beside the buildings"]
+        # No "seen from the sidewalk": the seed camera is in the roadway, and telling Orbis
+        # otherwise pulled it toward the curb at turns (backend/shots.py).
+        parts = [f"{road} {when}"]
 
         if sun["phase"] in ("night", "dusk", "dawn"):
             n, side = lighting["lamp_count"], lighting["side"]

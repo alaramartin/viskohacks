@@ -12,24 +12,30 @@ So the route is planned once, as a short script:
     walk (one straight leg, one fixed prompt) → turn (one short cue) → walk → … → arrive
 
 Every walk prompt says where "forward" is — the street stretching to the
-vanishing point, which side the buildings and the road are on — and its scene
-is chosen once for the whole leg. A turn cue lasts ~2 chunks, then the next
-leg's "walking straight ahead" prompt takes over. Only crossings at the corner
-being turned are mentioned.
+vanishing point — and its scene is chosen once for the whole leg. A turn cue
+lasts ~2 chunks, then the next leg's "straight ahead" prompt takes over.
+
+The prompts describe the camera where the seed actually puts it: **in the
+middle of the street**. Every seed is a car-mounted Mapillary capture, so the
+first frame is in the roadway. The first shot-list run said "down the
+sidewalk, the street and parked cars on the left" and "crossing at the
+crosswalk", and at the turn and the stop Orbis steered toward the curb — into a
+parked car, then into the buildings (docs/spike/evidence/16-…). Straight legs
+held their direction throughout.
 """
 
 from collections import Counter
 
-from conditions import CAMERA_ANCHOR, TURN_CUE_DEG, ConditionModel, _perpendicular
-from geo import Block, RouteGeometry, first
+from conditions import CAMERA_ANCHOR, TURN_CUE_DEG, ConditionModel
+from geo import Block, RouteGeometry
 
 SCREEN_SPEED_MPS = 4.5  # route metres per second of screen time — brisk, so ~500m fits a 2-minute demo
 WALK_MIN_MS = 6_000
 WALK_MAX_MS = 20_000  # an unchanged prompt held much longer drifts; long legs just go by faster
 TURN_MS = 4_000  # ~2 Orbis chunks
 ARRIVE_MS = 4_000
-CORNER_CROSSING_M = 30
-CENTRELINE_M = 3  # closer than this, the walked line *is* the street (no separate sidewalk mapped)
+# Symmetric on purpose: naming one side for the cars pulled the camera toward that curb.
+STREET_LAYOUT = "parked cars along both curbs, buildings lining both sides of the street"
 
 
 def _turn(before: Block, after: Block) -> str | None:
@@ -39,20 +45,6 @@ def _turn(before: Block, after: Block) -> str | None:
 
 def _mode(values: list[str]) -> str:
     return Counter(values).most_common(1)[0][0]
-
-
-def _layout(model: ConditionModel, geom: RouteGeometry, block: Block) -> str:
-    """Which side the buildings and the road are on, facing the direction of travel."""
-    line = geom.slice(block.start, block.end)
-    _, street_line = model._street_alongside(geom, block, line)
-    if street_line is None:
-        return "the path stretching straight ahead"
-    offset = float(_perpendicular(line.mean(axis=0)[None, :], street_line)[0])  # left of centreline is +
-    if abs(offset) < CENTRELINE_M:
-        return "buildings along the sidewalk, parked cars along the curb"
-    if offset > 0:
-        return "buildings on the left, the street and parked cars on the right"
-    return "buildings on the right, the street and parked cars on the left"
 
 
 def build_shots(model: ConditionModel, geom: RouteGeometry, scenes: list[str], audios: list[str]) -> list[dict]:
@@ -104,37 +96,32 @@ def build_shots(model: ConditionModel, geom: RouteGeometry, scenes: list[str], a
         on = model._street_name(geom, longest, " on")
         scene = _mode([scenes[i] for i in indices])
         audio = _mode([audios[i] for i in indices])
-        layout = _layout(model, geom, longest)
 
         if previous is not None:
-            corner = leg[0].start
-            crossing = any(
-                first(span.data.get("footway")) == "crossing" and abs(span.start - corner) <= CORNER_CROSSING_M
-                for span in geom.spans
-            )
-            lead = "crossing the street at the crosswalk, then turning" if crossing else "turning"
             onto = model._street_name(geom, longest, " onto")
             # The street being left is still what's on screen, so its scene carries the turn.
+            # "Empty intersection, clear road ahead": a turn is when the camera meets cross traffic.
             add(
                 "turn",
-                f"{CAMERA_ANCHOR}, {lead} {merged_turns[k - 1]} at the intersection{onto}, {previous['scene']}",
+                f"{CAMERA_ANCHOR}, turning {merged_turns[k - 1]} at the empty intersection{onto} "
+                f"in one wide smooth turn, clear road ahead, {previous['scene']}",
                 previous["audio"], TURN_MS, indices[0], indices[0],
             )
 
         length = sum(block.end - block.start for block in leg)
         add(
             "walk",
-            f"{CAMERA_ANCHOR}, walking straight ahead down the sidewalk{on}, "
-            f"the street stretching ahead toward the vanishing point, {layout}, {scene}",
+            f"{CAMERA_ANCHOR}, walking straight ahead down the middle of the empty street{on}, "
+            f"the street stretching ahead toward the vanishing point, {STREET_LAYOUT}, {scene}",
             audio, min(WALK_MAX_MS, max(WALK_MIN_MS, length / SCREEN_SPEED_MPS * 1000)), indices[0], indices[-1],
         )
-        previous = {"scene": scene, "audio": audio, "on": on, "layout": layout, "end": indices[-1]}
+        previous = {"scene": scene, "audio": audio, "on": on, "end": indices[-1]}
 
     assert previous is not None  # a route always has at least one waypoint
     add(
         "arrive",
-        f"{CAMERA_ANCHOR}, walking straight ahead and slowing to a stop at the destination{previous['on']}, "
-        f"{previous['layout']}, {previous['scene']}",
+        f"{CAMERA_ANCHOR}, walking straight ahead down the middle of the empty street{previous['on']} "
+        f"and slowing to a gentle stop, the street stretching ahead, {STREET_LAYOUT}, {previous['scene']}",
         previous["audio"], ARRIVE_MS, previous["end"], previous["end"],
     )
     return shots

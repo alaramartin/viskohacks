@@ -888,3 +888,66 @@ Update this as you go so the human can `/clear` and resume.
 - [ ] Checkpoint 2 — end-to-end integration
 - [ ] Checkpoint 3 — full demo runthrough
 - [ ] Final submission — branch pushed to Visko-Platform/orbis-hackathon-starter
+
+---
+
+# LATER, IF THERE IS TIME — richer OSM conditions
+
+**Owner: Person 1** (it extends their Phase 2 "OSM edge attributes", "POI
+density" and "Prompt composition" tasks). **Safe to defer.** It is additive:
+it only changes the strings inside `condition.facts` and `condition.video_prompt`,
+so there is no contract change, no schema change and nothing to do on the
+frontend. Adding it on the last afternoon costs the same as adding it now.
+
+**Do not do it before real imagery works.** Orbis takes its look from the seed
+image, not the prompt (spike Q1) — enriching the caption while the seed is still
+a placeholder JPEG improves nothing anyone can see.
+
+Coverage below is **measured**, not assumed: Overpass over the fixture's
+Tenderloin box (37.7800,-122.4180,37.7870,-122.4080), 238 street ways, 275
+footways, 659 buildings, 578 POIs.
+
+### Worth pulling
+
+| Pull | Coverage | What it changes |
+|---|---|---|
+| `height` / `building:levels` on buildings | **76% / 25%** | The render. "multi-story buildings" → "six-storey buildings both sides". Street canyon is a real night-feel driver |
+| POIs filtered to venues, `opening_hours` parsed | **19%** | The render. An open storefront is a light source at 11pm. Fact: "Open businesses: 2 of 14 at 11pm (hours known for 3)" |
+| `maxspeed`, `lanes`, `oneway` | ~50% each | Facts strip, and a sharper audio prompt ("occasional car passing slowly" vs generic traffic) |
+| Sidewalks from the separate `footway=sidewalk` ways | 94 ways in the box | Makes the sidewalk fact *correct* — see the trap below |
+
+Buildings and POIs are not on the walking graph, so they need a second cached
+`features_from_bbox` fetch alongside `sf_walk.graphml`. Same offline-cache rule
+applies: never at request time.
+
+`opening_hours` needs a real parser, not a regex — real values here include
+`Fr 16:30-26:00` (past-midnight) and `Mo,Su off; Tu-Sa 16:00-22:00`.
+
+### Not worth pulling, with the reason
+
+- **`highway=street_lamp` — 9 nodes in the entire 0.8km² box.** Mapillary
+  returned 35 in a 250m box. Lamp positions for `condition.lighting` must come
+  from Mapillary + DataSF; OSM cannot supply them.
+- **`lit` — 38% tagged and the value is *always* `yes`, never `no`.** Absence
+  means "not surveyed", not "unlit", so it can never establish that a street is
+  dark. Keep wording it as "tagged", never as "no streetlights".
+- **`sidewalk` on the street way — only 21%.** SF maps sidewalks as separate
+  geometry. Joining on the road way's tag silently reports "no sidewalk" for
+  streets that have two.
+- **`width`, `incline` — 0% tagged.** SF's hills are not in OSM; grade would
+  need a DEM.
+- **`tunnel` / `covered` / `bridge` — 4 footways in the whole box.** The
+  underpass in the pitch has to be a hand-picked demo route, not a data feature.
+- **Raw POI counts as a footfall proxy.** The top amenities in the box are
+  `bicycle_parking` (30), `waste_basket` (21), `post_box` (15), `bench` (13) — a
+  raw count says a block is busy because someone mapped the bins.
+
+### Time of day
+
+`opening_hours` is the **only** time-varying field in OSM, at 19% coverage.
+There is no foot traffic by hour and no traffic volume by hour. Everything else
+is a static snapshot. Time-of-day realism stays where it already is: `astral`
+for darkness, Open-Meteo for weather, `opening_hours` for what is open.
+
+And nothing here is a safety metric. OSM has none, and the product does not want
+one — these are physical descriptions of a street, which is the whole point.

@@ -1,0 +1,4077 @@
+[
+ {
+  "t": 0,
+  "kind": "trace_begin",
+  "detail": {
+   "route": {
+    "route_id": "A",
+    "waypoints": [
+     {
+      "index": 0,
+      "lat": 37.783956,
+      "lng": -122.412507,
+      "heading": 232.9,
+      "block_id": "w1516164145-n13844380478",
+      "image_url": "/api/imagery/w1516164145-n13844380478/261",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Eddy Street, the street stretching ahead toward the vanishing point, narrow residential street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "11 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "5 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Residential, two lanes"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Aug 2025"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 11,
+        "side": "both",
+        "lamp_offsets_m": [
+         6,
+         23,
+         27,
+         56,
+         67,
+         87,
+         110,
+         117,
+         125,
+         140,
+         155
+        ],
+        "lamp_lateral_m": [
+         -6.4,
+         -11.5,
+         16,
+         -3.3,
+         7.4,
+         -5,
+         8.2,
+         -4.5,
+         11.1,
+         7.9,
+         -4.9
+        ],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 1,
+      "lat": 37.783854,
+      "lng": -122.412678,
+      "heading": 263,
+      "block_id": "w1516164145-n13844380478",
+      "image_url": "/api/imagery/w1516164145-n13844380478/261",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Eddy Street, the street stretching ahead toward the vanishing point, narrow residential street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "11 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "4 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Arterial street, two lanes, one-way"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Aug 2025"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 11,
+        "side": "both",
+        "lamp_offsets_m": [
+         2,
+         31,
+         42,
+         62,
+         85,
+         92,
+         100,
+         115,
+         130
+        ],
+        "lamp_lateral_m": [
+         16,
+         -3.3,
+         7.4,
+         -5,
+         8.2,
+         -4.5,
+         11.1,
+         7.9,
+         -4.9
+        ],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 2,
+      "lat": 37.783827,
+      "lng": -122.412955,
+      "heading": 260.7,
+      "block_id": "w1516164145-n13844380478",
+      "image_url": "/api/imagery/w1516164145-n13844380478/261",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Eddy Street, the street stretching ahead toward the vanishing point, narrow residential street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "11 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "3 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Residential, two lanes"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Aug 2025"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 11,
+        "side": "both",
+        "lamp_offsets_m": [
+         6,
+         17,
+         37,
+         60,
+         67,
+         75,
+         90,
+         105
+        ],
+        "lamp_lateral_m": [
+         -3.3,
+         7.4,
+         -5,
+         8.2,
+         -4.5,
+         11.1,
+         7.9,
+         -4.9
+        ],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 3,
+      "lat": 37.783791,
+      "lng": -122.413235,
+      "heading": 261.2,
+      "block_id": "w1516164145-n13844380478",
+      "image_url": "/api/imagery/w1516164145-n13844380478/261",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Eddy Street, the street stretching ahead toward the vanishing point, narrow residential street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "11 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "3 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Residential, two lanes"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Aug 2025"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 11,
+        "side": "both",
+        "lamp_offsets_m": [
+         12,
+         35,
+         42,
+         50,
+         65,
+         80
+        ],
+        "lamp_lateral_m": [
+         -5,
+         8.2,
+         -4.5,
+         11.1,
+         7.9,
+         -4.9
+        ],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 4,
+      "lat": 37.783756,
+      "lng": -122.413516,
+      "heading": 261.2,
+      "block_id": "w1516164145-n13844380478",
+      "image_url": "/api/imagery/w1516164145-n13844380478/261",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Eddy Street, the street stretching ahead toward the vanishing point, narrow residential street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "11 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "3 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Residential, two lanes"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Aug 2025"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 11,
+        "side": "both",
+        "lamp_offsets_m": [
+         10,
+         17,
+         25,
+         40,
+         55
+        ],
+        "lamp_lateral_m": [
+         8.2,
+         -4.5,
+         11.1,
+         7.9,
+         -4.9
+        ],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 5,
+      "lat": 37.783722,
+      "lng": -122.413797,
+      "heading": 261.2,
+      "block_id": "w1516164145-n13844380478",
+      "image_url": "/api/imagery/w1516164145-n13844380478/261",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Eddy Street, the street stretching ahead toward the vanishing point, narrow residential street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "11 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "5 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Residential, two lanes"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Aug 2025"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 11,
+        "side": "both",
+        "lamp_offsets_m": [
+         15,
+         30
+        ],
+        "lamp_lateral_m": [
+         7.9,
+         -4.9
+        ],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 6,
+      "lat": 37.783687,
+      "lng": -122.414078,
+      "heading": 244.9,
+      "block_id": "w1516164145-n13844380478",
+      "image_url": "/api/imagery/w1516164145-n13844380478/261",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Eddy Street, the street stretching ahead toward the vanishing point, narrow residential street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "11 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "10 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Residential, two lanes"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Aug 2025"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 11,
+        "side": "both",
+        "lamp_offsets_m": [
+         5
+        ],
+        "lamp_lateral_m": [
+         -4.9
+        ],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 7,
+      "lat": 37.783606,
+      "lng": -122.414298,
+      "heading": 173.7,
+      "block_id": "w1516177256-n13844380466",
+      "image_url": "/api/imagery/w1516177256-n13844380466/172",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Leavenworth Street, the street stretching ahead toward the vanishing point, two-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "7 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "9 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Collector street, two lanes, one-way"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Jun 2022"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 7,
+        "side": "both",
+        "lamp_offsets_m": [
+         2,
+         23,
+         25,
+         46,
+         49
+        ],
+        "lamp_lateral_m": [
+         18.2,
+         -6,
+         7.6,
+         -6.2,
+         6.5
+        ],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 8,
+      "lat": 37.783387,
+      "lng": -122.414268,
+      "heading": 170.5,
+      "block_id": "w1516177256-n13844380466",
+      "image_url": "/api/imagery/w1516177256-n13844380466/172",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Leavenworth Street, the street stretching ahead toward the vanishing point, two-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "7 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "8 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Collector street, two lanes, one-way"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Jun 2022"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 7,
+        "side": "both",
+        "lamp_offsets_m": [
+         21,
+         24
+        ],
+        "lamp_lateral_m": [
+         -6.2,
+         6.5
+        ],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 9,
+      "lat": 37.783165,
+      "lng": -122.414221,
+      "heading": 170.5,
+      "block_id": "w1516177256-n13844380466",
+      "image_url": "/api/imagery/w1516177256-n13844380466/172",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Leavenworth Street, the street stretching ahead toward the vanishing point, two-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "7 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "8 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Collector street, two lanes, one-way"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Jun 2022"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 7,
+        "side": "both",
+        "lamp_offsets_m": [],
+        "lamp_lateral_m": [],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 10,
+      "lat": 37.782943,
+      "lng": -122.414174,
+      "heading": 230.9,
+      "block_id": "w1516177256-n13844380466",
+      "image_url": "/api/imagery/w1516177256-n13844380466/172",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Leavenworth Street, the street stretching ahead toward the vanishing point, two-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "7 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "11 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Collector street, two lanes, one-way"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Jun 2022"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 7,
+        "side": "both",
+        "lamp_offsets_m": [],
+        "lamp_lateral_m": [],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 11,
+      "lat": 37.782837,
+      "lng": -122.414339,
+      "heading": 261.1,
+      "block_id": "w1516177232-n13844447151",
+      "image_url": "/api/imagery/w1516177232-n13844447151/261",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Turk Street, the street stretching ahead toward the vanishing point, wide multi-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "10 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "9 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Arterial street, two lanes, one-way"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Aug 2025"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 10,
+        "side": "both",
+        "lamp_offsets_m": [
+         19,
+         30,
+         71,
+         104,
+         106,
+         111,
+         138,
+         140
+        ],
+        "lamp_lateral_m": [
+         5.9,
+         -5.4,
+         5.9,
+         14.5,
+         6,
+         -4.3,
+         6,
+         18.3
+        ],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 12,
+      "lat": 37.782802,
+      "lng": -122.41462,
+      "heading": 261.1,
+      "block_id": "w1516177232-n13844447151",
+      "image_url": "/api/imagery/w1516177232-n13844447151/261",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Turk Street, the street stretching ahead toward the vanishing point, wide multi-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "10 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "6 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Arterial street, two lanes, one-way"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Aug 2025"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 10,
+        "side": "both",
+        "lamp_offsets_m": [
+         5,
+         46,
+         79,
+         81,
+         86,
+         113,
+         115
+        ],
+        "lamp_lateral_m": [
+         -5.4,
+         5.9,
+         14.5,
+         6,
+         -4.3,
+         6,
+         18.3
+        ],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 13,
+      "lat": 37.782767,
+      "lng": -122.414901,
+      "heading": 261.1,
+      "block_id": "w1516177232-n13844447151",
+      "image_url": "/api/imagery/w1516177232-n13844447151/261",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Turk Street, the street stretching ahead toward the vanishing point, wide multi-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "10 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "3 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Arterial street, two lanes, one-way"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Aug 2025"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 10,
+        "side": "both",
+        "lamp_offsets_m": [
+         21,
+         54,
+         56,
+         61,
+         88,
+         90
+        ],
+        "lamp_lateral_m": [
+         5.9,
+         14.5,
+         6,
+         -4.3,
+         6,
+         18.3
+        ],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 14,
+      "lat": 37.782733,
+      "lng": -122.415181,
+      "heading": 260.9,
+      "block_id": "w1516177232-n13844447151",
+      "image_url": "/api/imagery/w1516177232-n13844447151/261",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Turk Street, the street stretching ahead toward the vanishing point, wide multi-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "10 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "2 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Arterial street, two lanes, one-way"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Aug 2025"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 10,
+        "side": "both",
+        "lamp_offsets_m": [
+         29,
+         31,
+         36,
+         63,
+         65
+        ],
+        "lamp_lateral_m": [
+         14.5,
+         6,
+         -4.3,
+         6,
+         18.3
+        ],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 15,
+      "lat": 37.782697,
+      "lng": -122.415462,
+      "heading": 261.4,
+      "block_id": "w1516177232-n13844447151",
+      "image_url": "/api/imagery/w1516177232-n13844447151/261",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Turk Street, the street stretching ahead toward the vanishing point, wide multi-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "10 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "3 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Arterial street, three lanes, one-way"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Aug 2025"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 10,
+        "side": "both",
+        "lamp_offsets_m": [
+         4,
+         6,
+         11,
+         38,
+         40
+        ],
+        "lamp_lateral_m": [
+         14.5,
+         6,
+         -4.3,
+         6,
+         18.3
+        ],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 16,
+      "lat": 37.782665,
+      "lng": -122.415727,
+      "heading": 254.5,
+      "block_id": "w1516177232-n13844447151",
+      "image_url": "/api/imagery/w1516177232-n13844447151/261",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Turk Street, the street stretching ahead toward the vanishing point, wide multi-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "10 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "4 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Collector street, three lanes, one-way"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Aug 2025"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 10,
+        "side": "both",
+        "lamp_offsets_m": [
+         13,
+         15
+        ],
+        "lamp_lateral_m": [
+         6,
+         18.3
+        ],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     },
+     {
+      "index": 17,
+      "lat": 37.782616,
+      "lng": -122.415954,
+      "heading": 254.5,
+      "block_id": "w1516177232-n13844447151",
+      "image_url": "/api/imagery/w1516177232-n13844447151/261",
+      "image_available": true,
+      "condition": {
+       "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Turk Street, the street stretching ahead toward the vanishing point, wide multi-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+       "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+       "facts": [
+        {
+         "label": "Dark since",
+         "value": "Not yet (dark at 7:48pm)"
+        },
+        {
+         "label": "Streetlights",
+         "value": "10 mapped on this block, both sides"
+        },
+        {
+         "label": "Lit tag (OSM)",
+         "value": "Not tagged"
+        },
+        {
+         "label": "Reported outages",
+         "value": "None in 90 days to Sep 2026 (311)"
+        },
+        {
+         "label": "Open businesses",
+         "value": "4 nearby (hours unknown)"
+        },
+        {
+         "label": "Sidewalk",
+         "value": "Mapped sidewalk"
+        },
+        {
+         "label": "Road",
+         "value": "Arterial street, two lanes, one-way"
+        },
+        {
+         "label": "Weather",
+         "value": "Clear, 20°C"
+        },
+        {
+         "label": "Street imagery",
+         "value": "Mapillary photo, Aug 2025"
+        }
+       ],
+       "lighting": {
+        "lit": "unknown",
+        "lamp_count": 10,
+        "side": "both",
+        "lamp_offsets_m": [],
+        "lamp_lateral_m": [],
+        "outages": 0
+       },
+       "ambient": {
+        "phase": "day",
+        "sun_altitude_deg": 53,
+        "darkness": 0
+       }
+      }
+     }
+    ],
+    "shots": [
+     {
+      "shot_id": "s0",
+      "kind": "walk",
+      "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Eddy Street, the street stretching ahead toward the vanishing point, narrow residential street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+      "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+      "duration_ms": 20000,
+      "waypoint_start": 0,
+      "waypoint_end": 6
+     },
+     {
+      "shot_id": "s1",
+      "kind": "turn",
+      "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, reaching the intersection and turning left around the corner onto Leavenworth Street, the view swinging a quarter turn to the left as the corner building slides past and the new street opens up straight ahead, still walking forward, clear road ahead, narrow residential street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving",
+      "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+      "duration_ms": 9000,
+      "waypoint_start": 7,
+      "waypoint_end": 7
+     },
+     {
+      "shot_id": "s2",
+      "kind": "walk",
+      "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Leavenworth Street, the street stretching ahead toward the vanishing point, two-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+      "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+      "duration_ms": 20000,
+      "waypoint_start": 7,
+      "waypoint_end": 10
+     },
+     {
+      "shot_id": "s3",
+      "kind": "turn",
+      "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, reaching the intersection and turning right around the corner onto Turk Street, the view swinging a quarter turn to the right as the corner building slides past and the new street opens up straight ahead, still walking forward, clear road ahead, two-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving",
+      "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+      "duration_ms": 9000,
+      "waypoint_start": 11,
+      "waypoint_end": 11
+     },
+     {
+      "shot_id": "s4",
+      "kind": "walk",
+      "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Turk Street, the street stretching ahead toward the vanishing point, wide multi-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+      "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+      "duration_ms": 20000,
+      "waypoint_start": 11,
+      "waypoint_end": 17
+     },
+     {
+      "shot_id": "s5",
+      "kind": "arrive",
+      "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Turk Street and slowing to a gentle stop, the street stretching ahead, wide multi-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic",
+      "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+      "duration_ms": 4000,
+      "waypoint_start": 17,
+      "waypoint_end": 17
+     }
+    ]
+   }
+  }
+ },
+ {
+  "t": 4740,
+  "kind": "model_schema",
+  "detail": {
+   "capabilities": {
+    "protocolVersion": "0.0.0",
+    "tracks": [
+     {
+      "name": "main_video",
+      "kind": "video",
+      "direction": "recvonly"
+     },
+     {
+      "name": "main_audio",
+      "kind": "audio",
+      "direction": "recvonly"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "t": 4740,
+  "kind": "command",
+  "detail": {
+   "command": "set_seed",
+   "data": {
+    "seed": 837213
+   }
+  }
+ },
+ {
+  "t": 5105,
+  "kind": "command",
+  "detail": {
+   "command": "set_resolution",
+   "data": {
+    "resolution": "1080p"
+   }
+  }
+ },
+ {
+  "t": 5229,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": null,
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 0,
+    "has_image": false,
+    "has_prompt": false,
+    "paused": false,
+    "resolution": "1080p",
+    "running": false,
+    "seed": 837213,
+    "started": false
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 5230,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "resolution": "1080p"
+   },
+   "type": "resolution_accepted"
+  }
+ },
+ {
+  "t": 6072,
+  "kind": "command",
+  "detail": {
+   "command": "set_image",
+   "data": {
+    "image": {
+     "uploadId": "f34fc0a7-d030-47f5-b74a-aebbd0e3996d",
+     "name": "seed-night.jpg",
+     "mimeType": "image/jpeg",
+     "size": 116852
+    }
+   }
+  }
+ },
+ {
+  "t": 6562,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "has_image": true,
+    "has_prompt": false
+   },
+   "type": "conditions_ready"
+  }
+ },
+ {
+  "t": 6562,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": null,
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 0,
+    "has_image": true,
+    "has_prompt": false,
+    "paused": false,
+    "resolution": "1080p",
+    "running": false,
+    "seed": 837213,
+    "started": false
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 6562,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "height": 368,
+    "width": 640
+   },
+   "type": "image_accepted"
+  }
+ },
+ {
+  "t": 6562,
+  "kind": "command",
+  "detail": {
+   "command": "set_audio_prompt",
+   "data": {
+    "prompt": "city street, quiet street, distant traffic, footsteps on pavement"
+   }
+  }
+ },
+ {
+  "t": 6655,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 0,
+    "has_image": true,
+    "has_prompt": false,
+    "paused": false,
+    "resolution": "1080p",
+    "running": false,
+    "seed": 837213,
+    "started": false
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 6656,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement"
+   },
+   "type": "audio_prompt_accepted"
+  }
+ },
+ {
+  "t": 6656,
+  "kind": "command",
+  "detail": {
+   "command": "set_prompt",
+   "data": {
+    "prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Eddy Street, the street stretching ahead toward the vanishing point, narrow residential street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic"
+   }
+  }
+ },
+ {
+  "t": 7179,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "has_image": true,
+    "has_prompt": true
+   },
+   "type": "conditions_ready"
+  }
+ },
+ {
+  "t": 7179,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 0,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": false,
+    "seed": 837213,
+    "started": false
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 7179,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Eddy Street, the street stretching ahead toward the vanishing point, narrow residential street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic"
+   },
+   "type": "prompt_accepted"
+  }
+ },
+ {
+  "t": 7179,
+  "kind": "command",
+  "detail": {
+   "command": "start",
+   "data": {}
+  }
+ },
+ {
+  "t": 7335,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 0,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 7336,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "fps": 18,
+    "frames_per_chunk": 33,
+    "image_conditioned": true,
+    "max_chunks": 2000,
+    "resolution": "1080p"
+   },
+   "type": "generation_started"
+  }
+ },
+ {
+  "t": 7337,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 0,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 9439,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 0,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 11403,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 1,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 12909,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 2,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 14718,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 3,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 14931,
+  "kind": "first_frame"
+ },
+ {
+  "t": 14932,
+  "kind": "shot_start",
+  "detail": {
+   "index": 0,
+   "kind": "walk",
+   "duration_ms": 20000,
+   "waypoint_start": 0,
+   "waypoint_end": 6,
+   "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Eddy Street, the street stretching ahead toward the vanishing point, narrow residential street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic"
+  }
+ },
+ {
+  "t": 14932,
+  "kind": "waypoint",
+  "detail": {
+   "index": 0,
+   "lat": 37.783956,
+   "lng": -122.412507,
+   "heading": 232.9,
+   "block_id": "w1516164145-n13844380478"
+  }
+ },
+ {
+  "t": 16554,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 4,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 16918,
+  "kind": "waypoint",
+  "detail": {
+   "index": 1,
+   "lat": 37.783854,
+   "lng": -122.412678,
+   "heading": 263,
+   "block_id": "w1516164145-n13844380478"
+  }
+ },
+ {
+  "t": 16918,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-016918"
+  }
+ },
+ {
+  "t": 17955,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-017955"
+  }
+ },
+ {
+  "t": 18331,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 5,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 19917,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-019917"
+  }
+ },
+ {
+  "t": 20193,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 6,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 20926,
+  "kind": "waypoint",
+  "detail": {
+   "index": 2,
+   "lat": 37.783827,
+   "lng": -122.412955,
+   "heading": 260.7,
+   "block_id": "w1516164145-n13844380478"
+  }
+ },
+ {
+  "t": 21917,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-021917"
+  }
+ },
+ {
+  "t": 22022,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 7,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 22922,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-022922"
+  }
+ },
+ {
+  "t": 23822,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 8,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 23916,
+  "kind": "waypoint",
+  "detail": {
+   "index": 3,
+   "lat": 37.783791,
+   "lng": -122.413235,
+   "heading": 261.2,
+   "block_id": "w1516164145-n13844380478"
+  }
+ },
+ {
+  "t": 24916,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-024916"
+  }
+ },
+ {
+  "t": 25807,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 9,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 25917,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-025916"
+  }
+ },
+ {
+  "t": 26918,
+  "kind": "waypoint",
+  "detail": {
+   "index": 4,
+   "lat": 37.783756,
+   "lng": -122.413516,
+   "heading": 261.2,
+   "block_id": "w1516164145-n13844380478"
+  }
+ },
+ {
+  "t": 27494,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 10,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 27918,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-027918"
+  }
+ },
+ {
+  "t": 28918,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-028918"
+  }
+ },
+ {
+  "t": 29332,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 11,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 30920,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-030920"
+  }
+ },
+ {
+  "t": 30925,
+  "kind": "waypoint",
+  "detail": {
+   "index": 5,
+   "lat": 37.783722,
+   "lng": -122.413797,
+   "heading": 261.2,
+   "block_id": "w1516164145-n13844380478"
+  }
+ },
+ {
+  "t": 31159,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 12,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 31921,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-031921"
+  }
+ },
+ {
+  "t": 32987,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 13,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 33917,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-033917"
+  }
+ },
+ {
+  "t": 33933,
+  "kind": "waypoint",
+  "detail": {
+   "index": 6,
+   "lat": 37.783687,
+   "lng": -122.414078,
+   "heading": 244.9,
+   "block_id": "w1516164145-n13844380478"
+  }
+ },
+ {
+  "t": 34828,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 14,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 34916,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-034916"
+  }
+ },
+ {
+  "t": 35917,
+  "kind": "shot_start",
+  "detail": {
+   "index": 1,
+   "kind": "turn",
+   "duration_ms": 9000,
+   "waypoint_start": 7,
+   "waypoint_end": 7,
+   "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, reaching the intersection and turning left around the corner onto Leavenworth Street, the view swinging a quarter turn to the left as the corner building slides past and the new street opens up straight ahead, still walking forward, clear road ahead, narrow residential street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving"
+  }
+ },
+ {
+  "t": 35918,
+  "kind": "command",
+  "detail": {
+   "command": "set_prompt",
+   "data": {
+    "prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, reaching the intersection and turning left around the corner onto Leavenworth Street, the view swinging a quarter turn to the left as the corner building slides past and the new street opens up straight ahead, still walking forward, clear road ahead, narrow residential street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving"
+   }
+  }
+ },
+ {
+  "t": 36675,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 15,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 36675,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "has_image": true,
+    "has_prompt": true
+   },
+   "type": "conditions_ready"
+  }
+ },
+ {
+  "t": 36676,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 15,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 36676,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, reaching the intersection and turning left around the corner onto Leavenworth Street, the view swinging a quarter turn to the left as the corner building slides past and the new street opens up straight ahead, still walking forward, clear road ahead, narrow residential street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving"
+   },
+   "type": "prompt_accepted"
+  }
+ },
+ {
+  "t": 36676,
+  "kind": "waypoint",
+  "detail": {
+   "index": 7,
+   "lat": 37.783606,
+   "lng": -122.414298,
+   "heading": 173.7,
+   "block_id": "w1516177256-n13844380466"
+  }
+ },
+ {
+  "t": 36916,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-036916"
+  }
+ },
+ {
+  "t": 37921,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-037921"
+  }
+ },
+ {
+  "t": 38506,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 16,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 39916,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-039916"
+  }
+ },
+ {
+  "t": 40346,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 17,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 40920,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-040920"
+  }
+ },
+ {
+  "t": 42188,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 18,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 42916,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-042916"
+  }
+ },
+ {
+  "t": 43916,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-043916"
+  }
+ },
+ {
+  "t": 44053,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 19,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 45915,
+  "kind": "shot_start",
+  "detail": {
+   "index": 2,
+   "kind": "walk",
+   "duration_ms": 20000,
+   "waypoint_start": 7,
+   "waypoint_end": 10,
+   "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Leavenworth Street, the street stretching ahead toward the vanishing point, two-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic"
+  }
+ },
+ {
+  "t": 45915,
+  "kind": "command",
+  "detail": {
+   "command": "set_prompt",
+   "data": {
+    "prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Leavenworth Street, the street stretching ahead toward the vanishing point, two-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic"
+   }
+  }
+ },
+ {
+  "t": 45916,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-045916"
+  }
+ },
+ {
+  "t": 45972,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 20,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 46920,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-046920"
+  }
+ },
+ {
+  "t": 47719,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 21,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 47719,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "has_image": true,
+    "has_prompt": true
+   },
+   "type": "conditions_ready"
+  }
+ },
+ {
+  "t": 47720,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 21,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 47720,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Leavenworth Street, the street stretching ahead toward the vanishing point, two-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic"
+   },
+   "type": "prompt_accepted"
+  }
+ },
+ {
+  "t": 47720,
+  "kind": "command",
+  "detail": {
+   "command": "set_audio_prompt",
+   "data": {
+    "prompt": "city street, an occasional distant car, footsteps on pavement"
+   }
+  }
+ },
+ {
+  "t": 48916,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-048916"
+  }
+ },
+ {
+  "t": 49622,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, quiet street, distant traffic, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 22,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 49622,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 22,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 49623,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement"
+   },
+   "type": "audio_prompt_accepted"
+  }
+ },
+ {
+  "t": 49917,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-049917"
+  }
+ },
+ {
+  "t": 50920,
+  "kind": "waypoint",
+  "detail": {
+   "index": 8,
+   "lat": 37.783387,
+   "lng": -122.414268,
+   "heading": 170.5,
+   "block_id": "w1516177256-n13844380466"
+  }
+ },
+ {
+  "t": 51577,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 23,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 51918,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-051918"
+  }
+ },
+ {
+  "t": 52920,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-052920"
+  }
+ },
+ {
+  "t": 53434,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 24,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 54921,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-054921"
+  }
+ },
+ {
+  "t": 55032,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 25,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 55919,
+  "kind": "waypoint",
+  "detail": {
+   "index": 9,
+   "lat": 37.783165,
+   "lng": -122.414221,
+   "heading": 170.5,
+   "block_id": "w1516177256-n13844380466"
+  }
+ },
+ {
+  "t": 55921,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-055921"
+  }
+ },
+ {
+  "t": 56866,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 26,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 57918,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-057918"
+  }
+ },
+ {
+  "t": 58698,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 27,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 58922,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-058922"
+  }
+ },
+ {
+  "t": 60504,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 28,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 60918,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-060918"
+  }
+ },
+ {
+  "t": 61917,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-061917"
+  }
+ },
+ {
+  "t": 62382,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 29,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 62915,
+  "kind": "waypoint",
+  "detail": {
+   "index": 10,
+   "lat": 37.782943,
+   "lng": -122.414174,
+   "heading": 230.9,
+   "block_id": "w1516177256-n13844380466"
+  }
+ },
+ {
+  "t": 63916,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-063916"
+  }
+ },
+ {
+  "t": 64199,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 30,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 64921,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-064921"
+  }
+ },
+ {
+  "t": 65917,
+  "kind": "shot_start",
+  "detail": {
+   "index": 3,
+   "kind": "turn",
+   "duration_ms": 9000,
+   "waypoint_start": 11,
+   "waypoint_end": 11,
+   "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, reaching the intersection and turning right around the corner onto Turk Street, the view swinging a quarter turn to the right as the corner building slides past and the new street opens up straight ahead, still walking forward, clear road ahead, two-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving"
+  }
+ },
+ {
+  "t": 65917,
+  "kind": "command",
+  "detail": {
+   "command": "set_prompt",
+   "data": {
+    "prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, reaching the intersection and turning right around the corner onto Turk Street, the view swinging a quarter turn to the right as the corner building slides past and the new street opens up straight ahead, still walking forward, clear road ahead, two-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving"
+   }
+  }
+ },
+ {
+  "t": 66016,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 31,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 66917,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-066917"
+  }
+ },
+ {
+  "t": 67865,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 32,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 67865,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "has_image": true,
+    "has_prompt": true
+   },
+   "type": "conditions_ready"
+  }
+ },
+ {
+  "t": 67865,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 32,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 67865,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, reaching the intersection and turning right around the corner onto Turk Street, the view swinging a quarter turn to the right as the corner building slides past and the new street opens up straight ahead, still walking forward, clear road ahead, two-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving"
+   },
+   "type": "prompt_accepted"
+  }
+ },
+ {
+  "t": 67866,
+  "kind": "waypoint",
+  "detail": {
+   "index": 11,
+   "lat": 37.782837,
+   "lng": -122.414339,
+   "heading": 261.1,
+   "block_id": "w1516177232-n13844447151"
+  }
+ },
+ {
+  "t": 69734,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 33,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 69917,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-069917"
+  }
+ },
+ {
+  "t": 70918,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-070918"
+  }
+ },
+ {
+  "t": 71601,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 34,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 72919,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-072919"
+  }
+ },
+ {
+  "t": 73404,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 35,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 73920,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-073920"
+  }
+ },
+ {
+  "t": 74917,
+  "kind": "shot_start",
+  "detail": {
+   "index": 4,
+   "kind": "walk",
+   "duration_ms": 20000,
+   "waypoint_start": 11,
+   "waypoint_end": 17,
+   "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Turk Street, the street stretching ahead toward the vanishing point, wide multi-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic"
+  }
+ },
+ {
+  "t": 74917,
+  "kind": "command",
+  "detail": {
+   "command": "set_prompt",
+   "data": {
+    "prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Turk Street, the street stretching ahead toward the vanishing point, wide multi-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic"
+   }
+  }
+ },
+ {
+  "t": 75183,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 36,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 75183,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "has_image": true,
+    "has_prompt": true
+   },
+   "type": "conditions_ready"
+  }
+ },
+ {
+  "t": 75183,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 36,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 75183,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Turk Street, the street stretching ahead toward the vanishing point, wide multi-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic"
+   },
+   "type": "prompt_accepted"
+  }
+ },
+ {
+  "t": 75183,
+  "kind": "command",
+  "detail": {
+   "command": "set_audio_prompt",
+   "data": {
+    "prompt": "city street, distant traffic hum, footsteps on pavement"
+   }
+  }
+ },
+ {
+  "t": 75921,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-075920"
+  }
+ },
+ {
+  "t": 76920,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-076920"
+  }
+ },
+ {
+  "t": 77038,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, an occasional distant car, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 37,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 77038,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 37,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 77038,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement"
+   },
+   "type": "audio_prompt_accepted"
+  }
+ },
+ {
+  "t": 77920,
+  "kind": "waypoint",
+  "detail": {
+   "index": 12,
+   "lat": 37.782802,
+   "lng": -122.41462,
+   "heading": 261.1,
+   "block_id": "w1516177232-n13844447151"
+  }
+ },
+ {
+  "t": 78851,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 38,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 78916,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-078916"
+  }
+ },
+ {
+  "t": 79917,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-079917"
+  }
+ },
+ {
+  "t": 80810,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 39,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 80927,
+  "kind": "waypoint",
+  "detail": {
+   "index": 13,
+   "lat": 37.782767,
+   "lng": -122.414901,
+   "heading": 261.1,
+   "block_id": "w1516177232-n13844447151"
+  }
+ },
+ {
+  "t": 81918,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-081918"
+  }
+ },
+ {
+  "t": 82594,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 40,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 82920,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-082920"
+  }
+ },
+ {
+  "t": 83919,
+  "kind": "waypoint",
+  "detail": {
+   "index": 14,
+   "lat": 37.782733,
+   "lng": -122.415181,
+   "heading": 260.9,
+   "block_id": "w1516177232-n13844447151"
+  }
+ },
+ {
+  "t": 84415,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 41,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 84916,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-084916"
+  }
+ },
+ {
+  "t": 85921,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-085921"
+  }
+ },
+ {
+  "t": 86247,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 42,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 86919,
+  "kind": "waypoint",
+  "detail": {
+   "index": 15,
+   "lat": 37.782697,
+   "lng": -122.415462,
+   "heading": 261.4,
+   "block_id": "w1516177232-n13844447151"
+  }
+ },
+ {
+  "t": 87919,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-087919"
+  }
+ },
+ {
+  "t": 88063,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 43,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 88920,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-088920"
+  }
+ },
+ {
+  "t": 89918,
+  "kind": "waypoint",
+  "detail": {
+   "index": 16,
+   "lat": 37.782665,
+   "lng": -122.415727,
+   "heading": 254.5,
+   "block_id": "w1516177232-n13844447151"
+  }
+ },
+ {
+  "t": 89984,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 44,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 90918,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-090918"
+  }
+ },
+ {
+  "t": 91672,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 45,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 91916,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-091916"
+  }
+ },
+ {
+  "t": 93611,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 46,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 93921,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-093921"
+  }
+ },
+ {
+  "t": 93935,
+  "kind": "waypoint",
+  "detail": {
+   "index": 17,
+   "lat": 37.782616,
+   "lng": -122.415954,
+   "heading": 254.5,
+   "block_id": "w1516177232-n13844447151"
+  }
+ },
+ {
+  "t": 94919,
+  "kind": "shot_start",
+  "detail": {
+   "index": 5,
+   "kind": "arrive",
+   "duration_ms": 4000,
+   "waypoint_start": 17,
+   "waypoint_end": 17,
+   "video_prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Turk Street and slowing to a gentle stop, the street stretching ahead, wide multi-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic"
+  }
+ },
+ {
+  "t": 94919,
+  "kind": "command",
+  "detail": {
+   "command": "set_prompt",
+   "data": {
+    "prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Turk Street and slowing to a gentle stop, the street stretching ahead, wide multi-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic"
+   }
+  }
+ },
+ {
+  "t": 94921,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-094921"
+  }
+ },
+ {
+  "t": 95654,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 47,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 95655,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "has_image": true,
+    "has_prompt": true
+   },
+   "type": "conditions_ready"
+  }
+ },
+ {
+  "t": 95655,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 47,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 95655,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "prompt": "smooth first-person footage from a camera at head height, natural color balance, walking steadily forward and looking straight ahead, bright daytime, clear blue sky, bright sunlight, crisp shadows on the pavement, sunlit building facades, streetlights off, walking straight ahead down the middle of the street on Turk Street and slowing to a gentle stop, the street stretching ahead, wide multi-lane city street in daylight, storefronts closed with shutters down, no pedestrians, dry pavement, cars parked neatly along the curb, not moving, parked cars along both curbs, buildings lining both sides of the street, no moving traffic"
+   },
+   "type": "prompt_accepted"
+  }
+ },
+ {
+  "t": 96920,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-096920"
+  }
+ },
+ {
+  "t": 97219,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 48,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 97916,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-097916"
+  }
+ },
+ {
+  "t": 99027,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 49,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 99917,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-099917"
+  }
+ },
+ {
+  "t": 100904,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 50,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 100921,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-100921"
+  }
+ },
+ {
+  "t": 102815,
+  "kind": "message",
+  "detail": {
+   "data": {
+    "audio_enabled": true,
+    "audio_prompt": "city street, distant traffic hum, footsteps on pavement",
+    "available_resolutions": [
+     "native",
+     "1080p",
+     "2k",
+     "4k"
+    ],
+    "current_chunk": 51,
+    "has_image": true,
+    "has_prompt": true,
+    "paused": false,
+    "resolution": "1080p",
+    "running": true,
+    "seed": 837213,
+    "started": true
+   },
+   "type": "state"
+  }
+ },
+ {
+  "t": 102916,
+  "kind": "frame",
+  "detail": {
+   "name": "frame-102916"
+  }
+ },
+ {
+  "t": 102951,
+  "kind": "trace_end",
+  "detail": {
+   "frames": 57
+  }
+ }
+]

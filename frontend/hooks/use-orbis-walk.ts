@@ -50,6 +50,21 @@ import {
 } from "@/lib/orbis/session";
 import { OrbisSignals } from "@/lib/orbis/signals";
 import { VideoGate } from "@/lib/orbis/video-gate";
+import { WalkTrace } from "@/lib/orbis/walk-trace";
+
+/**
+ * Dev experiment, `?reseed=image`: at every shot that starts on a new block,
+ * send that block's real (graded) frame with `set_image` while the generation
+ * keeps running — no `reset`. Tests whether a continuous walk can be kept on
+ * the real streets by feeding it imagery as it goes (Q7 said it is ignored;
+ * re-checked here inside the real walk).
+ */
+function reseedMode(): string | null {
+  if (typeof window === "undefined" || process.env.NODE_ENV === "production") return null;
+  return new URLSearchParams(window.location.search).get("reseed");
+}
+
+type ReactorIntrospection = { getSchema?: () => unknown; getCapabilities?: () => unknown };
 
 /** Cold start is ~12–16s (Q4); this is the giving-up point. */
 const FIRST_FRAME_TIMEOUT_MS = 30_000;
@@ -159,13 +174,15 @@ export type UseOrbisWalkOptions = {
 };
 
 export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
-  const { status, connect, disconnect, sendCommand, uploadFile } = useReactor(
+  const { status, connect, disconnect, sendCommand, uploadFile, reactor } = useReactor(
     (state) => ({
       status: state.status,
       connect: state.connect,
       disconnect: state.disconnect,
       sendCommand: state.sendCommand,
       uploadFile: state.uploadFile,
+      // Dev trace only: the model's own command schema.
+      reactor: (state as unknown as { internal?: { reactor?: ReactorIntrospection } }).internal?.reactor,
     }),
   );
 
@@ -174,6 +191,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
 
   const signals = useMemo(() => new OrbisSignals(), []);
   const gate = useMemo(() => new VideoGate(), []);
+  const trace = useMemo(() => new WalkTrace(), []);
   const runRef = useRef<RunHandle | null>(null);
   const routeRef = useRef<Route | null>(null);
   const statusRef = useRef(status);
@@ -183,7 +201,14 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
   onFirstFrame.current = options.onFirstFrame;
   statusRef.current = status;
 
-  useReactorMessage((message) => signals.handle(message));
+  useReactorMessage((message) => {
+    signals.handle(message);
+    if (trace.enabled) {
+      const type = (message as { type?: string; data?: { type?: string } })?.data?.type
+        ?? (message as { type?: string })?.type;
+      if (!/chunk/i.test(String(type))) trace.log("message", message);
+    }
+  });
 
   const patch = useCallback((next: Partial<WalkSnapshot>) => {
     setSnapshot((current) => ({ ...current, ...next }));
@@ -269,11 +294,17 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
 
   const context = useMemo<OrbisContext>(
     () => ({
-      sendCommand: (command, data) => sendCommand(command, data ?? {}),
+      sendCommand: (command, data) => {
+        trace.log("command", {
+          command,
+          data: data && JSON.parse(JSON.stringify(data, (_key, value) => (value instanceof Blob ? "<file>" : value))),
+        });
+        return sendCommand(command, data ?? {});
+      },
       uploadFile: (file, fileOptions) => uploadFile(file, fileOptions),
       signals,
     }),
-    [sendCommand, signals, uploadFile],
+    [sendCommand, signals, trace, uploadFile],
   );
 
   const sleep = useCallback(async (ms: number, run: RunHandle, wakeOnConditions = false) => {
@@ -326,10 +357,42 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
       let sentVideo: string | null = shotsOf(initial)[0]?.video_prompt ?? null;
       let sentAudio: string | null = shotsOf(initial)[0]?.audio_prompt ?? null;
       let shownIndex = -1;
+      const reseed = reseedMode();
+      const seeded = new Set<string>([blocks.find((block) => block.imageAvailable)?.blockId ?? ""]);
+      // Grade every block's frame up front so a set_image lands on the shot boundary, not ~1s after.
+      const prepared = new Map<string, Promise<File | null>>();
+      if (reseed) {
+        for (const block of blocks) {
+          if (!block.imageAvailable || seeded.has(block.blockId)) continue;
+          const file = prepareSeed(block).then((result) => result.graded.file, () => null);
+          prepared.set(block.blockId, file);
+        }
+      }
 
       for (let s = 0; s < shotCount; s += 1) {
         const startedAt = Date.now();
         let version = -1;
+        {
+          const shot = shotsOf(routeRef.current ?? initial)[s];
+          const blockId = (routeRef.current ?? initial).waypoints[shot.waypoint_start].block_id;
+          if (reseed && !seeded.has(blockId) && prepared.has(blockId)) {
+            seeded.add(blockId);
+            const file = await prepared.get(blockId);
+            if (file) {
+              trace.log("reseed", { mode: reseed, block_id: blockId });
+              const uploaded = await context.uploadFile(file, { name: `seed-${blockId}.jpg` });
+              await context.sendCommand("set_image", { image: uploaded });
+            }
+          }
+          trace.log("shot_start", {
+            index: s,
+            kind: shot.kind,
+            duration_ms: shot.duration_ms,
+            waypoint_start: shot.waypoint_start,
+            waypoint_end: shot.waypoint_end,
+            video_prompt: shot.video_prompt,
+          });
+        }
         for (;;) {
           if (run.cancelled) throw new WalkCancelled();
           const route = routeRef.current ?? initial;
@@ -357,6 +420,13 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
           );
           if (index !== shownIndex) {
             shownIndex = index;
+            trace.log("waypoint", {
+              index,
+              lat: route.waypoints[index].lat,
+              lng: route.waypoints[index].lng,
+              heading: route.waypoints[index].heading,
+              block_id: route.waypoints[index].block_id,
+            });
             patch({
               waypointIndex: index,
               blockIndex: blockOf.get(route.waypoints[index].block_id) ?? 0,
@@ -366,7 +436,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
         }
       }
     },
-    [context, patch, sleep],
+    [context, patch, prepareSeed, sleep, trace],
   );
 
   const stop = useCallback(() => {
@@ -426,6 +496,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
         const route = await Promise.resolve(routeSource);
         if (run.cancelled) throw new WalkCancelled();
         routeRef.current = route;
+        trace.begin({ route });
 
         const blocks = groupIntoBlocks(route);
         patch({ route, blocks });
@@ -440,6 +511,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
 
         await connected;
         if (run.cancelled) throw new WalkCancelled();
+        trace.log("model_schema", { schema: reactor?.getSchema?.(), capabilities: reactor?.getCapabilities?.() });
 
         await pinRouteSession(context, {
           // Pinned so weather and lighting realisation stay stable for the walk.
@@ -472,6 +544,8 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
         if (outcome === "cancelled") throw new WalkCancelled();
 
         gate.release();
+        trace.log("first_frame");
+        trace.startFrames(document.querySelector<HTMLVideoElement>("video"));
         patch({ phase: "walking", statusText: "Walking" });
         onFirstFrame.current?.();
 
@@ -495,6 +569,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
         // Q3: a leaked session holds the account's only slot until it ages out,
         // and there is no REST endpoint to kill it. Always disconnect.
         signals.abort("Session closed.");
+        void trace.end();
         try {
           await disconnect();
         } catch {
@@ -503,7 +578,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
         runRef.current = null;
       }
     },
-    [context, disconnect, ensureConnected, gate, patch, prepareSeed, signals, sleep, walkRoute],
+    [context, disconnect, ensureConnected, gate, patch, prepareSeed, reactor, signals, sleep, trace, walkRoute],
   );
 
   // Same rule on unmount: a closed tab must not take the slot with it.

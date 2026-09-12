@@ -1,0 +1,1166 @@
+{
+  "run": "continuous-walk-script",
+  "model": "dynamic",
+  "modelName": "reactor/visko-orbis-dynamic",
+  "seedImage": "midrun-0.jpg",
+  "prompt": "walking forward along the sidewalk down a narrow residential street, first-person view at eye level, walking on a city sidewalk in San Francisco at night, streetlights, parked cars along the curb",
+  "audioPrompt": "quiet city street at night, distant traffic, faint wind",
+  "noiseSeed": 42,
+  "resolution": "1080p",
+  "mode": "run",
+  "marks": [
+    {
+      "label": "token_minted",
+      "atMs": 825,
+      "sinceStartMs": 391
+    },
+    {
+      "label": "connect_start",
+      "atMs": 826,
+      "sinceStartMs": 392
+    },
+    {
+      "label": "status_ready",
+      "atMs": 6813,
+      "sinceStartMs": 6379
+    },
+    {
+      "label": "noise_seed_set",
+      "atMs": 6932,
+      "sinceStartMs": 6499
+    },
+    {
+      "label": "resolution_set",
+      "atMs": 6991,
+      "sinceStartMs": 6557
+    },
+    {
+      "label": "audio_prompt_set",
+      "atMs": 7035,
+      "sinceStartMs": 6602
+    },
+    {
+      "label": "seed_fetch_start",
+      "atMs": 7035,
+      "sinceStartMs": 6602
+    },
+    {
+      "label": "block0_seed_fetched",
+      "atMs": 7057,
+      "sinceStartMs": 6623
+    },
+    {
+      "label": "block0_seed_uploaded",
+      "atMs": 7865,
+      "sinceStartMs": 7432
+    },
+    {
+      "label": "block0_image_accepted",
+      "atMs": 8146,
+      "sinceStartMs": 7712
+    },
+    {
+      "label": "block0_state_has_image",
+      "atMs": 8146,
+      "sinceStartMs": 7713
+    },
+    {
+      "label": "block0_prompt_sent",
+      "atMs": 9214,
+      "sinceStartMs": 8781
+    },
+    {
+      "label": "block0_conditions_ready",
+      "atMs": 9215,
+      "sinceStartMs": 8781
+    },
+    {
+      "label": "block0_start_sent",
+      "atMs": 9275,
+      "sinceStartMs": 8842
+    },
+    {
+      "label": "block0_generation_started",
+      "atMs": 9276,
+      "sinceStartMs": 8843
+    },
+    {
+      "label": "prompt0_sent",
+      "atMs": 13138,
+      "sinceStartMs": 12705
+    },
+    {
+      "label": "prompt1_sent",
+      "atMs": 22221,
+      "sinceStartMs": 21787
+    },
+    {
+      "label": "prompt2_sent",
+      "atMs": 31370,
+      "sinceStartMs": 30937
+    },
+    {
+      "label": "prompt3_sent",
+      "atMs": 40589,
+      "sinceStartMs": 40155
+    },
+    {
+      "label": "prompt4_sent",
+      "atMs": 49777,
+      "sinceStartMs": 49343
+    },
+    {
+      "label": "prompt5_sent",
+      "atMs": 58985,
+      "sinceStartMs": 58551
+    },
+    {
+      "label": "prompt6_sent",
+      "atMs": 68070,
+      "sinceStartMs": 67636
+    },
+    {
+      "label": "prompt7_sent",
+      "atMs": 77223,
+      "sinceStartMs": 76790
+    },
+    {
+      "label": "prompt8_sent",
+      "atMs": 86390,
+      "sinceStartMs": 85957
+    },
+    {
+      "label": "prompt9_sent",
+      "atMs": 95611,
+      "sinceStartMs": 95178
+    },
+    {
+      "label": "prompt10_sent",
+      "atMs": 104785,
+      "sinceStartMs": 104352
+    },
+    {
+      "label": "prompt11_sent",
+      "atMs": 113915,
+      "sinceStartMs": 113482
+    },
+    {
+      "label": "prompt12_sent",
+      "atMs": 121235,
+      "sinceStartMs": 120802
+    }
+  ],
+  "log": [
+    {
+      "atMs": 6557,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":null,\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":0,\"has_image\":false,\"has_prompt\":false,\"paused\":false,\"resolution\":\"1080p\",\"running\":false,\"seed\":42,\"started\":false,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 6557,
+      "type": "resolution_accepted",
+      "detail": "{\"resolution\":\"1080p\",\"type\":\"resolution_accepted\"}"
+    },
+    {
+      "atMs": 6601,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":0,\"has_image\":false,\"has_prompt\":false,\"paused\":false,\"resolution\":\"1080p\",\"running\":false,\"seed\":42,\"started\":false,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 6602,
+      "type": "audio_prompt_accepted",
+      "detail": "{\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"type\":\"audio_prompt_accepted\"}"
+    },
+    {
+      "atMs": 7711,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":false,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 7712,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":0,\"has_image\":true,\"has_prompt\":false,\"paused\":false,\"resolution\":\"1080p\",\"running\":false,\"seed\":42,\"started\":false,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 7712,
+      "type": "image_accepted",
+      "detail": "{\"height\":368,\"width\":640,\"type\":\"image_accepted\"}"
+    },
+    {
+      "atMs": 8780,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":true,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 8780,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":0,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":false,\"seed\":42,\"started\":false,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 8781,
+      "type": "prompt_accepted",
+      "detail": "{\"prompt\":\"walking forward along the sidewalk down a narrow residential street, first-person view at eye level, walking on a city sidewalk in San Francisco at night, streetlights, parked cars along the curb\",\"type\":\"prompt_accepted\"}"
+    },
+    {
+      "atMs": 8841,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":0,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 8842,
+      "type": "generation_started",
+      "detail": "{\"audio_enabled\":true,\"fps\":18,\"frames_per_chunk\":33,\"image_conditioned\":true,\"max_chunks\":2000,\"resolution\":\"1080p\",\"type\":\"generation_started\"}"
+    },
+    {
+      "atMs": 8843,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":0,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 11002,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":null,\"chunk_index\":0,\"delivered\":null,\"frames_emitted\":0,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 11003,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":0,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 12702,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":null,\"chunk_index\":1,\"delivered\":null,\"frames_emitted\":0,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 12703,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":1,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 12703,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":true,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 12704,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":1,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 12705,
+      "type": "prompt_accepted",
+      "detail": "{\"prompt\":\"continuing to walk forward past apartment buildings with fire escapes, first-person view at eye level, walking on a city sidewalk in San Francisco at night, streetlights, parked cars along the curb\",\"type\":\"prompt_accepted\"}"
+    },
+    {
+      "atMs": 14590,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":2,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 14590,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":2,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 16272,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":3,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 16419,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":3,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 18238,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":4,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 18238,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":4,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 19930,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":5,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 19931,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":5,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 21786,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":6,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 21787,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":6,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 21787,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":true,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 21787,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":6,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 21787,
+      "type": "prompt_accepted",
+      "detail": "{\"prompt\":\"approaching the corner at the end of the block, first-person view at eye level, walking on a city sidewalk in San Francisco at night, streetlights, parked cars along the curb\",\"type\":\"prompt_accepted\"}"
+    },
+    {
+      "atMs": 23619,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":7,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 23619,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":7,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 25478,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":8,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 25478,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":8,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 27277,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":9,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 27278,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":9,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 29294,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":10,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 29294,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":10,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 30936,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":11,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 30936,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":11,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 30936,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":true,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 30937,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":11,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 30937,
+      "type": "prompt_accepted",
+      "detail": "{\"prompt\":\"turning right at the corner onto a wider street, first-person view at eye level, walking on a city sidewalk in San Francisco at night, streetlights, parked cars along the curb\",\"type\":\"prompt_accepted\"}"
+    },
+    {
+      "atMs": 32842,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":12,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 32842,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":12,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 34640,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":13,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 34640,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":13,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 36509,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":14,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 36509,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":14,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 38333,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":15,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 38334,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":15,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 40154,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":16,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 40155,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":16,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 40155,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":true,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 40155,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":16,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 40155,
+      "type": "prompt_accepted",
+      "detail": "{\"prompt\":\"walking forward along the sidewalk past closed storefronts, first-person view at eye level, walking on a city sidewalk in San Francisco at night, streetlights, parked cars along the curb\",\"type\":\"prompt_accepted\"}"
+    },
+    {
+      "atMs": 42164,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":17,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 42164,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":17,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 43790,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":18,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 43790,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":18,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 45651,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":19,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 45653,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":19,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 47538,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":20,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 47539,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":20,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 49340,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":21,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 49341,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":21,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 49342,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":true,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 49343,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":21,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 49343,
+      "type": "prompt_accepted",
+      "detail": "{\"prompt\":\"continuing forward, the next intersection ahead, first-person view at eye level, walking on a city sidewalk in San Francisco at night, streetlights, parked cars along the curb\",\"type\":\"prompt_accepted\"}"
+    },
+    {
+      "atMs": 51112,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":22,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 51112,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":22,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 52986,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":23,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 52986,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":23,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 54796,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":24,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 54796,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":24,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 56635,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":25,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 56635,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":25,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 58549,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":26,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 58550,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":26,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 58550,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":true,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 58551,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":26,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 58551,
+      "type": "prompt_accepted",
+      "detail": "{\"prompt\":\"stepping off the curb and crossing the street at the crosswalk, first-person view at eye level, walking on a city sidewalk in San Francisco at night, streetlights, parked cars along the curb\",\"type\":\"prompt_accepted\"}"
+    },
+    {
+      "atMs": 60365,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":27,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 60365,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":27,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 62132,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":28,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 62133,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":28,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 64127,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":29,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 64128,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":29,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 65871,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":30,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 65872,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":30,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 67635,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":31,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 67635,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":31,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 67636,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":true,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 67636,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":31,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 67636,
+      "type": "prompt_accepted",
+      "detail": "{\"prompt\":\"turning left at the corner onto a two-lane street, first-person view at eye level, walking on a city sidewalk in San Francisco at night, streetlights, parked cars along the curb\",\"type\":\"prompt_accepted\"}"
+    },
+    {
+      "atMs": 69540,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":32,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 69541,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":32,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 71313,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":33,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 71313,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":33,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 73126,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":34,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 73216,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":34,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 75025,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":35,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 75026,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":35,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 76789,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":36,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 76789,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":36,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 76789,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":true,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 76790,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":36,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 76790,
+      "type": "prompt_accepted",
+      "detail": "{\"prompt\":\"walking forward past parked cars and streetlights, first-person view at eye level, walking on a city sidewalk in San Francisco at night, streetlights, parked cars along the curb\",\"type\":\"prompt_accepted\"}"
+    },
+    {
+      "atMs": 78616,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":37,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 78616,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":37,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 80498,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":38,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 80499,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":38,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 82303,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":39,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 82304,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":39,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 84114,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":40,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 84114,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":40,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 85956,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":41,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 85956,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":41,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 85956,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":true,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 85957,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":41,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 85957,
+      "type": "prompt_accepted",
+      "detail": "{\"prompt\":\"continuing down the block at a steady pace, first-person view at eye level, walking on a city sidewalk in San Francisco at night, streetlights, parked cars along the curb\",\"type\":\"prompt_accepted\"}"
+    },
+    {
+      "atMs": 87836,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":42,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 87836,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":42,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 89722,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":43,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 89723,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":43,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 91485,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":44,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 91485,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":44,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 93337,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":45,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 93338,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":45,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 95177,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":46,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 95177,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":46,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 95178,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":true,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 95178,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":46,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 95178,
+      "type": "prompt_accepted",
+      "detail": "{\"prompt\":\"approaching the corner, first-person view at eye level, walking on a city sidewalk in San Francisco at night, streetlights, parked cars along the curb\",\"type\":\"prompt_accepted\"}"
+    },
+    {
+      "atMs": 96988,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":47,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 96989,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":47,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 99083,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":48,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 99083,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":48,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 100640,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":49,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 100640,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":49,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 102523,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":50,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 102524,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":50,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 104351,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":51,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 104351,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":51,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 104351,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":true,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 104352,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":51,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 104352,
+      "type": "prompt_accepted",
+      "detail": "{\"prompt\":\"turning right onto a wide arterial street, first-person view at eye level, walking on a city sidewalk in San Francisco at night, streetlights, parked cars along the curb\",\"type\":\"prompt_accepted\"}"
+    },
+    {
+      "atMs": 106148,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":52,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 106148,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":52,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 108078,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":53,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 108079,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":53,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 109785,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":54,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 109785,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":54,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 111970,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":55,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 111971,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":55,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 113480,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":56,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 113480,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":56,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 113481,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":true,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 113481,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":56,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 113482,
+      "type": "prompt_accepted",
+      "detail": "{\"prompt\":\"walking forward along the sidewalk, first-person view at eye level, walking on a city sidewalk in San Francisco at night, streetlights, parked cars along the curb\",\"type\":\"prompt_accepted\"}"
+    },
+    {
+      "atMs": 115591,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":57,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 115592,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":57,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 117134,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":58,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 117135,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":58,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 119108,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":59,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 119109,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":59,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 120800,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":60,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 120800,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":60,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 120801,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":true,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 120801,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":60,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 120802,
+      "type": "prompt_accepted",
+      "detail": "{\"prompt\":\"slowing down and stopping at the corner, first-person view at eye level, walking on a city sidewalk in San Francisco at night, streetlights, parked cars along the curb\",\"type\":\"prompt_accepted\"}"
+    },
+    {
+      "atMs": 122670,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":61,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 122671,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":61,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 124962,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":62,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 124963,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":62,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 126430,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":63,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 126430,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":63,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 128209,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":64,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 128209,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":64,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":42,\"started\":true,\"type\":\"state\"}"
+    }
+  ],
+  "connectionTimings": {
+    "sessionCreationMs": 679.1999998092651,
+    "transportConnectingMs": 5275.599999904633,
+    "totalMs": 5954.799999713898
+  },
+  "imageAccepted": {
+    "width": 640,
+    "height": 368
+  },
+  "imageConditioned": true,
+  "availableResolutions": [
+    "native",
+    "1080p",
+    "2k",
+    "4k"
+  ],
+  "chunkCompleteCount": 65,
+  "chunkIntervalsMs": [
+    1700,
+    1888,
+    1683,
+    1966,
+    1693,
+    1856,
+    1833,
+    1859,
+    1799,
+    2017,
+    1642,
+    1906,
+    1798,
+    1869,
+    1824,
+    1821,
+    2010,
+    1626,
+    1861,
+    1887,
+    1802,
+    1772,
+    1874,
+    1810,
+    1839,
+    1914,
+    1816,
+    1767,
+    1995,
+    1744,
+    1764,
+    1906,
+    1772,
+    1814,
+    1898,
+    1764,
+    1827,
+    1882,
+    1805,
+    1811,
+    1842,
+    1880,
+    1887,
+    1763,
+    1853,
+    1840,
+    1811,
+    2094,
+    1558,
+    1883,
+    1828,
+    1797,
+    1931,
+    1707,
+    2186,
+    1510,
+    2111,
+    1543,
+    1974,
+    1691,
+    1871,
+    2292,
+    1468,
+    1779
+  ],
+  "capturedFrames": [
+    "p00",
+    "p01",
+    "p02",
+    "p03",
+    "p04",
+    "p05",
+    "p06",
+    "p07",
+    "p08",
+    "p09",
+    "p10",
+    "p11",
+    "p12"
+  ],
+  "concurrency": [],
+  "errors": [],
+  "finishedAt": "2026-09-12T21:27:45.502Z"
+}

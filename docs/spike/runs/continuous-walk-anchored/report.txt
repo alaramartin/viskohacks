@@ -1,0 +1,37 @@
+{
+  "run": "continuous-walk-anchored",
+  "model": "dynamic",
+  "modelName": "reactor/visko-orbis-dynamic",
+  "seedImage": "midrun-0.jpg",
+  "prompt": "smooth first-person walking footage from a camera worn at head height, looking straight ahead along the sidewalk, natural color balance, warm amber and white streetlight glow, narrow residential street at night, seen from the sidewalk, streetlights on both sides casting even pools of light, dry pavement, cars parked along the curb, storefronts closed with shutters down, no pedestrians",
+  "audioPrompt": "quiet city street at night, distant traffic, faint wind",
+  "noiseSeed": 42,
+  "resolution": "1080p",
+  "mode": "run",
+  "marks": [
+    {
+      "label": "token_minted",
+      "atMs": 359,
+      "sinceStartMs": 152
+    },
+    {
+      "label": "connect_start",
+      "atMs": 359,
+      "sinceStartMs": 152
+    }
+  ],
+  "log": [],
+  "connectionTimings": null,
+  "imageAccepted": null,
+  "imageConditioned": null,
+  "availableResolutions": [],
+  "chunkCompleteCount": 0,
+  "chunkIntervalsMs": [],
+  "capturedFrames": [],
+  "concurrency": [],
+  "errors": [
+    "RATE_LIMITED: unexpected HTTP status 429 from create session: {\"current\":1,\"error\":\"quota_exceeded\",\"limit\":1,\"message\":\"quota exceeded: concurrent_sessions_per_model for model \\\"reactor/visko-orbis-dynamic\\\" (limit=1, current=1)\",\"model\":\"reactor/visko-orbis-dynamic\",\"quota_type\":\"concurrent_sessions_per_model\"}",
+    "unexpected HTTP status 429 from create session: {\"current\":1,\"error\":\"quota_exceeded\",\"limit\":1,\"message\":\"quota exceeded: concurrent_sessions_per_model for model \\\"reactor/visko-orbis-dynamic\\\" (limit=1, current=1)\",\"model\":\"reactor/visko-orbis-dynamic\",\"quota_type\":\"concurrent_sessions_per_model\"}"
+  ],
+  "finishedAt": "2026-09-12T21:31:48.477Z"
+}

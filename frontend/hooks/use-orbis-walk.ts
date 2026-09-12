@@ -45,7 +45,6 @@ import {
   morphAudioPrompt,
   morphPrompt,
   pinRouteSession,
-  resetGeneration,
   seedBlock,
   type OrbisContext,
 } from "@/lib/orbis/session";
@@ -53,8 +52,17 @@ import { OrbisSignals } from "@/lib/orbis/signals";
 import { VideoGate } from "@/lib/orbis/video-gate";
 import { WalkTrace } from "@/lib/orbis/walk-trace";
 
-/** Giving-up point for the new street's first frames after a corner. */
-const CORNER_TIMEOUT_MS = 20_000;
+/**
+ * Dev experiment, `?reseed=image`: at every shot that starts on a new block,
+ * send that block's real (graded) frame with `set_image` while the generation
+ * keeps running — no `reset`. Tests whether a continuous walk can be kept on
+ * the real streets by feeding it imagery as it goes (Q7 said it is ignored;
+ * re-checked here inside the real walk).
+ */
+function reseedMode(): string | null {
+  if (typeof window === "undefined" || process.env.NODE_ENV === "production") return null;
+  return new URLSearchParams(window.location.search).get("reseed");
+}
 
 type ReactorIntrospection = { getSchema?: () => unknown; getCapabilities?: () => unknown };
 
@@ -349,60 +357,31 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
       let sentVideo: string | null = shotsOf(initial)[0]?.video_prompt ?? null;
       let sentAudio: string | null = shotsOf(initial)[0]?.audio_prompt ?? null;
       let shownIndex = -1;
-      // Grade every block's real frame up front, so a corner doesn't wait on it.
-      // Graded for the conditions at walk start; re-graded at the corner if they changed.
+      const reseed = reseedMode();
+      const seeded = new Set<string>([blocks.find((block) => block.imageAvailable)?.blockId ?? ""]);
+      // Grade every block's frame up front so a set_image lands on the shot boundary, not ~1s after.
       const prepared = new Map<string, Promise<File | null>>();
-      for (const block of blocks) {
-        if (!block.imageAvailable) continue;
-        prepared.set(block.blockId, prepareSeed(block).then((result) => result.graded.file, () => null));
+      if (reseed) {
+        for (const block of blocks) {
+          if (!block.imageAvailable || seeded.has(block.blockId)) continue;
+          const file = prepareSeed(block).then((result) => result.graded.file, () => null);
+          prepared.set(block.blockId, file);
+        }
       }
-      const preparedVersion = run.conditionsVersion;
 
       for (let s = 0; s < shotCount; s += 1) {
         const startedAt = Date.now();
         let version = -1;
         {
           const shot = shotsOf(routeRef.current ?? initial)[s];
-          const route = routeRef.current ?? initial;
-          const blockId = route.waypoints[shot.waypoint_start].block_id;
-          // CORNER TRANSITION. Orbis follows neither a turn prompt nor a mid-run
-          // set_image (docs/reactor-findings.md, "Walk trace"), so the corner is a
-          // reset onto the next street's real frame, covered by a head-turn pan.
-          if (shot.kind === "turn" && prepared.has(blockId)) {
-            let file: File | null = null;
-            if (run.conditionsVersion === preparedVersion) {
-              file = await prepared.get(blockId) ?? null;
-            } else {
-              const current = groupIntoBlocks(route).find((block) => block.blockId === blockId);
-              file = current ? await prepareSeed(current).then((r) => r.graded.file, () => null) : null;
-            }
+          const blockId = (routeRef.current ?? initial).waypoints[shot.waypoint_start].block_id;
+          if (reseed && !seeded.has(blockId) && prepared.has(blockId)) {
+            seeded.add(blockId);
+            const file = await prepared.get(blockId);
             if (file) {
-              const side = /turning (left|right)/.exec(shot.video_prompt)?.[1] === "left" ? "left" : "right";
-              const nextWalk = shotsOf(route)[s + 1] ?? shot;
-              trace.log("corner_transition", { index: s, side, block_id: blockId });
-              patch({ waypointIndex: shot.waypoint_start, blockIndex: blockOf.get(blockId) ?? 0 });
-              const stopPan = gate.turnTransition(file, side);
-              try {
-                await resetGeneration(context);
-                if (run.cancelled) throw new WalkCancelled();
-                await seedBlock(context, {
-                  image: file,
-                  videoPrompt: nextWalk.video_prompt,
-                  audioPrompt: nextWalk.audio_prompt,
-                });
-                sentVideo = nextWalk.video_prompt;
-                sentAudio = nextWalk.audio_prompt;
-                const outcome = await gate.waitForLiveFrames({
-                  timeoutMs: CORNER_TIMEOUT_MS,
-                  isCancelled: () => run.cancelled,
-                });
-                if (outcome === "cancelled") throw new WalkCancelled();
-              } finally {
-                stopPan();
-                gate.release();
-              }
-              trace.log("corner_live", { index: s });
-              continue;
+              trace.log("reseed", { mode: reseed, block_id: blockId });
+              const uploaded = await context.uploadFile(file, { name: `seed-${blockId}.jpg` });
+              await context.sendCommand("set_image", { image: uploaded });
             }
           }
           trace.log("shot_start", {
@@ -457,7 +436,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
         }
       }
     },
-    [context, gate, patch, prepareSeed, sleep, trace],
+    [context, patch, prepareSeed, sleep, trace],
   );
 
   const stop = useCallback(() => {

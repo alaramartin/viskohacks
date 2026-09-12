@@ -531,6 +531,28 @@ Monotonic, tracks its target within 0.01, and the sodium cast goes from *neutral
 at noon to full warmth at night. The floor holds: an unlit block bottoms out at
 0.093 actual against a 0.085 target.
 
+### After the merge: what the condition clock actually does
+
+Measured against the live backend on the fixture route, 12 Sept, SF. Every
+condition change keeps the geometry `applyConditions` checks (`route_id`,
+waypoint count, shot count, every `block_id`) — 19:00, 21:00, 02:00, `fog`,
+`crowd` all pass — so the morph is never refused in practice.
+
+| time | phase | darkness | sun altitude | prompt vs 23:00 |
+|---|---|---|---|---|
+| 19:00 | day | **0.000** | **+3.7°** | "in daylight" instead of "at night, streetlights on both sides…" |
+| 20:00 | night | 0.690 | −8.2° | differs (storefronts) |
+| 21:00 | night | 1.000 | −19.6° | differs (storefronts) |
+| 02:00 | night | 1.000 | −46.6° | **identical** |
+
+Two consequences for the demo, both in PLAN.md:
+
+- **7pm is daylight in September**, so "7pm → 11pm" starts from a daytime
+  render, and a walk *started* at 7pm seeds Orbis with a near-untouched daytime
+  crop. 8pm → 11pm stays inside the night premise.
+- **Darkness saturates at 1.0 from ~21:00**, so 23:00 → 02:00 changes nothing at
+  all. The usable range for a visible time change is 19:00–21:00.
+
 ### Verified against the live backend
 
 `/api/routes` tolerates the new `fog` / `crowd` query parameters today — 200 and

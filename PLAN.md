@@ -1064,19 +1064,45 @@ Checkpoint 2 fixes.
     reaches 0.099. That is the Checkpoint 2 "too dark to see anything" failure
     in miniature, so the change is in the right direction, but it is a change,
     not a no-op. Real Mapillary daytime crops never hit it.
-  - **Contract:** `condition.ambient` added to `shared/waypoint.schema.json` and
-    `lib/contract.ts` as **optional**, in the shape Person 1 proposed —
-    `{ phase, sun_altitude_deg, darkness }`. Agreed from this side; `phase`
-    includes `"dawn"` because `backend/conditions.py` `sun_state()` already
-    produces it. **Person 1 still has to emit it**; until then the fallback runs.
-  - Checked against the live backend: the fallback already gives the demo its
-    moment. 19:00 → "Dark since: Not yet (dark at 7:48pm)" → dusk (0.55);
-    23:00 → "7:48pm" → night (1.0). So 7pm → 11pm changes the grade **today**.
-    Its limit is measured too: **14:00 also reads as dusk**, because the fact is
-    a boolean. Only a numeric `darkness` fixes that.
+  - **Contract:** `condition.ambient` is in `shared/waypoint.schema.json` and
+    `lib/contract.ts`, and Person 1's backend now emits it — both people wrote
+    the identical shape independently and it merged cleanly. The "Dark since"
+    prose fallback is still there for a response without it.
   - Also checked: `/api/routes` returns 200 and an identical body when sent
     `fog` / `crowd` (or any unknown parameter), so the frontend being wired
     ahead of the backend breaks nothing.
+
+  - ### 🛑 Two measured facts that change how the demo should be run
+
+    Measured against the live backend after the merge, on the fixture route,
+    12 Sept, SF (`darkness` = −sun_altitude/12, clamped):
+
+    | time | phase | darkness | sun altitude |
+    |---|---|---|---|
+    | 17:00 | day | 0.000 | +27.0° |
+    | 19:00 | day | **0.000** | **+3.7°** |
+    | 20:00 | night | 0.690 | −8.2° |
+    | 21:00 | night | **1.000** | −19.6° |
+    | 23:00 | night | 1.000 | −39.2° |
+
+    1. **7pm is broad daylight in September, not dusk.** The sun is still up
+       (+3.7°), so `darkness` is 0.000 and Person 1's prompt literally reads
+       "**in daylight**" instead of "at night, streetlights on both sides…".
+       The demo script's canonical move — "change the time (e.g. 7pm → 11pm)" —
+       therefore starts from a *daytime* render. Starting a walk at 7pm also
+       means the seed grade is a near pass-through of the daytime crop, so Orbis
+       generates daytime video, which is rule 1's territory.
+       **Human decision needed.** Either (a) demo **8pm → 11pm**, which is
+       inside the real dynamic range and stays a night product; or (b) clamp the
+       app's darkness to a dusk minimum so it is never fully day — one line in
+       `estimateAmbient`, but it makes the render disagree with the sun, so it
+       is a product call and not one to make quietly. Not changed either way.
+    2. **Darkness saturates at 1.0 from about 21:00.** 21:00, 23:00 and 02:00
+       are the same light, and **23:00 → 02:00 changes the prompt not at all** —
+       a condition change between them is a visible no-op. 21:00 → 23:00 *does*
+       still change, but via `opening_hours` ("a lit storefront" → "storefronts
+       closed with shutters down"), not darkness.
+       **So the usable range for "watch it change" is 19:00–21:00.**
 
 - [x] **Remove comparison from the UI.** Route comparison is dropped (see
       WHAT WE ARE BUILDING). Remove the "Compare routes" button, the
@@ -1347,6 +1373,15 @@ Update this as you go so the human can `/clear` and resume.
         starts rendering daytime.
       - Owner: Person 2 (`lib/orbis/nightgrade.ts`, `lighting.ts`) unless
         the human reassigns.
+      - **Both fixes are in, and the box stays open only for a live re-check.**
+        The sky mask was rewritten in `d0b1ddb` (connected to the top edge,
+        gradient, no row cut-off; mask went from 24–52% of the frame to 1–31%,
+        `evidence/13-…` → `14-…`). The floor is `MIN_TARGET_LUMA` 0.085, and
+        Phase 3's darkness dial holds it at *every* darkness, not just at
+        night. Verified offline pixel by pixel against three real seeds
+        (`docs/reactor-findings.md`, "Grade dial"). **Still unverified where
+        Orbis itself starts rendering daytime** — that needs a free session
+        slot, same blocker as the rest of the walk-quality items below.
     - [ ] **Person 1 backend nits:** the Mapillary capture-car rig is visible
       at the bottom of some seeds (tilt the pano crop up or prefer rig-free
       images); "Road: No road alongside" shows beside obvious roads (street

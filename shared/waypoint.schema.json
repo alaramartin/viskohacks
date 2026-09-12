@@ -1,0 +1,99 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://walk-home.local/shared/waypoint.schema.json",
+    "title": "RoutesResponse",
+    "description": "Response of GET /api/routes. A route is an ordered list of Waypoints. Consecutive waypoints sharing a block_id belong to one Orbis session.",
+    "type": "object",
+    "required": ["routes"],
+    "additionalProperties": false,
+    "properties": {
+        "routes": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/Route" }
+        }
+    },
+    "$defs": {
+        "Route": {
+            "type": "object",
+            "required": ["route_id", "waypoints"],
+            "additionalProperties": false,
+            "properties": {
+                "route_id": { "type": "string", "examples": ["A", "B"] },
+                "waypoints": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/Waypoint" }
+                }
+            }
+        },
+        "Waypoint": {
+            "type": "object",
+            "required": [
+                "index",
+                "lat",
+                "lng",
+                "heading",
+                "block_id",
+                "image_url",
+                "image_available",
+                "condition"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "index": { "type": "integer", "minimum": 0 },
+                "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+                "lng": { "type": "number", "minimum": -180, "maximum": 180 },
+                "heading": {
+                    "type": "number",
+                    "minimum": 0,
+                    "exclusiveMaximum": 360,
+                    "description": "Bearing in degrees to the next waypoint (0 = north, clockwise)."
+                },
+                "block_id": {
+                    "type": "string",
+                    "description": "Stable id for the street segment between two intersections. Consecutive waypoints sharing it belong to one Orbis session."
+                },
+                "image_url": {
+                    "type": ["string", "null"],
+                    "description": "e.g. /api/imagery/<block_id>/<heading>. null when image_available is false."
+                },
+                "image_available": {
+                    "type": "boolean",
+                    "description": "false => image_url is null and the renderer must show the unavailable state."
+                },
+                "condition": { "$ref": "#/$defs/Condition" }
+            },
+            "if": { "properties": { "image_available": { "const": false } } },
+            "then": { "properties": { "image_url": { "type": "null" } } },
+            "else": { "properties": { "image_url": { "type": "string" } } }
+        },
+        "Condition": {
+            "type": "object",
+            "required": ["video_prompt", "audio_prompt", "facts"],
+            "additionalProperties": false,
+            "properties": {
+                "video_prompt": {
+                    "type": "string",
+                    "description": "Passed straight to Orbis set_prompt."
+                },
+                "audio_prompt": {
+                    "type": "string",
+                    "description": "Passed straight to Orbis set_audio_prompt."
+                },
+                "facts": {
+                    "type": "array",
+                    "description": "Rendered verbatim in the evidence readout. Person 1 owns the wording.",
+                    "items": { "$ref": "#/$defs/Fact" }
+                }
+            }
+        },
+        "Fact": {
+            "type": "object",
+            "required": ["label", "value"],
+            "additionalProperties": false,
+            "properties": {
+                "label": { "type": "string" },
+                "value": { "type": "string" }
+            }
+        }
+    }
+}

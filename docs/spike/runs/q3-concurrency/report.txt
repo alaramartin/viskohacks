@@ -1,0 +1,45 @@
+{
+  "run": "q3-concurrency",
+  "model": "dynamic",
+  "modelName": "reactor/visko-orbis-dynamic",
+  "seedImage": null,
+  "prompt": "narrow one-way city street at night, amber sodium streetlights, wet asphalt reflecting light, cars parked along both curbs, multi-story apartment buildings with fire escapes, no pedestrians",
+  "audioPrompt": "quiet city street at night, distant traffic, faint wind",
+  "noiseSeed": null,
+  "resolution": "1080p",
+  "mode": "concurrency",
+  "marks": [
+    {
+      "label": "token_minted",
+      "atMs": 1139,
+      "sinceStartMs": 773
+    }
+  ],
+  "log": [],
+  "connectionTimings": null,
+  "imageAccepted": null,
+  "imageConditioned": null,
+  "availableResolutions": [],
+  "chunkCompleteCount": 0,
+  "chunkIntervalsMs": [],
+  "capturedFrames": [],
+  "concurrency": [
+    {
+      "index": 0,
+      "ok": true,
+      "readyMs": 10841
+    },
+    {
+      "index": 1,
+      "ok": false,
+      "error": "unexpected HTTP status 429 from create session: {\"current\":1,\"error\":\"quota_exceeded\",\"limit\":1,\"message\":\"quota exceeded: concurrent_sessions_per_model for model \\\"reactor/visko-orbis-dynamic\\\" (limit=1, current=1)\",\"model\":\"reactor/visko-orbis-dynamic\",\"quota_type\":\"concurrent_sessions_per_model\"}"
+    },
+    {
+      "index": 2,
+      "ok": false,
+      "error": "unexpected HTTP status 429 from create session: {\"current\":1,\"error\":\"quota_exceeded\",\"limit\":1,\"message\":\"quota exceeded: concurrent_sessions_per_model for model \\\"reactor/visko-orbis-dynamic\\\" (limit=1, current=1)\",\"model\":\"reactor/visko-orbis-dynamic\",\"quota_type\":\"concurrent_sessions_per_model\"}"
+    }
+  ],
+  "errors": [],
+  "finishedAt": "2026-09-12T19:28:44.006Z"
+}

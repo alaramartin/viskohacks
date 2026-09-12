@@ -1,0 +1,329 @@
+{
+  "run": "q1-seeded-dynamic",
+  "model": "dynamic",
+  "modelName": "reactor/visko-orbis-dynamic",
+  "seedImage": "golden-gate-ave-west.jpg",
+  "prompt": "narrow one-way city street at night, amber sodium streetlights, wet asphalt reflecting light, cars parked along both curbs, multi-story apartment buildings with fire escapes, no pedestrians",
+  "audioPrompt": "quiet city street at night, distant traffic, faint wind",
+  "noiseSeed": 1234,
+  "resolution": "1080p",
+  "mode": "run",
+  "marks": [
+    {
+      "label": "token_minted",
+      "atMs": 1196,
+      "sinceStartMs": 777
+    },
+    {
+      "label": "connect_start",
+      "atMs": 1197,
+      "sinceStartMs": 778
+    },
+    {
+      "label": "status_ready",
+      "atMs": 9061,
+      "sinceStartMs": 8642
+    },
+    {
+      "label": "seed_fetch_start",
+      "atMs": 9061,
+      "sinceStartMs": 8642
+    },
+    {
+      "label": "seed_fetched",
+      "atMs": 9130,
+      "sinceStartMs": 8711
+    },
+    {
+      "label": "seed_uploaded",
+      "atMs": 11241,
+      "sinceStartMs": 10822
+    },
+    {
+      "label": "image_accepted",
+      "atMs": 11452,
+      "sinceStartMs": 11033
+    },
+    {
+      "label": "state_has_image",
+      "atMs": 11453,
+      "sinceStartMs": 11034
+    },
+    {
+      "label": "seed_set",
+      "atMs": 11774,
+      "sinceStartMs": 11355
+    },
+    {
+      "label": "resolution_set",
+      "atMs": 12018,
+      "sinceStartMs": 11599
+    },
+    {
+      "label": "audio_prompt_set",
+      "atMs": 12147,
+      "sinceStartMs": 11728
+    },
+    {
+      "label": "prompt_sent",
+      "atMs": 12772,
+      "sinceStartMs": 12354
+    },
+    {
+      "label": "conditions_ready",
+      "atMs": 12773,
+      "sinceStartMs": 12354
+    },
+    {
+      "label": "start_sent",
+      "atMs": 12884,
+      "sinceStartMs": 12465
+    },
+    {
+      "label": "generation_started",
+      "atMs": 12885,
+      "sinceStartMs": 12466
+    },
+    {
+      "label": "first_video_frame",
+      "atMs": 19378,
+      "sinceStartMs": 18959
+    }
+  ],
+  "log": [
+    {
+      "atMs": 11032,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":false,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 11032,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":null,\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":0,\"has_image\":true,\"has_prompt\":false,\"paused\":false,\"resolution\":\"2k\",\"running\":false,\"seed\":42,\"started\":false,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 11033,
+      "type": "image_accepted",
+      "detail": "{\"height\":480,\"width\":854,\"type\":\"image_accepted\"}"
+    },
+    {
+      "atMs": 11598,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":null,\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":0,\"has_image\":true,\"has_prompt\":false,\"paused\":false,\"resolution\":\"1080p\",\"running\":false,\"seed\":1234,\"started\":false,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 11599,
+      "type": "resolution_accepted",
+      "detail": "{\"resolution\":\"1080p\",\"type\":\"resolution_accepted\"}"
+    },
+    {
+      "atMs": 11727,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":0,\"has_image\":true,\"has_prompt\":false,\"paused\":false,\"resolution\":\"1080p\",\"running\":false,\"seed\":1234,\"started\":false,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 11728,
+      "type": "audio_prompt_accepted",
+      "detail": "{\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"type\":\"audio_prompt_accepted\"}"
+    },
+    {
+      "atMs": 12352,
+      "type": "conditions_ready",
+      "detail": "{\"has_image\":true,\"has_prompt\":true,\"type\":\"conditions_ready\"}"
+    },
+    {
+      "atMs": 12353,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":0,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":false,\"seed\":1234,\"started\":false,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 12354,
+      "type": "prompt_accepted",
+      "detail": "{\"prompt\":\"narrow one-way city street at night, amber sodium streetlights, wet asphalt reflecting light, cars parked along both curbs, multi-story apartment buildings with fire escapes, no pedestrians\",\"type\":\"prompt_accepted\"}"
+    },
+    {
+      "atMs": 12465,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":0,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":1234,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 12466,
+      "type": "generation_started",
+      "detail": "{\"audio_enabled\":true,\"fps\":18,\"frames_per_chunk\":33,\"image_conditioned\":true,\"max_chunks\":2000,\"resolution\":\"1080p\",\"type\":\"generation_started\"}"
+    },
+    {
+      "atMs": 12467,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":0,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":1234,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 14465,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":null,\"chunk_index\":0,\"delivered\":null,\"frames_emitted\":0,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 14465,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":0,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":1234,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 16461,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":null,\"chunk_index\":1,\"delivered\":null,\"frames_emitted\":0,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 16462,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":1,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":1234,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 19732,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":2,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 19732,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":2,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":1234,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 19946,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":3,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 19946,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":3,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":1234,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 21738,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":4,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 21739,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":4,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":1234,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 23663,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":5,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 23664,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":5,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":1234,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 25634,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":6,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 25636,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":6,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":1234,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 27249,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":7,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 27250,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":7,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":1234,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 29211,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":8,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 29213,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":8,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":1234,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 31212,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":9,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 31212,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":9,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":1234,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 32724,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":10,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 32724,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":10,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":1234,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 34598,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":11,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 34599,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":11,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":1234,\"started\":true,\"type\":\"state\"}"
+    },
+    {
+      "atMs": 36400,
+      "type": "chunk_complete",
+      "detail": "{\"audio_samples\":88000,\"chunk_index\":12,\"delivered\":\"1920x1080\",\"frames_emitted\":33,\"type\":\"chunk_complete\"}"
+    },
+    {
+      "atMs": 36401,
+      "type": "state",
+      "detail": "{\"audio_enabled\":true,\"audio_prompt\":\"quiet city street at night, distant traffic, faint wind\",\"available_resolutions\":[\"native\",\"1080p\",\"2k\",\"4k\"],\"current_chunk\":12,\"has_image\":true,\"has_prompt\":true,\"paused\":false,\"resolution\":\"1080p\",\"running\":true,\"seed\":1234,\"started\":true,\"type\":\"state\"}"
+    }
+  ],
+  "connectionTimings": {
+    "sessionCreationMs": 731.4000000003725,
+    "transportConnectingMs": 7072.5,
+    "totalMs": 7803.9000000003725
+  },
+  "imageAccepted": {
+    "width": 854,
+    "height": 480
+  },
+  "imageConditioned": true,
+  "availableResolutions": [
+    "native",
+    "1080p",
+    "2k",
+    "4k"
+  ],
+  "chunkCompleteCount": 13,
+  "chunkIntervalsMs": [
+    1996,
+    3271,
+    214,
+    1793,
+    1925,
+    1971,
+    1615,
+    1962,
+    2000,
+    1512,
+    1875,
+    1802
+  ],
+  "capturedFrames": [
+    "t008s",
+    "t015s",
+    "t025s"
+  ],
+  "concurrency": [],
+  "errors": [],
+  "finishedAt": "2026-09-12T19:24:05.665Z"
+}

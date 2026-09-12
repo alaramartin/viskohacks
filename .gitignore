@@ -16,3 +16,7 @@ __pycache__/
 
 # Backend data caches
 backend/data/imagery/
+
+# Spike: raw 1080p frame dumps are ~40MB. The curated set lives in
+# docs/spike/evidence/ and the timing logs (report.txt) stay committed.
+docs/spike/runs/**/*.png

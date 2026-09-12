@@ -9,7 +9,7 @@ and gitignored).
 **Headline: the product premise works, but only with one extra step that is not
 in PLAN.md — the seed image must be converted to night before it reaches Orbis.**
 A daytime Street View frame produces a daytime video no matter what the prompt
-says.
+says. The conversion is offline numpy/Pillow — no new API, no new key.
 
 ---
 
@@ -86,11 +86,12 @@ untouched, which is the whole point.
    SF's grey skies and leaves a bright cloud mass that hijacks the render.
    Detect "bright and desaturated" as well.
 
-`nightgrade.py` is a hand-rolled grade and it is the weakest link here. The
-starter already ships a Gemini image-edit route (`frontend/app/api/nano-banana/`)
-which would do a proper night *relight* rather than a levels crush. It needs a
-`GEMINI_API_KEY`, which we do not have. **Decision needed at Checkpoint 1** —
-see Open questions.
+`nightgrade.py` is a levels-and-colour grade, not a relight, and it needs its
+exposure watched (below). That is its only real weakness, and it is cheap to
+manage. **No image-generation API is needed for this** — it is numpy and
+Pillow, offline, no key. The starter's leftover Nano Banana route
+(`frontend/app/api/nano-banana/`) is not part of our pipeline and we are not
+building on it, per the plan's own note on the starter.
 
 ### Fidelity decays with time-in-block
 
@@ -269,10 +270,7 @@ across it.
    `GET /api/imagery/...` so the endpoint serves night frames directly and the
    frontend never holds a daytime pixel. That also satisfies rule #1 by
    construction.
-2. **Do we get a `GEMINI_API_KEY`?** If yes, Nano Banana relighting is very
-   likely better than the hand-rolled grade, and the starter already wires it.
-   If no, the grade works — it just needs its exposure watched.
-3. **Can Visko/Reactor raise `concurrent_sessions_per_model` above 1?** Worth
+2. **Can Visko/Reactor raise `concurrent_sessions_per_model` above 1?** Worth
    asking in person. It would revive prefetch and live compare.
 
 ## Reproducing

@@ -1,0 +1,280 @@
+<meta charset="utf-8">
+<title>Walk Home diagram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  html.light {
+    --bg: #F2F5F8;
+    --panel: #FFFFFF;
+    --panel-2: #E8EDF2;
+    --ink: #13171B;
+    --muted: #5A6573;
+    --line: #C9D3DC;
+    --line-soft: #DDE4EB;
+    --sodium: #A96410;
+    --sodium-line: #C98A2E;
+    --sodium-fill: #FBF1E0;
+    --data: #2F5B8A;
+    --dead: #973C33;
+  }
+  html.dark {
+    --bg: #0D1014;
+    --panel: #161A20;
+    --panel-2: #1E232B;
+    --ink: #E8ECF1;
+    --muted: #949FAC;
+    --line: #2C333C;
+    --line-soft: #232932;
+    --sodium: #EDAC52;
+    --sodium-line: #C8862F;
+    --sodium-fill: #2C2113;
+    --data: #82ABDE;
+    --dead: #DE8275;
+  }
+  * { margin: 0; padding: 0; }
+  body { background: var(--bg); }
+  svg { display: block; }
+  .t   { font-family: "IBM Plex Sans", sans-serif; fill: var(--ink); }
+  .mn  { font-family: "IBM Plex Mono", monospace; }
+  .dp  { font-family: "Archivo", sans-serif; fill: var(--ink); }
+  .mut { fill: var(--muted); }
+</style>
+
+<svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg" role="img"
+     aria-label="Walk Home pipeline: two addresses and a time go to the backend, which builds one route with per-waypoint conditions; the browser grades a real daytime street photo to night; Orbis renders it as one continuous generation; and changing the time, fog or crowd mid-walk morphs the running video by prompt in about 1.8 seconds.">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--ink)"/>
+    </marker>
+    <marker id="as" viewBox="0 0 10 10" refX="9.2" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--sodium)"/>
+    </marker>
+    <linearGradient id="nightsky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#080C1A"/>
+      <stop offset="1" stop-color="#23223A" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="lampglow">
+      <stop offset="0" stop-color="#FFC061" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#FFC061" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="var(--bg)"/>
+
+  <!-- ════ masthead ════ -->
+  <text class="dp" x="48" y="56" font-size="33" font-weight="700" letter-spacing="-0.7">WALK HOME</text>
+  <text class="t mut" x="48" y="84" font-size="16">See the walk home before you take it — real blocks, real conditions, one continuous night video you can change while it plays.</text>
+  <line x1="48" y1="104" x2="1552" y2="104" stroke="var(--ink)" stroke-width="2"/>
+
+  <!-- ════ stage 1 — input ════ -->
+  <rect x="48" y="130" width="208" height="370" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>
+  <text class="mn" x="68" y="160" font-size="12.5" fill="var(--sodium)" letter-spacing="1.1">01 · YOU</text>
+  <text class="dp" x="68" y="190" font-size="19" font-weight="600">Two addresses,</text>
+  <text class="dp" x="68" y="212" font-size="19" font-weight="600">one time</text>
+
+  <rect x="68" y="238" width="168" height="30" fill="var(--panel-2)" stroke="var(--line-soft)"/>
+  <text class="mn mut" x="80" y="258" font-size="11.5">Eddy &amp; Jones</text>
+  <rect x="68" y="276" width="168" height="30" fill="var(--panel-2)" stroke="var(--line-soft)"/>
+  <text class="mn mut" x="80" y="296" font-size="11.5">Golden Gate &amp; Hyde</text>
+  <rect x="68" y="314" width="168" height="30" fill="var(--panel-2)" stroke="var(--line-soft)"/>
+  <text class="mn mut" x="80" y="334" font-size="11.5">12 Sept · 23:00</text>
+
+  <rect x="68" y="356" width="52" height="26" rx="13" fill="none" stroke="var(--line)"/>
+  <text class="mn mut" x="94" y="373" font-size="11.5" text-anchor="middle">fog</text>
+  <rect x="128" y="356" width="68" height="26" rx="13" fill="none" stroke="var(--line)"/>
+  <text class="mn mut" x="162" y="373" font-size="11.5" text-anchor="middle">crowd</text>
+
+  <text class="t mut" x="68" y="414" font-size="13.5">San Francisco only.</text>
+  <text class="t mut" x="68" y="434" font-size="13.5">No score, no crime data,</text>
+  <text class="t mut" x="68" y="454" font-size="13.5">no colour-coded route.</text>
+
+  <!-- ════ stage 2 — backend ════ -->
+  <rect x="291" y="130" width="312" height="370" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>
+  <text class="mn" x="311" y="160" font-size="12.5" fill="var(--data)" letter-spacing="1.1">02 · BACKEND</text>
+  <text class="dp" x="311" y="190" font-size="19" font-weight="600">The route, and what</text>
+  <text class="dp" x="311" y="212" font-size="19" font-weight="600">the street is like</text>
+
+  <text class="t" x="311" y="246" font-size="14.5">One walking route on a cached</text>
+  <text class="t" x="311" y="267" font-size="14.5">OpenStreetMap graph, cut into blocks.</text>
+
+  <text class="t mut" x="311" y="300" font-size="14.5">Every waypoint picks up:</text>
+  <g class="mn" font-size="12.5" fill="var(--data)">
+    <text x="311" y="326">sun angle · weather · street tags</text>
+    <text x="311" y="348">venue opening hours · lamp positions</text>
+    <text x="311" y="370">311 streetlight outages</text>
+  </g>
+
+  <line x1="311" y1="392" x2="583" y2="392" stroke="var(--line)" stroke-dasharray="3 4"/>
+  <text class="t" x="311" y="418" font-size="14.5">→ nine plain facts, a scene prompt,</text>
+  <text class="t" x="311" y="439" font-size="14.5">and a darkness dial from 0 to 1</text>
+  <text class="t" x="311" y="468" font-size="14.5">→ a shot list: one prompt per straight</text>
+  <text class="t" x="311" y="489" font-size="14.5">leg, a 4s cue per turn</text>
+
+  <!-- ════ stage 3 — seed grade ════ -->
+  <rect x="638" y="130" width="324" height="370" fill="var(--panel)" stroke="var(--sodium-line)" stroke-width="2"/>
+  <text class="mn" x="658" y="160" font-size="12.5" fill="var(--sodium)" letter-spacing="1.1">03 · BROWSER — THE TRICK</text>
+  <text class="dp" x="658" y="190" font-size="19" font-weight="600">A real photo of that</text>
+  <text class="dp" x="658" y="212" font-size="19" font-weight="600">block, turned to night</text>
+
+  <!-- day thumbnail -->
+  <g>
+    <rect x="658" y="230" width="130" height="78" fill="#C3D5E6"/>
+    <rect x="658" y="272" width="130" height="36" fill="#9AA3AB"/>
+    <rect x="662" y="248" width="30" height="24" fill="#8C98A5"/>
+    <rect x="700" y="240" width="24" height="32" fill="#A2ADB8"/>
+    <rect x="750" y="244" width="34" height="28" fill="#94A0AC"/>
+    <polygon points="706,272 730,272 776,308 668,308" fill="#7F878F"/>
+    <rect x="714" y="286" width="14" height="4" fill="#C9CFD4"/>
+    <rect x="708" y="298" width="18" height="5" fill="#C9CFD4"/>
+    <rect x="658" y="230" width="130" height="78" fill="none" stroke="var(--line)"/>
+  </g>
+  <path d="M 796 269 L 820 269" stroke="var(--sodium)" stroke-width="2" marker-end="url(#as)"/>
+  <!-- night thumbnail -->
+  <g>
+    <rect x="828" y="230" width="130" height="78" fill="#0B1020"/>
+    <rect x="828" y="272" width="130" height="36" fill="#12161D"/>
+    <rect x="832" y="248" width="30" height="24" fill="#1C232E"/>
+    <rect x="870" y="240" width="24" height="32" fill="#222A36"/>
+    <rect x="920" y="244" width="34" height="28" fill="#1A212B"/>
+    <polygon points="876,272 900,272 946,308 838,308" fill="#171D26"/>
+    <circle cx="906" cy="250" r="21" fill="url(#lampglow)"/>
+    <circle cx="906" cy="250" r="3.2" fill="#FFD79A"/>
+    <rect x="904" y="250" width="1.6" height="22" fill="#3A3427"/>
+    <polygon points="898,272 914,272 920,308 890,308" fill="#E9A648" opacity="0.14"/>
+    <rect x="836" y="256" width="5" height="6" fill="#E9A648" opacity="0.5"/>
+    <rect x="946" y="252" width="5" height="6" fill="#E9A648" opacity="0.4"/>
+    <rect x="828" y="230" width="130" height="78" fill="none" stroke="var(--sodium-line)"/>
+  </g>
+  <text class="mn mut" x="658" y="328" font-size="11.5">daytime Mapillary frame</text>
+  <text class="mn" x="958" y="328" font-size="11.5" fill="var(--sodium)" text-anchor="end">night-graded seed</text>
+
+  <text class="t" x="658" y="360" font-size="14.5">Orbis takes its light from the seed —</text>
+  <text class="t" x="658" y="381" font-size="14.5">a daytime photo makes daytime video,</text>
+  <text class="t" x="658" y="402" font-size="14.5">whatever the prompt says.</text>
+  <text class="t" x="658" y="431" font-size="14.5">So the frame is converted first, in the</text>
+  <text class="t" x="658" y="452" font-size="14.5">browser on canvas: exposure, sky and</text>
+  <text class="t" x="658" y="473" font-size="14.5">lamp glow set by the darkness dial and</text>
+  <text class="t" x="658" y="494" font-size="14.5">the real lamp positions. Geometry kept.</text>
+
+  <!-- ════ stage 4 — orbis ════ -->
+  <rect x="997" y="130" width="312" height="370" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>
+  <text class="mn" x="1017" y="160" font-size="12.5" fill="var(--sodium)" letter-spacing="1.1">04 · ORBIS</text>
+  <text class="dp" x="1017" y="190" font-size="19" font-weight="600">One continuous</text>
+  <text class="dp" x="1017" y="212" font-size="19" font-weight="600">generation</text>
+
+  <rect x="1017" y="232" width="272" height="34" fill="var(--panel-2)" stroke="var(--line-soft)"/>
+  <text class="mn" x="1031" y="254" font-size="12.5" fill="var(--ink)">set_image → set_prompt → start</text>
+
+  <text class="t" x="1017" y="294" font-size="14.5">One live session for the whole route.</text>
+  <text class="t" x="1017" y="315" font-size="14.5">The account allows exactly one.</text>
+
+  <text class="t" x="1017" y="348" font-size="14.5">After that there are no cuts and no</text>
+  <text class="t" x="1017" y="369" font-size="14.5">re-seeding. The walk is steered by text:</text>
+  <text class="t" x="1017" y="390" font-size="14.5">the prompt morphs at each shot</text>
+  <text class="t" x="1017" y="411" font-size="14.5">boundary, on a ~1.8s chunk.</text>
+
+  <text class="t mut" x="1017" y="444" font-size="13.5">Real imagery grounds the start. The</text>
+  <text class="t mut" x="1017" y="464" font-size="13.5">route&#39;s own turns, crossings and street</text>
+  <text class="t mut" x="1017" y="484" font-size="13.5">names carry it the rest of the way.</text>
+
+  <!-- ════ stage 5 — screen ════ -->
+  <rect x="1344" y="130" width="208" height="370" fill="var(--panel)" stroke="var(--line)" stroke-width="1.5"/>
+  <text class="mn" x="1364" y="160" font-size="12.5" fill="var(--sodium)" letter-spacing="1.1">05 · SCREEN</text>
+  <text class="dp" x="1364" y="190" font-size="19" font-weight="600">The walk</text>
+
+  <g>
+    <rect x="1364" y="208" width="168" height="94" fill="#0B1020"/>
+    <rect x="1364" y="262" width="168" height="40" fill="#12161D"/>
+    <rect x="1370" y="232" width="34" height="30" fill="#1C232E"/>
+    <rect x="1416" y="222" width="28" height="40" fill="#222A36"/>
+    <rect x="1478" y="228" width="40" height="34" fill="#1A212B"/>
+    <polygon points="1424,262 1452,262 1508,302 1388,302" fill="#171D26"/>
+    <circle cx="1460" cy="234" r="24" fill="url(#lampglow)"/>
+    <circle cx="1460" cy="234" r="3.4" fill="#FFD79A"/>
+    <polygon points="1446,262 1466,262 1474,302 1438,302" fill="#E9A648" opacity="0.14"/>
+    <rect x="1364" y="208" width="168" height="94" fill="none" stroke="var(--line)"/>
+  </g>
+
+  <g class="mn" font-size="11" fill="var(--muted)">
+    <text x="1364" y="326">Dark since      7:48pm</text>
+    <text x="1364" y="345">Streetlights    6, both sides</text>
+    <text x="1364" y="364">Outages         1 reported</text>
+    <text x="1364" y="383">Open now        2 of 14</text>
+  </g>
+  <text class="mn" x="1364" y="410" font-size="11" fill="var(--sodium)">MODELED ESTIMATE</text>
+
+  <text class="t mut" x="1364" y="442" font-size="13.5">The facts sit beside</text>
+  <text class="t mut" x="1364" y="462" font-size="13.5">the picture, worded by</text>
+  <text class="t mut" x="1364" y="482" font-size="13.5">the data, never a verdict.</text>
+
+  <!-- ════ flow arrows ════ -->
+  <g stroke="var(--ink)" stroke-width="2" fill="none">
+    <path d="M 262 315 L 285 315" marker-end="url(#a)"/>
+    <path d="M 609 315 L 632 315" marker-end="url(#a)"/>
+    <path d="M 968 315 L 991 315" marker-end="url(#a)"/>
+    <path d="M 1315 315 L 1338 315" marker-end="url(#a)"/>
+  </g>
+
+  <!-- ════ live loop panel ════ -->
+  <rect x="48" y="566" width="1504" height="212" fill="var(--sodium-fill)" stroke="var(--sodium-line)" stroke-width="2"/>
+
+  <text class="mn" x="76" y="600" font-size="12.5" fill="var(--sodium)" letter-spacing="1.2">LIVE — WHILE THE WALK IS PLAYING</text>
+  <text class="dp" x="76" y="634" font-size="24" font-weight="600">Change the time, the fog or the crowd. The video changes with it.</text>
+  <text class="t" x="76" y="664" font-size="15">It never restarts, never cuts, never shows a “preparing” card.</text>
+
+  <!-- mini flow -->
+  <g>
+    <rect x="76" y="688" width="212" height="58" fill="var(--panel)" stroke="var(--line)"/>
+    <text class="t" x="92" y="712" font-size="14" font-weight="600">You move a control</text>
+    <text class="mn mut" x="92" y="732" font-size="11.5">7pm → 11pm, fog on</text>
+
+    <rect x="320" y="688" width="252" height="58" fill="var(--panel)" stroke="var(--line)"/>
+    <text class="t" x="336" y="712" font-size="14" font-weight="600">Same route, re-costed</text>
+    <text class="mn mut" x="336" y="732" font-size="11.5">identical blocks, new conditions</text>
+
+    <rect x="604" y="688" width="228" height="58" fill="var(--panel)" stroke="var(--line)"/>
+    <text class="t" x="620" y="712" font-size="14" font-weight="600">New prompt sent</text>
+    <text class="mn mut" x="620" y="732" font-size="11.5">set_prompt, no reset</text>
+
+    <rect x="864" y="688" width="236" height="58" fill="var(--sodium)" stroke="var(--sodium)"/>
+    <text class="t" x="880" y="712" font-size="14" font-weight="600" fill="var(--bg)">Render morphs</text>
+    <text class="mn" x="880" y="732" font-size="11.5" fill="var(--bg)">at the next chunk, ≈1.8s</text>
+  </g>
+
+  <g stroke="var(--sodium)" stroke-width="2" fill="none">
+    <path d="M 294 717 L 314 717" marker-end="url(#as)"/>
+    <path d="M 578 717 L 598 717" marker-end="url(#as)"/>
+    <path d="M 838 717 L 858 717" marker-end="url(#as)"/>
+  </g>
+
+  <!-- the measured constraint, right side of panel -->
+  <line x1="1140" y1="594" x2="1140" y2="750" stroke="var(--sodium-line)" stroke-dasharray="4 4"/>
+  <text class="mn" x="1170" y="612" font-size="11.5" fill="var(--dead)" letter-spacing="1">WHY IT HAS TO WORK THIS WAY</text>
+  <text class="t" x="1170" y="642" font-size="14.5">New imagery cannot be pushed into a</text>
+  <text class="t" x="1170" y="663" font-size="14.5">running generation — we measured all</text>
+  <text class="t" x="1170" y="684" font-size="14.5">three ways, and Orbis accepts each one</text>
+  <text class="t" x="1170" y="705" font-size="14.5">and then ignores it.</text>
+  <text class="t" x="1170" y="734" font-size="14.5" font-weight="600">So the light changes by text, not by</text>
+  <text class="t" x="1170" y="755" font-size="14.5" font-weight="600">swapping the photo.</text>
+
+  <!-- feedback loop: the walk on screen goes down into the live panel, and the
+       panel's result comes back up into the running Orbis session -->
+  <g stroke="var(--sodium)" stroke-width="2.5" fill="none">
+    <path d="M 1448 502 L 1448 562" marker-end="url(#as)"/>
+    <path d="M 1100 562 L 1100 504" marker-end="url(#as)"/>
+  </g>
+  <text class="mn" x="1436" y="526" font-size="11.5" fill="var(--sodium)" text-anchor="end">you change a control</text>
+  <text class="mn" x="1112" y="550" font-size="11.5" fill="var(--sodium)">back to the live session</text>
+
+  <!-- ════ footer ════ -->
+  <text class="mn mut" x="48" y="812" font-size="11.5">Cold start, submit to first frame: ≈9.0s — connect, route and seed grade all run at once.</text>
+  <text class="mn mut" x="48" y="832" font-size="11.5">Every number here was measured against the live Reactor API, not read off the docs.</text>
+  <text class="mn mut" x="1552" y="812" font-size="11.5" text-anchor="end">Live Models Hackathon · Visko / Reactor / Nebius</text>
+  <text class="mn mut" x="1552" y="832" font-size="11.5" text-anchor="end">San Francisco</text>
+</svg>
+
+<script>
+  document.documentElement.className = location.search.indexOf("dark") >= 0 ? "dark" : "light";
+</script>

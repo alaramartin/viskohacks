@@ -1,4 +1,5 @@
-"""Seed imagery: Mapillary first, Google Street View Static as fallback.
+"""Seed imagery from Mapillary (CC BY-SA). No Google fallback: blocks without
+Mapillary coverage are served as unavailable.
 
 Mapillary candidates come from its z14 coverage vector tiles, cached to
 data/imagery/tiles/ — the /images bbox search 500s ("reduce the amount of
@@ -108,7 +109,6 @@ class Imagery:
         self._tile_locks: dict[tuple[int, int], threading.Lock] = {}
         self.client = httpx.Client(timeout=120, follow_redirects=True)
         self.mapillary_token = os.getenv("MAPILLARY_ACCESS_TOKEN")
-        self.google_key = os.getenv("GOOGLE_MAPS_API_KEY")
 
     # --- coverage --------------------------------------------------------
 
@@ -118,17 +118,10 @@ class Imagery:
         with self._lock:
             if key in self._coverage:
                 return self._coverage[key]
-        meta, failed = None, False
-        for source in (self._mapillary, self._google):
-            try:
-                meta = source(lat, lng, heading)
-            except httpx.HTTPError as exc:
-                log.warning("%s lookup failed at %s: %s", source.__name__, key, exc)
-                failed = True
-                continue
-            if meta:
-                break
-        if meta is None and failed:
+        try:
+            meta = self._mapillary(lat, lng, heading)
+        except httpx.HTTPError as exc:
+            log.warning("Mapillary lookup failed at %s: %s", key, exc)
             return None  # don't cache a transient failure as "no coverage"
         with self._lock:
             self._coverage[key] = meta
@@ -195,19 +188,6 @@ class Imagery:
                     }
         return best
 
-    def _google(self, lat: float, lng: float, heading: int) -> dict | None:
-        if not self.google_key:
-            return None
-        r = self.client.get(
-            "https://maps.googleapis.com/maps/api/streetview/metadata",
-            params={"location": f"{lat},{lng}", "radius": SEARCH_RADIUS_M, "source": "outdoor", "key": self.google_key},
-        )
-        r.raise_for_status()
-        body = r.json()
-        if body.get("status") != "OK":
-            return None
-        return {"source": "google", "id": body["pano_id"], "captured_at": body.get("date")}
-
     # --- frames ----------------------------------------------------------
 
     def frame(self, cache_name: str, lat: float, lng: float, heading: int) -> bytes | None:
@@ -217,10 +197,7 @@ class Imagery:
         meta = self.coverage(lat, lng, heading)
         if meta is None:
             return None
-        if meta["source"] == "mapillary":
-            img = self._mapillary_frame(meta, heading)
-        else:
-            img = self._google_frame(meta, heading)
+        img = self._mapillary_frame(meta, heading)
         buf = io.BytesIO()
         img.save(buf, format="JPEG", quality=90)
         path.write_bytes(buf.getvalue())
@@ -241,11 +218,3 @@ class Imagery:
         if meta["is_pano"]:
             return crop_equirect(img, heading - info.get("computed_compass_angle", meta["compass"]))
         return fit_16_9(img)
-
-    def _google_frame(self, meta: dict, heading: int) -> Image.Image:
-        r = self.client.get(
-            "https://maps.googleapis.com/maps/api/streetview",
-            params={"size": "640x360", "pano": meta["id"], "heading": heading, "fov": HFOV_DEG, "pitch": 0, "key": self.google_key},
-        )
-        r.raise_for_status()
-        return fit_16_9(Image.open(io.BytesIO(r.content)))

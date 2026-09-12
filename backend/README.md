@@ -14,9 +14,8 @@ uv pip install -r requirements.txt   # or: pip install -r requirements.txt
 
 Keys live in the repo-root `.env.local` or `.env` (both are loaded):
 
-- `MAPILLARY_ACCESS_TOKEN` — **required** for imagery.
-- `GOOGLE_MAPS_API_KEY` — optional Street View fallback where Mapillary has nothing.
-  Needs the Street View Static API enabled on a billed Cloud project.
+- `MAPILLARY_ACCESS_TOKEN` — **required** for imagery. There is no Google fallback (decided for
+  the hackathon): blocks without Mapillary coverage come back `image_available: false`.
 
 ## Data
 

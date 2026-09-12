@@ -2,8 +2,8 @@
 
 GET /api/routes    — two candidate walking routes from the cached SF graph,
                      sampled into waypoints with a condition model per waypoint.
-GET /api/imagery   — 16:9 seed frame for a block at a heading (Mapillary,
-                     Google Street View fallback), 404 without coverage.
+GET /api/imagery   — 16:9 seed frame for a block at a heading (Mapillary),
+                     404 without coverage.
 
 Response shape follows shared/waypoint.schema.json.
 """

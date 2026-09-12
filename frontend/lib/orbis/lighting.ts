@@ -118,6 +118,8 @@ export type GradeParams = {
 };
 
 const LAMP_LATERAL_M = 4.5;
+/** Darkest a seed is ever graded. Below ~0.043 Orbis loses the block (Q1); ~0.06 rendered too dark to see. */
+export const MIN_TARGET_LUMA = 0.085;
 
 /**
  * Turn a lighting estimate into grade knobs. A block with no working lamps must
@@ -130,21 +132,24 @@ export function gradeParamsFor(lighting: LightingEstimate): GradeParams {
       ? null
       : Math.max(0, lighting.lampCount - lighting.outages);
 
-  let targetLuma = 0.062;
+  // Floor raised after Checkpoint 2 review: seeds graded to 0.045–0.068 came
+  // back from Orbis at ~0.03 on some blocks — too dark to see anything. The
+  // darkest block now grades to MIN_TARGET_LUMA; lit blocks sit above it.
+  let targetLuma = 0.095;
   let lampGain = 1;
 
   if (lighting.lit === "no" || working === 0) {
     // Nothing tagged and nothing working: the only light is spill from windows
     // and whatever is at the end of the street.
-    targetLuma = 0.045;
+    targetLuma = MIN_TARGET_LUMA;
     lampGain = 0.35;
   } else if (working !== null) {
     // 1 lamp → dim, 6+ → the reference look.
     const density = Math.min(1, working / 6);
-    targetLuma = 0.05 + 0.018 * density;
+    targetLuma = MIN_TARGET_LUMA + 0.025 * density;
     lampGain = 0.55 + 0.55 * density;
   } else if (lighting.outages > 0) {
-    targetLuma = 0.055;
+    targetLuma = 0.09;
     lampGain = 0.8;
   }
 

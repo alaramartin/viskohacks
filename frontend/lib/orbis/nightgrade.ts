@@ -26,8 +26,11 @@ import type { GradeParams, LampPool } from "@/lib/orbis/lighting";
 
 const SODIUM = [1.25, 0.82, 0.45] as const;
 const LAMP = [1.0, 0.72, 0.36] as const;
-const SKY = [10 / 255, 13 / 255, 26 / 255] as const;
-const BASE_EXPOSURE = 0.16;
+const SKY = [8 / 255, 11 / 255, 24 / 255] as const;
+const SKY_HAZE = [0.1, 0.07, 0.05] as const;
+/** Added to every pixel before the sky, so no block grades to pure black. */
+const AMBIENT_FLOOR = 0.012;
+const BASE_EXPOSURE = 0.2;
 const HIGHLIGHT_KNEE = 0.72;
 const LUMA = [0.2126, 0.7152, 0.0722] as const;
 
@@ -96,33 +99,108 @@ type Precomputed = {
   height: number;
 };
 
-function precompute(rgb: Float32Array, width: number, height: number): Precomputed {
-  const pixels = width * height;
-  const luma = new Float32Array(pixels);
-  const skyLike = new Float32Array(pixels);
-  const highlight = new Float32Array(pixels);
+/** One box pass (no repeats) — enough for a local mean/variance. */
+function boxOnce(channel: Float32Array, width: number, height: number, radius: number) {
+  const horizontal = new Float32Array(channel.length);
+  for (let y = 0; y < height; y += 1) {
+    const row = y * width;
+    for (let x = 0; x < width; x += 1) {
+      let sum = 0;
+      let count = 0;
+      for (let k = Math.max(0, x - radius); k <= Math.min(width - 1, x + radius); k += 1) {
+        sum += channel[row + k];
+        count += 1;
+      }
+      horizontal[row + x] = sum / count;
+    }
+  }
+  const out = new Float32Array(channel.length);
+  for (let x = 0; x < width; x += 1) {
+    for (let y = 0; y < height; y += 1) {
+      let sum = 0;
+      let count = 0;
+      for (let k = Math.max(0, y - radius); k <= Math.min(height - 1, y + radius); k += 1) {
+        sum += horizontal[k * width + x];
+        count += 1;
+      }
+      out[y * width + x] = sum / count;
+    }
+  }
+  return out;
+}
 
+/**
+ * Sky = smooth, sky-coloured pixels **connected to the top edge**.
+ *
+ * The first version flagged any bright desaturated pixel in the top 62% of the
+ * frame. On real Mapillary seeds that was 24–52% of the image — pale asphalt,
+ * glass and white facades — all painted flat navy with a hard horizontal edge,
+ * which read as "a dark blue filter over the top half". Texture and
+ * connectivity are what separate sky from a pale wall.
+ */
+function findSky(rgb: Float32Array, luma: Float32Array, width: number, height: number) {
+  const pixels = width * height;
+  const squared = new Float32Array(pixels);
+  for (let p = 0; p < pixels; p += 1) squared[p] = luma[p] * luma[p];
+  const mean = boxOnce(luma, width, height, 3);
+  const meanSquared = boxOnce(squared, width, height, 3);
+
+  const candidate = new Uint8Array(pixels);
   for (let p = 0; p < pixels; p += 1) {
     const r = rgb[p * 3];
     const g = rgb[p * 3 + 1];
     const b = rgb[p * 3 + 2];
-    const l = r * LUMA[0] + g * LUMA[1] + b * LUMA[2];
-    luma[p] = l;
-
-    const blueness = b - (r + g) / 2;
-    const saturation = Math.max(r, g, b) - Math.min(r, g, b);
-    const row = Math.floor(p / width) / height;
-    // Bright upper-frame pixels that are either blue-dominant (clear sky) or
-    // desaturated (overcast — most of SF, and the case a blueness test misses).
-    const isSky = (blueness > 0.03 || saturation < 0.2) && l > 0.42 && row < 0.62;
-    skyLike[p] = isSky ? 1 : 0;
-
-    highlight[p] = Math.min(1, Math.max(0, (l - HIGHLIGHT_KNEE) / (1 - HIGHLIGHT_KNEE)));
+    const l = luma[p];
+    const smooth = Math.sqrt(Math.max(0, meanSquared[p] - mean[p] * mean[p])) < 0.035;
+    const blueSky = b - (r + g) / 2 > 0.04 && l > 0.35;
+    // Overcast (most of SF): very bright and nearly colourless.
+    const greySky = Math.max(r, g, b) - Math.min(r, g, b) < 0.1 && l > 0.62;
+    candidate[p] = smooth && (blueSky || greySky) ? 1 : 0;
   }
 
-  // Radii are relative to frame width so the look survives a resize; they
-  // reproduce the 3px / 9px the spike used on a full-size Mapillary frame.
-  const skyMask = blur(skyLike, width, height, Math.max(1, Math.round(width * 0.005)));
+  const sky = new Float32Array(pixels);
+  const queue = new Int32Array(pixels);
+  let head = 0;
+  let tail = 0;
+  for (let x = 0; x < width; x += 1) {
+    if (candidate[x]) {
+      sky[x] = 1;
+      queue[tail++] = x;
+    }
+  }
+  while (head < tail) {
+    const p = queue[head++];
+    const x = p % width;
+    const neighbours = [p - width, p + width, x > 0 ? p - 1 : -1, x < width - 1 ? p + 1 : -1];
+    for (const n of neighbours) {
+      if (n < 0 || n >= pixels || sky[n] || !candidate[n]) continue;
+      sky[n] = 1;
+      queue[tail++] = n;
+    }
+  }
+  return sky;
+}
+
+function precompute(rgb: Float32Array, width: number, height: number): Precomputed {
+  const pixels = width * height;
+  const luma = new Float32Array(pixels);
+  for (let p = 0; p < pixels; p += 1) {
+    luma[p] = rgb[p * 3] * LUMA[0] + rgb[p * 3 + 1] * LUMA[1] + rgb[p * 3 + 2] * LUMA[2];
+  }
+
+  const skyMask = blur(
+    findSky(rgb, luma, width, height),
+    width,
+    height,
+    Math.max(1, Math.round(width * 0.006)),
+  );
+
+  // Highlights exclude the sky, so a bright overcast sky cannot turn into glow.
+  const highlight = new Float32Array(pixels);
+  for (let p = 0; p < pixels; p += 1) {
+    const h = Math.min(1, Math.max(0, (luma[p] - HIGHLIGHT_KNEE) / (1 - HIGHLIGHT_KNEE)));
+    highlight[p] = h * (1 - skyMask[p]);
+  }
   const glow = blur(
     Float32Array.from(highlight),
     width,
@@ -148,17 +226,23 @@ function grade(pre: Precomputed, exposure: number, params: GradeParams): Float32
     const centred = column * 2 - 1;
     const sheen = Math.exp(-(centred * centred) / 0.1) * road * params.sheen;
 
+    // Night sky: deep navy overhead, a faint sodium haze toward the horizon —
+    // a gradient, so the sky edge doesn't read as a flat painted band.
+    const haze = row * row;
+
     for (let channel = 0; channel < 3; channel += 1) {
       const index = p * 3 + channel;
-      // Night exposure with a lifted toe: shadows go black without posterising.
-      let value = Math.pow(Math.min(1, Math.max(0, rgb[index])), 1.45) * exposure;
-      value *= SODIUM[channel];
+      // Night exposure with a gentle toe, plus a small ambient lift so even an
+      // unlit block never renders pure black.
+      let value = Math.pow(Math.min(1, Math.max(0, rgb[index])), 1.3) * exposure;
+      value = value * SODIUM[channel] + AMBIENT_FLOOR * SODIUM[channel];
       // Keep the brightest things bright — windows, signs and the glow at the
       // end of the street become the light sources.
       value +=
         (glow[p] * 0.55 + highlight[p] * 0.3) * LAMP[channel] * lampGain;
       // Sky last, so the glow cannot bleed a daylit sky back in.
-      value = value * (1 - skyMask[p]) + SKY[channel] * skyMask[p];
+      const sky = SKY[channel] + haze * SKY_HAZE[channel];
+      value = value * (1 - skyMask[p]) + sky * skyMask[p];
       value += sheen * LAMP[channel];
       out[index] = value;
     }
@@ -264,9 +348,9 @@ export async function nightGradeSeed(
   let exposure = BASE_EXPOSURE;
   let graded = grade(pre, exposure, params);
   let mean = meanLumaOf(graded);
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    if (Math.abs(mean - params.targetLuma) < 0.004 || mean <= 0) break;
-    exposure = Math.min(0.6, Math.max(0.02, exposure * (params.targetLuma / mean)));
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    if (Math.abs(mean - params.targetLuma) < 0.003 || mean <= 0) break;
+    exposure = Math.min(0.9, Math.max(0.02, exposure * (params.targetLuma / mean)));
     graded = grade(pre, exposure, params);
     mean = meanLumaOf(graded);
   }

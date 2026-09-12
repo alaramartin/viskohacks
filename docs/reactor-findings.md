@@ -135,13 +135,14 @@ possible — not useful for compare mode, which needs two sessions of the same
 model.
 
 Reactor's public docs advertise 5 concurrent per account; this key gets 1.
-**Worth asking Visko/Reactor staff at the venue to raise it** — it is the single
-constraint doing the most damage to the plan.
+**Reactor staff were clear this will not be raised, so it is a fixed
+constraint, not a temporary one.** It is the single limit doing the most damage
+to the plan, and the architecture has to absorb it rather than wait it out.
 
 ### Consequences for PLAN.md
 
-- **Phase 4 prefetch is dead.** The plan already says "if Q3 said 1, skip this
-  task". It said 1.
+- **Phase 4 prefetch is dead, permanently.** The plan already says "if Q3 said
+  1, skip this task". It said 1, and the quota is not moving.
 - **Phase 3 compare mode cannot run two live viewports.** Route B must be
   pre-generated, or the two routes run sequentially and get stitched.
 - **Autoplay cannot warm block N+1 while block N plays** — which is what Q6
@@ -263,15 +264,33 @@ across it.
 
 ## Open questions for Checkpoint 1
 
-1. **Who owns day→night conversion, and with what?** It sits exactly on the
-   Person 1 / Person 2 boundary: it is part of the imagery pipeline (Person 1)
-   but was found by, and currently lives in, the render spike (Person 2).
-   My recommendation: Person 1 folds `docs/spike/nightgrade.py` into
-   `GET /api/imagery/...` so the endpoint serves night frames directly and the
-   frontend never holds a daytime pixel. That also satisfies rule #1 by
-   construction.
-2. **Can Visko/Reactor raise `concurrent_sessions_per_model` above 1?** Worth
-   asking in person. It would revive prefetch and live compare.
+1. ~~Who owns day→night conversion?~~ **Decided: Person 2**, in the render
+   layer, since the spike already built it. The frame from `/api/imagery/...`
+   is converted before `set_image` and never displayed either way.
+
+   Still open, and the more interesting half: **how accurate can the lighting
+   be?** Right now the grade applies one generic sodium look to every block,
+   which is honest about *darkness* but says nothing true about *where the
+   light actually is*. Two verified sources to drive it properly
+   (`docs/spike/lighting_probe.py`):
+
+   - **Mapillary maps individual street lights.** `map_features` with
+     `object_values=object--street-light` returned **35 lamps with
+     coordinates** in a ~250m box around the test block. Per-lamp, free, and
+     an independent cross-check on the DataSF inventory.
+   - **Person 1 already collects `lit`, the DataSF streetlight inventory and
+     311 outages** — but the contract carries them only as prose in `facts`.
+     A structured `condition.lighting` (lamp offsets along the block, side,
+     outage count) would let the render put a glow where a lamp is and leave a
+     genuinely dark gap where none is. Proposed in Person 1's Phase 2.
+
+   **Negative result worth recording:** Mapillary `captured_at` cannot be used
+   to find existing night imagery. Every frame tested near the block was
+   daylight (mean luma 0.33–0.54) whatever hour it claimed — including frames
+   stamped 22:25 and 04:06 local. So conversion is required, not optional, and
+   darkness must come from `astral`, not from timestamps.
+2. ~~Can Reactor raise the concurrency quota?~~ **Asked and answered: no.**
+   One session is permanent. Closed.
 
 ## Reproducing
 

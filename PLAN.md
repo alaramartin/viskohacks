@@ -299,19 +299,34 @@ California", network_type="walk")`, save to `backend/data/sf_walk.graphml`.
       View Static API (10k/mo free, needs a Cloud billing account + card). Use the Street View
       **Metadata** endpoint (free, unlimited) to check coverage and set
       `image_available`. Cache fetched images to `backend/data/imagery/`.
-- [ ] **Day → night conversion of every seed frame.** NEW, added after the
-      Person 2 spike (Q1) — **agree ownership at Checkpoint 1 before building
-      it.** Orbis takes its lighting from the seed image and ignores a night
-      prompt: a daytime frame produces sustained daytime video of the right
-      block, which breaks non-negotiable rule #1. The endpoint must therefore
-      serve *night* frames, so the frontend never holds a daytime pixel.
-      Reference implementation to fold in: `docs/spike/nightgrade.py` (numpy +
-      Pillow, offline, no key). Two things it taught us: target a graded mean
-      luma of **~0.06** (at ~0.04 Orbis loses the block entirely), and the sky
-      mask must catch **overcast** skies (bright + desaturated), not only blue
-      ones. Also crop panoramas to 16:9 at the waypoint heading **before**
-      grading — Orbis wants 854×480 (stable) / 640×368 (dynamic) and resizes
-      non-16:9 without cropping, which distorts.
+- [ ] **Crop panoramas to 16:9 at the waypoint heading.** Most Mapillary
+      coverage on our blocks is 360° panos. Orbis wants a 16:9 frame (854×480
+      stable / 640×368 dynamic) and resizes a non-16:9 image **without
+      cropping**, which distorts it. Equirectangular crop math is validated in
+      the spike — a ~90° window centred on the waypoint heading.
+- [ ] **Structured lighting in the contract (Person 2 needs it to render
+      night accurately).** NEW, after the Person 2 spike. You already collect
+      the lighting data — OSM `lit`, the DataSF streetlight inventory, 311
+      outages — but the contract carries it only as **prose**, in `facts` and
+      `video_prompt`. Person 2's day→night conversion needs **numbers**, or
+      every block gets the same generic amber wash regardless of what is
+      actually there. Proposal, to agree before either of us builds on it: add
+      a `condition.lighting` object alongside `facts`, e.g.
+      `{ lit: "yes"|"no"|"unknown", lamp_count: 6, side: "both"|"one"|"none",
+      lamp_offsets_m: [12, 40, 68], outages: 2 }`. `lamp_offsets_m` — distance
+      along the block from the waypoint — is the one that matters most: it
+      turns a generic glow into a lamp in the right place, and a gap into a
+      genuinely dark stretch, which is the whole point of the tool.
+      **Mapillary has real per-lamp positions**, which the plan did not
+      account for: `map_features` with `object_values=object--street-light`
+      returned **35 mapped lamps** with coordinates in a ~250m box around the
+      Tenderloin test block (verified — `docs/spike/lighting_probe.py`). Free,
+      per-lamp rather than per-segment, and a cross-check on DataSF.
+      **Do not** use Mapillary `captured_at` to look for existing night
+      imagery: every frame tested near the block was daylight (mean luma
+      0.33–0.54) whatever hour its timestamp claimed, including ones stamped
+      22:25 and 04:06 local. Timestamps are not trustworthy for time of day.
+      Use `astral` for darkness, as already planned.
 
 ### 🛑 CHECKPOINT 2 — end-to-end integration
 
@@ -458,11 +473,12 @@ Tasks:
       and see whether Reactor accepts it.
   - **1 per model.** Raising the token's `max_sessions` is accepted and then
     ignored — the account's `concurrent_sessions_per_model` quota refuses the
-    second connect with 429. **Prefetch is dead; compare mode can't be two
-    live sessions.** Also: no REST endpoint exists to list or kill a session,
-    so a crashed client blocks the only slot — always `disconnect()` in a
-    `finally`, and mint the JWT **once** per session (a resolver that re-mints
-    per request 403s). Ask Reactor staff to raise the quota.
+    second connect with 429. **This is fixed — Reactor staff were clear the
+    quota will not be raised, so treat 1 as permanent. Prefetch is dead and
+    compare mode cannot be two live sessions.** Also: no REST endpoint exists
+    to list or kill a session, so a crashed client blocks the only slot —
+    always `disconnect()` in a `finally`, and mint the JWT **once** per
+    session (a resolver that re-mints per request 403s).
 - [x] **Q4: session initialization latency**, as distinct from the ~1.8s chunk
       cadence. Time it. Sets the budget for everything.
   - **~12–16s cold to first visible frame** (~7–11s connect, then ~5–6s from
@@ -568,6 +584,25 @@ depend on Person 1's real pipeline.
 - [ ] **Keep block dwell to ~8–15s.** Conditioning drifts off the real
       geometry by ~25s (Q1), after which we are showing an invented street.
       Advance to the next block before that, even if waypoints remain.
+- [ ] **Day → night conversion of every seed frame. OWNED BY PERSON 2.** NEW,
+      after the spike (Q1) — the single step the premise depends on. Orbis
+      takes its lighting from the seed and ignores a night prompt, so a
+      daytime frame produces sustained daytime video of the right block, which
+      breaks non-negotiable rule #1. Convert the frame from `/api/imagery/...`
+      to night **before** `set_image`, in the browser or in a Next route —
+      never show it either way, it is an intermediate. Port
+      `docs/spike/nightgrade.py` (numpy + Pillow; no API, no key). Two things
+      it already taught us: target a graded mean luma of **~0.06** (at ~0.04
+      Orbis loses the block entirely), and the sky mask must catch **overcast**
+      skies (bright + desaturated), not only blue ones.
+- [ ] **Drive the grade from Person 1's lighting data, not a fixed look.**
+      Once `condition.lighting` lands (see Person 1 Phase 2), place the glow
+      from `lamp_offsets_m` / `side` and darken unlit stretches rather than
+      washing every block in the same amber. A block tagged `lit: "no"` with
+      2 outages must come out visibly darker than one with 6 working lamps —
+      otherwise the render says nothing the facts strip doesn't already say.
+      Until that field exists, key off the prose in `facts` and say plainly in
+      `docs/reactor-findings.md` that the look is generic.
 - [ ] **Unavailable segments.** When `image_available` is false, render an
       explicit unavailable state. Do not generate a street from text alone to
       fill the gap.
@@ -579,6 +614,12 @@ depend on Person 1's real pipeline.
       work standalone with no interaction.
 - [ ] **Audio on by default, mute toggle only.** Pass `audio_prompt` through.
       No other audio UI.
+  - **Carried over from Checkpoint 1, still unverified.** The spike confirmed
+    the `main_audio` track is negotiated and delivered on every run and that
+    `set_audio_prompt` is accepted, but it ran headless — nobody has listened
+    to the output yet. **Verify by ear at Checkpoint 2**: does the audio match
+    the block (traffic, wind, footsteps) or is it generic noise? If it is
+    generic, try `""` for picture-driven audio instead of our caption.
 - [ ] **Viewport overlays.** Route direction arrow at the correct screen
       bearing with distance to next turn. One persistent condition line in a
       corner (the full readout is Person 1's strip below).
@@ -611,6 +652,10 @@ Print this to your human and stop:
 >
 > Check specifically: does a block with `image_available: false` show the
 > unavailable state rather than an invented street?
+>
+> **Carried over from Checkpoint 1 — check by ear:** the audio has never been
+> listened to, only confirmed to arrive. Unmute and say whether it matches the
+> block or is generic noise.
 >
 > Waiting for your confirmation that this passed.
 
@@ -669,8 +714,8 @@ this is upside.
       you came from). Only one step — two moves out is a dozen states and
       you'll evict faster than you generate. **Requires 3–4 concurrent
       sessions (Q3). If Q3 said 1, skip this task.**
-  - **SKIPPED. Q3 = 1 concurrent session.** Revisit only if Reactor raises the
-    account's `concurrent_sessions_per_model` quota.
+  - **SKIPPED PERMANENTLY. Q3 = 1 concurrent session** and Reactor staff
+    confirmed the quota will not be raised. Do not revisit.
 - [ ] If time: voice input for **conditions only** ("heavier fog", "more foot
       traffic"). Never for movement — spatial input stays on the arrow keys.
 
@@ -756,8 +801,18 @@ Update this as you go so the human can `/clear` and resume.
     on `main`). Headline: image conditioning works well, but **seeds must be
     night-graded first** or Orbis renders daytime; and **only 1 concurrent
     session** exists, which kills prefetch and live compare.
-  - Awaiting the joint runthrough + the three open questions in
-    `docs/reactor-findings.md`.
+  - Handshake **verified**: backend venv built, `pytest` 4/4, `/api/routes`
+    200 and schema-valid (2 routes × 12 waypoints × 4 blocks, route B block
+    `w8918502` correctly no-imagery), `/api/imagery` 200 JPEG + 404, CORS
+    allows `:3000`. Frontend typecheck and `next build` both clean.
+  - Decisions taken at this checkpoint:
+    - **Day→night conversion is Person 2's**, in the render layer.
+    - **Person 1 adds structured `condition.lighting`** so the night render is
+      driven by real lamp data rather than a fixed amber look. Contract change
+      — agree the shape before building on it.
+    - **Concurrency stays at 1.** Reactor staff confirmed it will not be
+      raised; prefetch is dropped for good and compare must be pre-generated.
+    - **Audio still unheard** — deferred to Checkpoint 2 to check by ear.
 - [ ] Checkpoint 2 — end-to-end integration
 - [ ] Checkpoint 3 — full demo runthrough
 - [ ] Final submission — branch pushed to Visko-Platform/orbis-hackathon-starter

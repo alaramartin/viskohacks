@@ -299,6 +299,19 @@ California", network_type="walk")`, save to `backend/data/sf_walk.graphml`.
       View Static API (10k/mo free, needs a Cloud billing account + card). Use the Street View
       **Metadata** endpoint (free, unlimited) to check coverage and set
       `image_available`. Cache fetched images to `backend/data/imagery/`.
+- [ ] **Day → night conversion of every seed frame.** NEW, added after the
+      Person 2 spike (Q1) — **agree ownership at Checkpoint 1 before building
+      it.** Orbis takes its lighting from the seed image and ignores a night
+      prompt: a daytime frame produces sustained daytime video of the right
+      block, which breaks non-negotiable rule #1. The endpoint must therefore
+      serve *night* frames, so the frontend never holds a daytime pixel.
+      Reference implementation to fold in: `docs/spike/nightgrade.py` (numpy +
+      Pillow, offline, no key). Two things it taught us: target a graded mean
+      luma of **~0.06** (at ~0.04 Orbis loses the block entirely), and the sky
+      mask must catch **overcast** skies (bright + desaturated), not only blue
+      ones. Also crop panoramas to 16:9 at the waypoint heading **before**
+      grading — Orbis wants 854×480 (stable) / 640×368 (dynamic) and resizes
+      non-16:9 without cropping, which distorts.
 
 ### 🛑 CHECKPOINT 2 — end-to-end integration
 
@@ -418,7 +431,7 @@ Known from the docs:
 
 Tasks:
 
-- [ ] **Q1 (critical): does Orbis condition meaningfully on a Street View
+- [x] **Q1 (critical): does Orbis condition meaningfully on a Street View
       seed image via `set_image`?** The starter shows Orbis accepts a start
       image (`image_accepted`, `generation_started.image_conditioned: true`).
       What's still unknown is whether a *daytime Street View JPEG* plus a night
@@ -426,16 +439,52 @@ Tasks:
       real SF Street View / Mapillary frame. Everything rests on this. If NO,
       stop and tell your human immediately — the product degrades to a generic
       night street and the team must re-plan.
-- [ ] **Q2: which lane serves Orbis — WebRTC live session, or REST
+  - **YES on conditioning, but with a required new step.** Orbis doesn't just
+    start from the seed, it *continues* it — mural, tree line, parked cars and
+    street geometry all persist. **But a daytime seed produces daytime video
+    and the night prompt loses.** Fix: night-grade the seed before `set_image`
+    (`docs/spike/nightgrade.py`, offline, no API key). Then we get night *and*
+    the real block. Two knobs: graded seed mean luma ~0.06 (at 0.04 the block
+    is lost), and the sky mask must catch overcast, not just blue. Conditioning
+    drifts off the real geometry after ~25s, so a block should hold ~8–15s.
+    Full write-up + frames: `docs/reactor-findings.md`.
+- [x] **Q2: which lane serves Orbis — WebRTC live session, or REST
       submit/poll?** Determines whether you hold sessions or queue jobs.
-- [ ] **Q3: how many concurrent sessions do the credits and API allow?**
+  - **WebRTC live session.** No REST inference lane exists; the SDK is
+    browser-only. We hold sessions.
+- [x] **Q3: how many concurrent sessions do the credits and API allow?**
       Prefetch (Phase 4) assumes 3–4 in flight. If it's 1, prefetch is dead.
       The starter's token route hardcodes `max_sessions: 1` — try raising it
       and see whether Reactor accepts it.
-- [ ] **Q4: session initialization latency**, as distinct from the ~1.8s chunk
+  - **1 per model.** Raising the token's `max_sessions` is accepted and then
+    ignored — the account's `concurrent_sessions_per_model` quota refuses the
+    second connect with 429. **Prefetch is dead; compare mode can't be two
+    live sessions.** Also: no REST endpoint exists to list or kill a session,
+    so a crashed client blocks the only slot — always `disconnect()` in a
+    `finally`, and mint the JWT **once** per session (a resolver that re-mints
+    per request 403s). Ask Reactor staff to raise the quota.
+- [x] **Q4: session initialization latency**, as distinct from the ~1.8s chunk
       cadence. Time it. Sets the budget for everything.
-- [ ] **Q5: is `visko-orbis-dynamic` better for this than `-stable`?** Try one
+  - **~12–16s cold to first visible frame** (~7–11s connect, then ~5–6s from
+    `generation_started` — the first chunk emits no frames). **Re-seeding
+    inside a live session is only ~2.3s.** Budget from `generation_started`,
+    never from `start`.
+- [x] **Q5: is `visko-orbis-dynamic` better for this than `-stable`?** Try one
       segment on each and note the difference.
+  - **`-dynamic`.** Stable's time-to-first-frame varied 3.1s vs 25.0s across
+    two identical runs — unacceptable on a two-minute demo clock. Dynamic is
+    consistent at ~5–6s and adds mid-run prompt morphing at chunk boundaries,
+    which lets conditions change at waypoint boundaries inside a block without
+    a cut. `frontend/lib/orbis.ts` `ORBIS_MODEL_NAME` still needs switching.
+- [x] **Q6 (not in the original plan, but it decides the architecture): can one
+      session be re-seeded per block?** With one concurrent session, autoplay
+      only works if a block change isn't a new connection.
+  - **Yes.** `reset` → `set_image` → `set_prompt` → `start` inside the same
+    live session takes **~2.3s** vs ~11.8s for a cold connect, and the re-seed
+    genuinely takes (verified by re-seeding block A after two resets and
+    getting block A back). `set_seed` and `set_resolution` survive `reset`, so
+    the route-wide pinned seed holds. **So: one long-lived session per route,
+    `reset`+re-seed at each block boundary — not one session per block.**
 
 ### 🛑 CHECKPOINT 1 — contract handshake
 
@@ -488,24 +537,37 @@ depend on Person 1's real pipeline.
       `RouteBrief.tsx`. Each takes typed props from the shared contract and
       renders a placeholder. Commit these early so Person 1 isn't blocked at
       Phase 3.
-- [ ] **Token endpoint.** Already exists at `frontend/app/api/token/route.ts`
+- [x] **Token endpoint.** Already exists at `frontend/app/api/token/route.ts`
       from the starter. Adjust `max_sessions` per the Q3 finding. Never ship
       the Reactor API key to the browser.
+  - done in Phase 1. Takes optional `{model, maxSessions}`; defaults to
+    `max_sessions: 1` per Q3. Key stays server-side.
 - [ ] **Session manager** in `frontend/lib/orbis/` (hooks may live in
       `frontend/hooks/`). Generalize the starter's `use-orbis-session.ts`.
-      Group the waypoint list by `block_id`. **One Orbis session per block,
-      not per waypoint.** For each block: connect, `set_prompt`,
-      `set_audio_prompt`, fetch the seed image from `/api/imagery/...` and
-      `uploadFile` → `set_image`, `set_seed`, `set_resolution`, then `start`.
-      Wait on the same readiness signals the starter uses (`image_accepted`,
-      `state.has_image`, `conditions_ready`).
+      Group the waypoint list by `block_id`. **ONE LONG-LIVED SESSION PER
+      ROUTE** — revised from "one session per block" after Q3/Q6: only one
+      concurrent session exists, and `reset`+re-seed costs ~2.3s against
+      ~11.8s for a fresh connect. So: connect once, `set_seed`,
+      `set_resolution`, `set_audio_prompt`; then per block `reset` →
+      fetch seed from `/api/imagery/...` → `uploadFile` → `set_image` →
+      `set_prompt` → `start`. Wait on the same readiness signals the starter
+      uses (`image_accepted`, `state.has_image`, `conditions_ready`), and wait
+      on `generation_reset` before re-seeding. **Mint the JWT once and pass
+      the string** — a resolver that re-mints per request 403s. Always
+      `disconnect()` in a `finally`: a leaked session blocks the only slot.
 - [ ] **Pin the seed** to one value for the whole route via `set_seed`, so
       weather and lighting realization don't diverge wildly between blocks.
+      Confirmed safe: `set_seed` and `set_resolution` survive `reset`, so set
+      them once at connect and they hold for every block.
 - [ ] **Hold-until-ready.** Never display an unready segment. Hold the
       current live render and switch when the next block is ready. **Never cut
       to a raw Street View photo** — a daytime JPEG before a night render
       contradicts the premise. **No crossfade** — hard cut when the next block
-      arrives.
+      arrives. Measured gaps to cover: **~12–16s at route start**, **~7–8s at
+      each block boundary** (~2.3s of commands + ~5–6s to first frame).
+- [ ] **Keep block dwell to ~8–15s.** Conditioning drifts off the real
+      geometry by ~25s (Q1), after which we are showing an invented street.
+      Advance to the next block before that, even if waypoints remain.
 - [ ] **Unavailable segments.** When `image_available` is false, render an
       explicit unavailable state. Do not generate a street from text alone to
       fill the gap.
@@ -563,6 +625,9 @@ Print this to your human and stop:
 - [ ] **Concurrency check.** Compare mode needs two live sessions. If Q3 said
       one session at a time, run the two routes sequentially and stitch, or
       pre-generate both before entering compare.
+  - **Q3 said 1.** Two live viewports are impossible. Plan for pre-generating
+    route B (or both) via `requestClip()`/`requestRecording()` and playing the
+    recordings side by side, or sequence the two routes on the one session.
 
 ### 🛑 CHECKPOINT 3 — full demo runthrough
 
@@ -604,6 +669,8 @@ this is upside.
       you came from). Only one step — two moves out is a dozen states and
       you'll evict faster than you generate. **Requires 3–4 concurrent
       sessions (Q3). If Q3 said 1, skip this task.**
+  - **SKIPPED. Q3 = 1 concurrent session.** Revisit only if Reactor raises the
+    account's `concurrent_sessions_per_model` quota.
 - [ ] If time: voice input for **conditions only** ("heavier fog", "more foot
       traffic"). Never for movement — spatial input stays on the arrow keys.
 
@@ -684,6 +751,13 @@ Notes:
 Update this as you go so the human can `/clear` and resume.
 
 - [ ] Checkpoint 1 — contract handshake
+  - Person 1: done (schema, fixture, FastAPI serving the fixture, on `main`).
+  - Person 2: done (Reactor spike Q1–Q5 plus Q6, `docs/reactor-findings.md`,
+    on `main`). Headline: image conditioning works well, but **seeds must be
+    night-graded first** or Orbis renders daytime; and **only 1 concurrent
+    session** exists, which kills prefetch and live compare.
+  - Awaiting the joint runthrough + the three open questions in
+    `docs/reactor-findings.md`.
 - [ ] Checkpoint 2 — end-to-end integration
 - [ ] Checkpoint 3 — full demo runthrough
 - [ ] Final submission — branch pushed to Visko-Platform/orbis-hackathon-starter

@@ -590,9 +590,33 @@ Person 2 Phase 3); Person 1 owns the data and the controls:
   - **Phase 3 verification (Person 1):**
     - backend `pytest` 18/18;
     - frontend typecheck and `next build` clean.
-    - The Walk and Brief screens (where these components appear) haven't been
-      seen in a browser: both appear only after a walk's first frame, and
-      Orbis is rate-limited.
+    - **Browser-tested without Orbis** via a dev-only harness,
+      `frontend/app/preview/page.tsx` (`/preview`). It renders the four
+      components against a real `/api/routes` response and changes conditions
+      the same way the shell does mid-walk. All passed in Chrome:
+      - **Stepping waypoints:** facts update; only changed facts highlight
+        (none when nothing changed); the minimap's walked line and label
+        advance.
+      - **Debounce:** Fog + 7pm pressed within 400ms sent **one** request.
+      - **Live values:** darkness went 1 → 0 at 7pm (sun +3.7°), "Dark since"
+        read "Not yet (dark at 7:48pm)", Weather showed "· fog set by you",
+        and the changed facts highlighted.
+      - **Latest wins:** 9pm then 11pm quickly applied only 11pm.
+      - **Crowd:** added "Foot traffic: Busy street (set by you)".
+      - **Geometry:** unchanged throughout (21 waypoints, same index).
+      - **Brief:** 470 m · 4 blocks, 45 lamps, 0 outages, weather with the
+        fog label, imagery 4 of 4.
+      - **Share link round trip:** opening a share URL pre-fills From, To,
+        date and time on the setup screen.
+    - **Fixed from testing:**
+      - Copy link failed silently when the clipboard was refused (as it will
+        be on a plain-http LAN IP). It now selects the link and shows "press
+        ⌘C / Ctrl+C"; verified.
+      - The setup text still said "Two walking routes"; now it's one route.
+    - **Noticed, not changed:** "Open businesses" changes on most waypoints,
+      so its highlight fires often.
+    - **Still untested:** the real Walk screen with Orbis, i.e. whether a live
+      change visibly alters the video.
 
 ### 🛑 CHECKPOINT 3 — full demo runthrough
 
@@ -1240,7 +1264,7 @@ Update this as you go so the human can `/clear` and resume.
         cached graph of drivable streets (`data/sf_streets.graphml`,
         `fetch_data.py streets`) feeds the street index. Routing still uses
         the walk graph.
-  - Not yet checked: audio by ear.
+  - Audio: **checked by ear by the human, works** (2026-09-12).
   - **Paused (human decision, 2026-09-12): moving on to Checkpoint 3 work.**
     The human couldn't test further: Orbis is rate-limited on concurrent use,
     and the whole hackathon is using it at once. Walk-quality work is recorded
@@ -1249,7 +1273,10 @@ Update this as you go so the human can `/clear` and resume.
     - the left turn onto Leavenworth hits a parked car in both runs (~10s
       near-black);
     - the second half of a walk drifts too bright;
-    - audio never checked by ear.
+    - ~~audio never checked by ear~~ — **checked by the human (2026-09-12):
+      audio works.**
+    - video still untested by the human (hackathon-wide concurrent session
+      limit).
 
     For the demo meanwhile: pick a route without a sharp left turn and keep it
     short.

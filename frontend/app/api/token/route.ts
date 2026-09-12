@@ -1,9 +1,20 @@
 import { NextResponse } from "next/server";
 
 const REACTOR_API_URL = "https://api.reactor.inc";
-const MODEL_NAME = "reactor/visko-orbis-stable";
+const DEFAULT_MODEL_NAME = "reactor/visko-orbis-stable";
 
-export async function POST() {
+// The account's `concurrent_sessions_per_model` quota is 1 (spike Q3), and it
+// overrides whatever this asks for — a token minted with max_sessions: 3 still
+// gets 429 quota_exceeded on the second connect. Ask for 1 so the token's
+// scope matches reality. Raise this only once Reactor raises the quota.
+const DEFAULT_MAX_SESSIONS = 1;
+
+type TokenRequest = {
+  model?: string;
+  maxSessions?: number;
+};
+
+export async function POST(request: Request) {
   const apiKey = process.env.REACTOR_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
@@ -11,6 +22,21 @@ export async function POST() {
       { status: 500 },
     );
   }
+
+  // The starter posted an empty body; keep that working.
+  let body: TokenRequest = {};
+  try {
+    const text = await request.text();
+    if (text.trim()) body = JSON.parse(text) as TokenRequest;
+  } catch {
+    body = {};
+  }
+
+  const modelName = body.model?.trim() || DEFAULT_MODEL_NAME;
+  const maxSessions =
+    Number.isInteger(body.maxSessions) && (body.maxSessions as number) > 0
+      ? (body.maxSessions as number)
+      : DEFAULT_MAX_SESSIONS;
 
   const response = await fetch(`${REACTOR_API_URL}/tokens`, {
     method: "POST",
@@ -23,8 +49,8 @@ export async function POST() {
       authorization_details: [
         {
           type: "session",
-          resources: { models: { match: [MODEL_NAME] } },
-          constraints: { max_sessions: 1 },
+          resources: { models: { match: [modelName] } },
+          constraints: { max_sessions: maxSessions },
         },
       ],
     }),
@@ -45,7 +71,7 @@ export async function POST() {
   }
 
   return NextResponse.json(
-    { jwt: result.jwt },
+    { jwt: result.jwt, model: modelName, maxSessions },
     { headers: { "Cache-Control": "no-store, max-age=0" } },
   );
 }

@@ -1181,6 +1181,18 @@ Update this as you go so the human can `/clear` and resume.
         `fetch_data.py streets`) feeds the street index. Routing still uses
         the walk graph.
   - Not yet checked: audio by ear.
+  - **Paused (human decision, 2026-09-12): moving on to Checkpoint 3 work.**
+    The human couldn't test further: Orbis is rate-limited on concurrent use,
+    and the whole hackathon is using it at once. Walk-quality work is recorded
+    above (shot list, two browser runs, evidence `16-…`/`17-…`). **Open items
+    to come back to when Orbis is free:**
+    - the left turn onto Leavenworth hits a parked car in both runs (~10s
+      near-black);
+    - the second half of a walk drifts too bright;
+    - audio never checked by ear.
+
+    For the demo meanwhile: pick a route without a sharp left turn and keep it
+    short.
 - [ ] Checkpoint 3 — full demo runthrough
   - **Scope change (human decision, before Checkpoint 3): no route
     comparison.** One start, one destination, one route walked. Reasons: too
@@ -1192,6 +1204,19 @@ Update this as you go so the human can `/clear` and resume.
 ---
 
 # LATER, IF THERE IS TIME — richer OSM conditions
+
+> **Status (Person 1, merged 2026-09-12):** mostly already done in Phase 2,
+> which ran in parallel with this note.
+> - **Done:**
+>   - venue POIs with a real `opening_hours` parser (`backend/hours.py`,
+>     including past-midnight hours);
+>   - lamp positions from Mapillary, not OSM `street_lamp`;
+>   - `lit` worded as "Tagged lit" / "Not tagged", never "no streetlights";
+>   - the sidewalk trap: SF's separately mapped sidewalks are handled via a
+>     second street graph (`sf_streets.graphml`);
+>   - `lanes`/`oneway` in the Road fact.
+> - **Not done, still deferrable:** building height / `building:levels` in the
+>   scene, and `maxspeed` in the audio wording.
 
 **Owner: Person 1** (it extends their Phase 2 "OSM edge attributes", "POI
 density" and "Prompt composition" tasks). **Safe to defer.** It is additive:

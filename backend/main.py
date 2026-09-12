@@ -25,7 +25,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(REPO_ROOT / ".env.local")
 load_dotenv(REPO_ROOT / ".env")
 
-from conditions import SF_TZ, ConditionModel  # noqa: E402
+from conditions import SF_TZ, ConditionModel, compose_prompt  # noqa: E402
 from geo import BLOCK_ID_RE, DATA, GeoError, StreetGraph  # noqa: E402
 from imagery import Imagery  # noqa: E402
 
@@ -99,8 +99,22 @@ def get_routes(
     for route_id, geom in zip("AB", geoms):
         lighting = {b.block_id: model.block_lighting(geom, b, local) for b in geom.blocks}
         waypoints = []
+        held_scene = None
+        streets = {b.block_id: model.block_street(geom, b) for b in geom.blocks}
         for wp in geom.waypoints:
             available = coverage[wp.block.block_id] is not None
+            motion, motion_kind = model.motion_cue(geom, wp)
+            condition = model.waypoint_condition(
+                wp, lighting[wp.block.block_id], sun, weather, local,
+                motion=motion, imagery=coverage[wp.block.block_id], block_street=streets[wp.block.block_id],
+            )
+            scene = condition.pop("scene")
+            if motion_kind in ("approach", "turn") and held_scene:
+                # Keep describing the street being left until the turn is done: a new
+                # street's scene stacked on a turn cue made Orbis stop and re-imagine.
+                condition["video_prompt"] = compose_prompt(motion, held_scene)
+            else:
+                held_scene = scene
             waypoints.append({
                 "index": wp.index,
                 "lat": wp.lat,
@@ -109,10 +123,7 @@ def get_routes(
                 "block_id": wp.block.block_id,
                 "image_url": f"/api/imagery/{wp.block.block_id}/{wp.block.heading}" if available else None,
                 "image_available": available,
-                "condition": model.waypoint_condition(
-                    wp, lighting[wp.block.block_id], sun, weather, local,
-                    motion=model.motion_cue(geom, wp), imagery=coverage[wp.block.block_id],
-                ),
+                "condition": condition,
             })
         routes.append({"route_id": route_id, "waypoints": waypoints})
     return {"routes": routes}

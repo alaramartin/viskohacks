@@ -1138,6 +1138,15 @@ Update this as you go so the human can `/clear` and resume.
       at the bottom of some seeds (tilt the pano crop up or prefer rig-free
       images); "Road: No road alongside" shows beside obvious roads (street
       search radius too small).
+      - Root cause found later, and bigger than the search radius: osmnx's
+        `walk` network **omits streets whose sidewalks are mapped
+        separately** (`sidewalk=separate`), which covers most of downtown.
+        Jones St and Valencia St were not in our graph at all, so waypoints
+        on their sidewalks had no road facts, no street name, no centreline
+        for lamp sides, and a "narrow pedestrian path" scene. Fix: a second
+        cached graph of drivable streets (`data/sf_streets.graphml`,
+        `fetch_data.py streets`) feeds the street index. Routing still uses
+        the walk graph.
   - Not yet checked: audio by ear.
 - [ ] Checkpoint 3 — full demo runthrough
   - **Scope change (human decision, before Checkpoint 3): no route

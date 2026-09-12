@@ -1,37 +1,56 @@
 "use client";
 
 /**
- * The autoplay flythrough — the primary deliverable.
+ * The autoplay walk — the primary deliverable.
  *
- * One long-lived Orbis session per route (spike Q3/Q6). Per block:
- *   freeze the picture → `reset` → fetch the seed frame → night-grade it →
- *   `set_image` → `set_prompt` → `start` → hold until real frames resume →
- *   hard cut → walk the block's waypoints, morphing the prompt between them.
+ * ONE CONTINUOUS GENERATION FOR THE WHOLE ROUTE. Human decision after the
+ * Checkpoint 2 review: no cuts, no "next block preparing" holds — the walk
+ * should look like footage from a camera someone wore along the route.
  *
- * It runs end to end with no interaction. The only controls are mute and stop.
+ * Why it has to be built this way (docs/reactor-findings.md, Q7): a live
+ * generation cannot be re-seeded. `set_image` mid-run — alone, with a prompt
+ * change, or between `pause`/`resume` — is accepted and ignored; new imagery
+ * only lands after `reset`, which is a ~7s gap and a cut. What does change a
+ * live render is `set_prompt`, which `-dynamic` morphs in at the next ~1.8s
+ * chunk (Q5). So:
+ *
+ *   connect → pin seed/resolution → night-grade the first imaged block's frame
+ *   → `set_image` → `set_prompt` → `start` → then, on a steady clock, morph to
+ *   each waypoint's `video_prompt`, which carries the backend's motion cue
+ *   ("crossing the street at the crosswalk, then turning left onto
+ *   Leavenworth Street") and that spot's conditions.
+ *
+ * Real imagery grounds the start; after that the render is steered by text.
+ * The evidence readout's "Street imagery" fact says so per block (rule 4).
+ *
+ * `applyConditions(route)` swaps in the same route recomputed for new
+ * conditions (time, fog, crowd) and morphs the live render immediately — the
+ * hook for Phase 3's real-time controls.
  */
 
 import { useReactor, useReactorMessage } from "@reactor-team/js-sdk";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { fetchSeedImage, imageryUrl } from "@/lib/api";
-import type { Route, Waypoint } from "@/lib/contract";
+import type { Route } from "@/lib/contract";
 import { ORBIS_RESOLUTION } from "@/lib/orbis";
-import { blockDwellMs, groupIntoBlocks, type Block } from "@/lib/orbis/blocks";
+import { WAYPOINT_DWELL_MS, groupIntoBlocks, type Block } from "@/lib/orbis/blocks";
 import { estimateLighting, gradeParamsFor } from "@/lib/orbis/lighting";
 import { nightGradeSeed } from "@/lib/orbis/nightgrade";
 import {
+  morphAudioPrompt,
   morphPrompt,
   pinRouteSession,
-  resetGeneration,
   seedBlock,
   type OrbisContext,
 } from "@/lib/orbis/session";
 import { OrbisSignals } from "@/lib/orbis/signals";
 import { VideoGate } from "@/lib/orbis/video-gate";
 
-/** Cold start is ~12–16s and a block change ~7–8s (Q4); this is the giving-up point. */
+/** Cold start is ~12–16s (Q4); this is the giving-up point. */
 const FIRST_FRAME_TIMEOUT_MS = 30_000;
+/** Let the last "coming to a stop" morph play out before closing the session. */
+const ARRIVAL_LINGER_MS = 4_000;
 
 export type WalkPhase =
   | "idle"
@@ -51,9 +70,9 @@ export type WalkSnapshot = {
   blocks: Block[];
   blockIndex: number;
   waypointIndex: number;
-  /** Why this segment is unavailable, when it is. */
+  /** Kept for the viewport's cover; the continuous walk never shows it. */
   unavailableReason: string | null;
-  /** Diagnostics about the seed we fed Orbis — handy when a block looks wrong. */
+  /** Diagnostics about the seed we fed Orbis — handy when the start looks wrong. */
   seedNote: string | null;
   imageConditioned: boolean | null;
 };
@@ -73,12 +92,11 @@ const INITIAL: WalkSnapshot = {
 
 class WalkCancelled extends Error {}
 
-type PreparedSeed = {
-  graded: Awaited<ReturnType<typeof nightGradeSeed>>;
-  lighting: ReturnType<typeof estimateLighting>;
+type RunHandle = {
+  cancelled: boolean;
+  /** Bumped by applyConditions so the walk loop re-sends the current prompt at once. */
+  conditionsVersion: number;
 };
-
-type RunHandle = { cancelled: boolean };
 
 /** Deterministic noise seed per route, so a rerun of the demo looks the same. */
 function seedFromString(value: string): number {
@@ -90,8 +108,17 @@ function seedFromString(value: string): number {
   return Math.abs(hash) % 1_000_000;
 }
 
+/** Same geometry, possibly new conditions — anything else is a different route. */
+function sameGeometry(a: Route, b: Route): boolean {
+  return (
+    a.route_id === b.route_id &&
+    a.waypoints.length === b.waypoints.length &&
+    a.waypoints.every((waypoint, index) => waypoint.block_id === b.waypoints[index].block_id)
+  );
+}
+
 export type UseOrbisWalkOptions = {
-  /** Fired the first time a block's real frames reach the screen. */
+  /** Fired the first time real frames reach the screen. */
   onFirstFrame?: () => void;
 };
 
@@ -112,8 +139,8 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
   const signals = useMemo(() => new OrbisSignals(), []);
   const gate = useMemo(() => new VideoGate(), []);
   const runRef = useRef<RunHandle | null>(null);
+  const routeRef = useRef<Route | null>(null);
   const statusRef = useRef(status);
-  const firstFrameRef = useRef(false);
   const connecting = useRef<Promise<void> | null>(null);
   const onFirstFrame = useRef(options.onFirstFrame);
 
@@ -140,12 +167,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
     await connecting.current;
   }, [connect]);
 
-  /**
-   * Start connecting before the walk is requested. Connecting is ~7s of the
-   * ~15s cold start and needs nothing from the form, so the moment someone
-   * touches the setup panel we spend it in the background. Failures are
-   * swallowed here: `start()` retries and reports properly.
-   */
+  /** Start connecting the moment someone touches the setup panel (~7s saved). */
   const warmUp = useCallback(() => {
     if (runRef.current) return;
     void ensureConnected().catch(() => {});
@@ -164,52 +186,20 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
     [sendCommand, signals, uploadFile],
   );
 
-  const sleep = useCallback(async (ms: number, run: RunHandle) => {
+  const sleep = useCallback(async (ms: number, run: RunHandle, wakeOnConditions = false) => {
     const until = Date.now() + ms;
+    const version = run.conditionsVersion;
     while (Date.now() < until) {
       if (run.cancelled) throw new WalkCancelled();
+      if (wakeOnConditions && run.conditionsVersion !== version) return;
       await new Promise((resolve) =>
-        setTimeout(resolve, Math.min(200, Math.max(0, until - Date.now()))),
+        setTimeout(resolve, Math.min(150, Math.max(0, until - Date.now()))),
       );
     }
     if (run.cancelled) throw new WalkCancelled();
   }, []);
 
-  /**
-   * Advance through the block's waypoints while it holds the screen. Inside a
-   * block the prompt *morphs* (dynamic applies it at the next chunk boundary)
-   * rather than cutting — cuts happen only at block boundaries.
-   */
-  const walkWaypoints = useCallback(
-    async (
-      block: Block,
-      route: Route,
-      run: RunHandle,
-      dwellMs: number,
-      initialPrompt: string | null,
-    ) => {
-      const perWaypoint = dwellMs / block.waypoints.length;
-      let lastPrompt = initialPrompt;
-
-      for (const waypoint of block.waypoints) {
-        if (run.cancelled) throw new WalkCancelled();
-        patch({ waypointIndex: route.waypoints.indexOf(waypoint) });
-
-        const prompt = waypoint.condition.video_prompt;
-        if (initialPrompt !== null && prompt && prompt !== lastPrompt) {
-          await morphPrompt(context, prompt);
-          lastPrompt = prompt;
-        }
-        await sleep(perWaypoint, run);
-      }
-    },
-    [context, patch, sleep],
-  );
-
-  /**
-   * Fetch a block's seed frame and convert it to night. Needs no session, so
-   * the first block's seed is prepared while the connection is still opening.
-   */
+  /** Fetch a block's seed frame and convert it to night. Needs no session. */
   const prepareSeed = useCallback(async (block: Block) => {
     const seedWaypoint = block.seedWaypoint;
     const seedUrl = seedWaypoint ? imageryUrl(seedWaypoint) : null;
@@ -220,117 +210,48 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
     return { graded, lighting };
   }, []);
 
-  const walkBlock = useCallback(
-    async (
-      block: Block,
-      blocks: Block[],
-      route: Route,
-      run: RunHandle,
-      /** True when the block we just walked had no imagery. */
-      afterUnavailable: boolean,
-      /** Seed prepared ahead of time, for the first block of a walk. */
-      prepared: Promise<PreparedSeed> | null,
-    ): Promise<boolean> => {
-      const label = `Block ${block.index + 1} of ${blocks.length}`;
-      const positionOf = (waypoint: Waypoint) => route.waypoints.indexOf(waypoint);
+  /**
+   * Walk every waypoint on a steady clock inside the one live generation.
+   * Prompts morph (no cuts); a condition change re-sends the current
+   * waypoint's prompt straight away instead of waiting for the next one.
+   */
+  const walkRoute = useCallback(
+    async (run: RunHandle, blocks: Block[]) => {
+      const initial = routeRef.current;
+      if (!initial) return;
+      let sentVideo: string | null = initial.waypoints[0]?.condition.video_prompt ?? null;
+      let sentAudio: string | null = initial.waypoints[0]?.condition.audio_prompt ?? null;
+      const blockOf = new Map<string, number>(blocks.map((block) => [block.blockId, block.index]));
 
-      patch({
-        blockIndex: block.index,
-        waypointIndex: positionOf(block.waypoints[0]),
-      });
-
-      // Coming out of an unavailable segment there is no live frame to hold, so
-      // its card stays up until the next block cuts in. Putting the last frame
-      // from *before* the gap back on screen would read as having walked it.
-      const holdPhase: WalkPhase = afterUnavailable ? "unavailable" : "holding";
-      if (!afterUnavailable) patch({ unavailableReason: null });
-
-      if (block.index > 0) {
-        // Freeze while the outgoing block is still on screen — after the reset
-        // there is nothing left to copy.
-        gate.freeze();
-        patch({ phase: holdPhase, statusText: `${label} — preparing` });
-        await resetGeneration(context);
+      for (let index = 0; index < initial.waypoints.length; index += 1) {
+        let version = -1;
+        const deadline = Date.now() + WAYPOINT_DWELL_MS;
+        while (Date.now() < deadline) {
+          if (run.cancelled) throw new WalkCancelled();
+          if (version !== run.conditionsVersion) {
+            version = run.conditionsVersion;
+            const waypoint = (routeRef.current ?? initial).waypoints[index];
+            patch({
+              route: routeRef.current,
+              waypointIndex: index,
+              blockIndex: blockOf.get(waypoint.block_id) ?? 0,
+            });
+            const { video_prompt: video, audio_prompt: audio } = waypoint.condition;
+            if (video && video !== sentVideo) {
+              await morphPrompt(context, video);
+              sentVideo = video;
+            }
+            if (audio && audio !== sentAudio) {
+              // Audio morphing mid-run is unverified; never let it stop the walk.
+              await morphAudioPrompt(context, audio).catch(() => {});
+              sentAudio = audio;
+            }
+          }
+          await sleep(Math.max(0, deadline - Date.now()), run, true);
+        }
       }
-
-      const dwellMs = blockDwellMs(block);
-
-      const showUnavailable = async (reason: string) => {
-        // Rule #4: a segment without imagery renders as visibly unavailable.
-        // Never generated from text alone to paper over the gap.
-        gate.release();
-        patch({ phase: "unavailable", unavailableReason: reason, statusText: label });
-        await walkWaypoints(block, route, run, dwellMs, null);
-      };
-
-      if (!block.imageAvailable || !block.seedWaypoint) {
-        await showUnavailable("No street-level imagery covers this block.");
-        return true;
-      }
-
-      if (!imageryUrl(block.seedWaypoint)) {
-        await showUnavailable("No street-level imagery covers this block.");
-        return true;
-      }
-
-      try {
-        patch({
-          phase: block.index === 0 ? "preparing" : holdPhase,
-          statusText: prepared
-            ? `${label} — seeding Orbis`
-            : `${label} — converting the seed frame to night`,
-        });
-        // The daytime frame is converted before it reaches Orbis and is never
-        // displayed either way — it is an intermediate, not an answer.
-        const { graded, lighting } = await (prepared ?? prepareSeed(block));
-        if (run.cancelled) throw new WalkCancelled();
-        patch({
-          seedNote: `seed mean luma ${graded.meanLuma.toFixed(3)} · lighting from ${lighting.source}`,
-        });
-
-        patch({ statusText: `${label} — seeding Orbis` });
-        const seeded = await seedBlock(context, {
-          image: graded.file,
-          videoPrompt: block.waypoints[0].condition.video_prompt,
-          audioPrompt: block.waypoints[0].condition.audio_prompt,
-        });
-        patch({ imageConditioned: seeded.imageConditioned });
-
-        patch({ statusText: `${label} — waiting for the first frame` });
-        const outcome = await gate.waitForLiveFrames({
-          timeoutMs: FIRST_FRAME_TIMEOUT_MS,
-          isCancelled: () => run.cancelled,
-        });
-        if (outcome === "cancelled") throw new WalkCancelled();
-      } catch (caught) {
-        if (caught instanceof WalkCancelled) throw caught;
-        if (statusRef.current !== "ready") throw caught;
-        // One bad block should not end the walk: show it as unavailable and
-        // carry on to the next one.
-        await showUnavailable(
-          caught instanceof Error ? caught.message : String(caught),
-        );
-        return true;
-      }
-
-      // Hard cut. No crossfade.
-      gate.release();
-      patch({ phase: "walking", statusText: label, unavailableReason: null });
-      if (!firstFrameRef.current) {
-        firstFrameRef.current = true;
-        onFirstFrame.current?.();
-      }
-
-      await walkWaypoints(
-        block,
-        route,
-        run,
-        dwellMs,
-        block.waypoints[0].condition.video_prompt,
-      );
-      return false;
     },
-    [context, gate, patch, prepareSeed, walkWaypoints],
+    [context, patch, sleep],
   );
 
   const stop = useCallback(() => {
@@ -340,51 +261,91 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
     signals.abort("Walk stopped.");
   }, [signals]);
 
+  /**
+   * Real-time conditions: the same route recomputed for a new time, fog or
+   * crowd setting. Applied to the live render within ~2s via prompt morphs.
+   * Returns false (and changes nothing) if the geometry differs.
+   */
+  const applyConditions = useCallback(
+    (next: Route) => {
+      const run = runRef.current;
+      const current = routeRef.current;
+      if (!run || !current || !sameGeometry(current, next)) return false;
+      routeRef.current = next;
+      run.conditionsVersion += 1;
+      return true;
+    },
+    [],
+  );
+
   const start = useCallback(
     async (routeSource: Route | Promise<Route>) => {
       if (runRef.current) return;
-      const run: RunHandle = { cancelled: false };
+      const run: RunHandle = { cancelled: false, conditionsVersion: 0 };
       runRef.current = run;
-      firstFrameRef.current = false;
       setSnapshot({ ...INITIAL, phase: "connecting", statusText: "Connecting to Orbis" });
 
       try {
-        // Three things that do not depend on each other: opening the session,
-        // computing the routes, and preparing the first seed frame. Run them
-        // together — stacked, they are most of the cold start.
+        // Opening the session, computing the routes and preparing the seed
+        // frame don't depend on each other; stacked, they are the cold start.
         const connected = ensureConnected();
         connected.catch(() => {});
         const route = await Promise.resolve(routeSource);
         if (run.cancelled) throw new WalkCancelled();
+        routeRef.current = route;
 
         const blocks = groupIntoBlocks(route);
         patch({ route, blocks });
-        const firstSeed = blocks[0]?.imageAvailable ? prepareSeed(blocks[0]) : null;
-        firstSeed?.catch(() => {});
+        // The walk is seeded once, from the first block that has imagery. A
+        // route with none anywhere can't be grounded at all.
+        const seedBlockInfo = blocks.find((block) => block.imageAvailable) ?? null;
+        if (!seedBlockInfo) {
+          throw new Error("No street-level imagery anywhere on this route, so there is nothing to ground the walk in.");
+        }
+        const prepared = prepareSeed(seedBlockInfo);
+        prepared.catch(() => {});
 
         await connected;
         if (run.cancelled) throw new WalkCancelled();
 
         await pinRouteSession(context, {
-          // Pinned for the whole route so weather and lighting realisation do
-          // not diverge between blocks. Survives `reset` (Q6).
+          // Pinned so weather and lighting realisation stay stable for the walk.
           seed: seedFromString(`${route.route_id}:${route.waypoints.length}`),
           resolution: ORBIS_RESOLUTION,
         });
 
-        let afterUnavailable = false;
-        for (const block of blocks) {
-          if (run.cancelled) throw new WalkCancelled();
-          afterUnavailable = await walkBlock(
-            block,
-            blocks,
-            route,
-            run,
-            afterUnavailable,
-            block.index === 0 ? firstSeed : null,
-          );
-        }
+        patch({ phase: "preparing", statusText: "Converting the first block to night" });
+        // The daytime frame is converted before it reaches Orbis and is never
+        // displayed either way — it is an intermediate, not an answer.
+        const { graded, lighting } = await prepared;
+        if (run.cancelled) throw new WalkCancelled();
+        patch({
+          seedNote: `seed mean luma ${graded.meanLuma.toFixed(3)} · lighting from ${lighting.source}`,
+          statusText: "Starting the walk",
+        });
 
+        const first = route.waypoints[0];
+        const seeded = await seedBlock(context, {
+          image: graded.file,
+          videoPrompt: first.condition.video_prompt,
+          audioPrompt: first.condition.audio_prompt,
+        });
+        patch({ imageConditioned: seeded.imageConditioned });
+
+        const outcome = await gate.waitForLiveFrames({
+          timeoutMs: FIRST_FRAME_TIMEOUT_MS,
+          isCancelled: () => run.cancelled,
+        });
+        if (outcome === "cancelled") throw new WalkCancelled();
+
+        gate.release();
+        patch({ phase: "walking", statusText: "Walking" });
+        onFirstFrame.current?.();
+
+        await walkRoute(run, blocks);
+        await sleep(ARRIVAL_LINGER_MS, run);
+        // Keep the arrival on screen under the "End of route" card.
+        gate.freeze();
         patch({ phase: "finished", statusText: "End of route" });
       } catch (caught) {
         if (!(caught instanceof WalkCancelled)) {
@@ -394,13 +355,13 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
             statusText: "",
           });
         } else {
+          gate.release();
           patch({ phase: "idle", statusText: "" });
         }
       } finally {
         // Q3: a leaked session holds the account's only slot until it ages out,
         // and there is no REST endpoint to kill it. Always disconnect.
         signals.abort("Session closed.");
-        gate.release();
         try {
           await disconnect();
         } catch {
@@ -409,16 +370,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
         runRef.current = null;
       }
     },
-    [
-      context,
-      disconnect,
-      ensureConnected,
-      gate,
-      patch,
-      prepareSeed,
-      signals,
-      walkBlock,
-    ],
+    [context, disconnect, ensureConnected, gate, patch, prepareSeed, signals, sleep, walkRoute],
   );
 
   // Same rule on unmount: a closed tab must not take the slot with it.
@@ -448,7 +400,8 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
     start,
     stop,
     warmUp,
-    isRunning: snapshot.phase !== "idle" && snapshot.phase !== "error",
+    applyConditions,
+    isRunning: snapshot.phase !== "idle" && snapshot.phase !== "error" && snapshot.phase !== "finished",
   };
 }
 

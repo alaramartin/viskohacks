@@ -72,7 +72,15 @@ export function blockDwellMs(block: Block): number {
   return Math.min(MAX_BLOCK_DWELL_MS, Math.max(MIN_BLOCK_DWELL_MS, wanted));
 }
 
+/**
+ * Continuous walk (after Checkpoint 2): screen time per waypoint. Waypoints are
+ * ~25m apart, so 6s is a brisk ~4 m/s — slower than real walking would make a
+ * 500m route take 6 minutes on a two-minute demo clock. Each morph lands at the
+ * next ~1.8s chunk, so this leaves ~4s of each waypoint actually on screen.
+ */
+export const WAYPOINT_DWELL_MS = 6_000;
+
 /** Rough wall-clock length of the whole walk, for the setup screen's estimate. */
 export function routeDurationMs(blocks: Block[]): number {
-  return blocks.reduce((total, block) => total + blockDwellMs(block), 0);
+  return blocks.reduce((total, block) => total + block.waypoints.length * WAYPOINT_DWELL_MS, 0);
 }

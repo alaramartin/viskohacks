@@ -145,3 +145,11 @@ export async function seedBlock(
 export async function morphPrompt(context: OrbisContext, prompt: string) {
   assertAccepted(await context.sendCommand("set_prompt", { prompt }), "set_prompt");
 }
+
+/** Change the sound caption inside a live generation. Unverified mid-run — callers treat failure as non-fatal. */
+export async function morphAudioPrompt(context: OrbisContext, prompt: string) {
+  assertAccepted(
+    await context.sendCommand("set_audio_prompt", { prompt }),
+    "set_audio_prompt",
+  );
+}

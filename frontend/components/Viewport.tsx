@@ -127,7 +127,7 @@ function coverFor(walk: WalkController): Cover | null {
       return {
         kind: "idle",
         title: "Enter a route to begin",
-        detail: "The walk is rendered at night, block by block, from street-level imagery.",
+        detail: "The walk is rendered at night as one continuous shot, starting from street-level imagery.",
       };
     case "connecting":
     case "preparing":

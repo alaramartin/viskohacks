@@ -83,6 +83,43 @@
                     "type": "array",
                     "description": "Rendered verbatim in the evidence readout. Person 1 owns the wording.",
                     "items": { "$ref": "#/$defs/Fact" }
+                },
+                "lighting": { "$ref": "#/$defs/Lighting" }
+            }
+        },
+        "Lighting": {
+            "type": "object",
+            "description": "Structured lighting for the day->night seed grade (Person 1 owns it). Always present from the backend; optional in the schema only so a consumer can treat it as a progressive enhancement.",
+            "required": ["lit", "lamp_count", "side", "lamp_offsets_m", "lamp_lateral_m", "outages"],
+            "additionalProperties": false,
+            "properties": {
+                "lit": {
+                    "enum": ["yes", "no", "unknown"],
+                    "description": "OSM lit tag on this block's edges (and the street beside a mapped sidewalk)."
+                },
+                "lamp_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Mapped streetlights on the whole block (Mapillary detections, clustered, plus OSM street_lamp)."
+                },
+                "side": {
+                    "enum": ["both", "one", "none"],
+                    "description": "Which sides of the street's centreline the block's lamps are on."
+                },
+                "lamp_offsets_m": {
+                    "type": "array",
+                    "items": { "type": "integer", "minimum": 0 },
+                    "description": "Metres ahead of this waypoint, along the route, of each lamp still ahead on this block. Ascending."
+                },
+                "lamp_lateral_m": {
+                    "type": "array",
+                    "items": { "type": "number" },
+                    "description": "Same order and length as lamp_offsets_m: metres right (+) or left (-) of the street centreline, facing the waypoint heading. Beside a footpath with no street, relative to the walked line."
+                },
+                "outages": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "311 streetlight-out reports within 30m of the block in the 90 days before the requested time."
                 }
             }
         },

@@ -13,17 +13,22 @@ export type Fact = {
 };
 
 /**
- * PROPOSED, NOT YET IN THE SCHEMA. Person 1's Phase 2 adds `condition.lighting`
- * so the night grade can put a glow where a lamp actually is instead of washing
- * every block in the same amber (PLAN.md, Person 1 Phase 2 / Person 2 Phase 2).
- * Optional here on purpose: everything works without it, just generically.
+ * Structured lighting from Person 1's backend (Phase 2), so the night grade can
+ * put a glow where a lamp actually is. The backend always sends it; it stays
+ * optional here so the grade degrades to the generic look without it.
  */
 export type Lighting = {
+  /** OSM `lit` tag on the block. */
   lit?: "yes" | "no" | "unknown";
+  /** Mapped lamps on the whole block (Mapillary detections + OSM). */
   lamp_count?: number;
+  /** Which sides of the street centreline the block's lamps are on. */
   side?: "both" | "one" | "none";
-  /** Distance in metres along the block from the waypoint to each lamp. */
+  /** Metres ahead of this waypoint, along the route, to each lamp still ahead on the block. Ascending. */
   lamp_offsets_m?: number[];
+  /** Same order as `lamp_offsets_m`: metres right (+) or left (−) of the street centreline. */
+  lamp_lateral_m?: number[];
+  /** 311 streetlight-out reports near the block in the 90 days before the requested time. */
   outages?: number;
 };
 

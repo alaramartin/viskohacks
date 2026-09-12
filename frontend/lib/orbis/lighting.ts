@@ -20,6 +20,8 @@ export type LightingEstimate = {
   outages: number;
   /** Distance in metres ahead of the camera for each mapped lamp. */
   lampOffsetsM: number[];
+  /** Metres right (+) / left (−) of the street centreline per lamp, or null when unknown. */
+  lampLateralM: number[] | null;
   /** Where the numbers came from — surfaced so nobody mistakes prose for data. */
   source: "structured" | "facts" | "none";
 };
@@ -30,16 +32,24 @@ const EMPTY: LightingEstimate = {
   side: "unknown",
   outages: 0,
   lampOffsetsM: [],
+  lampLateralM: null,
   source: "none",
 };
 
 function fromStructured(lighting: Lighting): LightingEstimate {
+  const offsets = lighting.lamp_offsets_m ?? [];
+  const laterals = lighting.lamp_lateral_m ?? [];
+  const ahead = offsets
+    .map((offset, index) => ({ offset, lateral: laterals[index] }))
+    .filter(({ offset }) => offset > 0);
   return {
     lit: lighting.lit ?? "unknown",
     lampCount: typeof lighting.lamp_count === "number" ? lighting.lamp_count : null,
     side: lighting.side ?? "unknown",
     outages: typeof lighting.outages === "number" ? lighting.outages : 0,
-    lampOffsetsM: lighting.lamp_offsets_m?.filter((offset) => offset > 0) ?? [],
+    lampOffsetsM: ahead.map(({ offset }) => offset),
+    lampLateralM:
+      laterals.length === offsets.length ? ahead.map(({ lateral }) => lateral) : null,
     source: "structured",
   };
 }
@@ -138,10 +148,13 @@ export function gradeParamsFor(lighting: LightingEstimate): GradeParams {
     lampGain = 0.8;
   }
 
+  // Real curb positions when the backend sends them; the Mapillary seed camera
+  // is usually in the roadway, close to the centreline they are measured from.
   const pools: LampPool[] = lighting.lampOffsetsM.map((distanceM, index) => ({
     distanceM,
-    lateralM:
-      lighting.side === "both"
+    lateralM: lighting.lampLateralM
+      ? lighting.lampLateralM[index]
+      : lighting.side === "both"
         ? index % 2 === 0
           ? -LAMP_LATERAL_M
           : LAMP_LATERAL_M

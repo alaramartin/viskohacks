@@ -262,49 +262,120 @@ Print this to your human and stop:
 Only start after Checkpoint 1 passes. Replace the fixture with real data,
 keeping the response shape byte-identical.
 
-- [ ] **Cache the SF walking graph.** `osmnx.graph_from_place("San Francisco,
+All Phase 2 code is on `person1`, not yet merged: `backend/geo.py` (graph, geocode,
+routes, blocks, waypoints), `conditions.py` (facts, prompts, lighting),
+`imagery.py`, `hours.py`, `scripts/fetch_data.py` (all offline data prep).
+`backend/README.md` documents setup, data refresh and how each part works.
+Verified: `pytest` 12/12; `/api/routes` schema-valid for Tenderloin
+(Eddy & Jones → Golden Gate & Hyde), Ferry Building → Civic Center and
+16th & Valencia → 24th & Mission. First request in a new area ~12–15s (tile
+downloads), repeats ~0.1s; startup ~10s.
+
+- [x] **Cache the SF walking graph.** `osmnx.graph_from_place("San Francisco,
 California", network_type="walk")`, save to `backend/data/sf_walk.graphml`.
       Load from disk on startup — never hit Overpass at request time. This
       download is slow; do it first and commit the cache file if under 100MB
       (otherwise gitignore it and document the command).
-- [ ] **Geocode + two routes.** Geocode origin/destination strings to nodes.
+  - done, 80MB, committed. Took ~1 min, not slow. **osmnx drops `lit` and
+    `sidewalk` by default** — re-downloaded with them added to
+    `useful_tags_way` (`scripts/fetch_data.py graph`).
+- [x] **Geocode + two routes.** Geocode origin/destination strings to nodes.
       Compute route A as shortest path by length. Compute route B as a
       genuinely different path — penalize edges used by A and re-run, so the
       two routes diverge meaningfully rather than differing by one block.
-- [ ] **Waypoint sampling.** Walk each route's edges and emit waypoints every
+  - done, changed: B triples the cost of every edge **within 30m of A**, not
+    only A's edges — SF sidewalks are separate footways, so penalizing A's
+    edges alone just moved B to the other side of the same street. Ferry
+    Building → Civic Center: 4% of B's waypoints within 30m of A. Nominatim
+    can't geocode `X St & Y St`, so intersections resolve offline from the
+    graph's street names; place names use Nominatim (cached); `lat,lng` also
+    accepted. Outside SF / no path → 422.
+- [x] **Waypoint sampling.** Walk each route's edges and emit waypoints every
       ~25m. `heading` is the bearing to the next waypoint. `block_id` is the
       OSM way id — consecutive waypoints on the same way share it.
-- [ ] **Sun position.** Use `astral` to compute civil twilight for the
+  - done, changed `block_id`: a bare OSM way id doesn't work here. Sidewalk
+    ways split at every crosswalk (a cut every few metres), and long streets
+    are one way (a block far past the ~25s drift). Blocks now split at turns
+    >40°, street renames, intersections after 120m, and every 200m; crosswalk
+    jogs <50m fold into the next block. Format `w<way id>-n<start node>`
+    (still a string, same contract). Typical block 90–150m, 4–7 waypoints.
+    **All waypoints in a block share one `image_url`** at the block's heading
+    — one seed per block, which is what the session manager needs.
+- [x] **Sun position.** Use `astral` to compute civil twilight for the
       requested date at SF's lat/lng. Derive whether it's dark, and the "Dark
       since HH:MMpm" fact. Exact, offline, no API.
-- [ ] **OSM edge attributes.** Pull `lit`, `highway`, `lanes`, `sidewalk`,
+  - done. Handles after-midnight (dark since the previous day's dusk). Naive
+    datetimes are SF local time. In daylight the fact reads
+    `Not yet (dark at 7:48pm)` and prompts say "at dusk"/"in daylight".
+- [x] **OSM edge attributes.** Pull `lit`, `highway`, `lanes`, `sidewalk`,
       `width` from the cached graph per edge. Map to facts.
-- [ ] **POI density as footfall proxy.** Count OSM POIs within ~50m of each
+  - done, sparse data: `lit` on ~24% of edges, `sidewalk` ~13%, `lanes` 10%,
+    `width` ~0% (dropped). Routes mostly walk mapped sidewalks with no road
+    tags, so road/lit/sidewalk facts come from the nearest street within 25m.
+    Missing tags read `Not tagged`, never guessed.
+- [x] **POI density as footfall proxy.** Count OSM POIs within ~50m of each
       waypoint. Filter by `opening_hours` where present to get "open at this
       hour". Fall back to total count when hours are missing — and say so in
       the fact wording (`"3 nearby (hours unknown)"`).
-- [ ] **DataSF enrichment.** Download the streetlight inventory and 311
+  - done. 24.6k POIs, only 3.8k with hours. Benches, parking, bike racks
+    etc. are excluded (not footfall). Wording: `2 of 5 open at 11pm, 3 more
+    with hours unknown` / `4 nearby (hours unknown)` / `None nearby`.
+    Small `opening_hours` parser in `hours.py`; unparseable → unknown.
+- [x] **DataSF enrichment.** Download the streetlight inventory and 311
       streetlight-outage extracts from DataSF to `backend/data/`. Spatially
       join to edges. Produce the outage fact. **Cache to disk — do not call
       their API at request time.**
-- [ ] **Prompt composition.** Build `video_prompt` and `audio_prompt` from the
+  - done, changed: **SF doesn't publish a streetlight inventory on DataSF.**
+    The catalog, now at `data.sf.gov`, has none; the "Streetlight
+    Poles/Fixtures" hits were other cities. Lamp positions come from
+    **Mapillary `map_features`** (95.7k detections citywide, clustered at 8m
+    because one lamp is often mapped several times) plus 1.6k OSM
+    `street_lamp` nodes. 311: dataset `vw6y-z8j6`, `service_name =
+    Streetlights`, last 365 days (5.2k cases). Fact = `light`-subtype
+    reports within 30m of the block in the 90 days before the requested
+    time: `None in 90 days to Sep 2026 (311)`. All cached files are committed.
+- [x] **Prompt composition.** Build `video_prompt` and `audio_prompt` from the
       composed condition. Keep them concrete and physical: lighting, road
       width, parked cars, pedestrian presence, weather, wetness. Do **not**
       write anything about threat, danger, crime, or people behaving
       menacingly — that is out of scope and will trip content filters.
       Include weather from Open-Meteo for the requested date/time.
-- [ ] **Imagery.** Implement `GET /api/imagery/<block_id>/<heading>`.
+  - done. Road class, lamp layout, one out, fog (code/visibility), rain/wet,
+    parked cars, open storefronts → pedestrians; audio from road class, rain,
+    wind, open businesses. Caveat: weather is **one SF point**, so
+    neighbourhood fog differences aren't captured. It's a live call (forecast
+    covers −90…+15 days, archive otherwise), cached 1h in memory. If it
+    fails, the fact says `Unavailable` and the prompt leaves weather out.
+- [x] **Imagery.** Implement `GET /api/imagery/<block_id>/<heading>`.
       Primary source: **Mapillary** (free, CC BY-SA, no ToS problem) if
       coverage on the target neighborhood is adequate. Fallback: Google Street
       View Static API (10k/mo free, needs a Cloud billing account + card). Use the Street View
       **Metadata** endpoint (free, unlimited) to check coverage and set
       `image_available`. Cache fetched images to `backend/data/imagery/`.
-- [ ] **Crop panoramas to 16:9 at the waypoint heading.** Most Mapillary
+  - done, Mapillary. Candidates come from Mapillary's **z14 coverage vector
+    tiles** (cached to disk): the `/images` bbox search 500s ("reduce the
+    amount of data") everywhere on Market St, even at 10m. Picks the image
+    nearest the walked line (≤18m across, ≤30m behind), newer preferred.
+    Coverage: Tenderloin test routes 8/8 blocks, Ferry Building → Civic
+    Center 37/42, Mission 2/2 routes returned. **No Google fallback** —
+    decided after Phase 2 (too much setup for a one-day hackathon). Blocks
+    without Mapillary are `image_available: false`, and the demo picks
+    routes that avoid them. `/api/routes`
+    pre-warms every block's frame in the background, so Person 2's first
+    fetch is a cache hit (a cold pano download is ~5–20s).
+- [x] **Crop panoramas to 16:9 at the waypoint heading.** Most Mapillary
       coverage on our blocks is 360° panos. Orbis wants a 16:9 frame (854×480
       stable / 640×368 dynamic) and resizes a non-16:9 image **without
       cropping**, which distorts it. Equirectangular crop math is validated in
       the spike — a ~90° window centred on the waypoint heading.
-- [ ] **Structured lighting in the contract (Person 2 needs it to render
+  - done, 854×480. A proper rectilinear reprojection, not a strip slice, so
+    straight lines stay straight. Uses Mapillary's SfM `computed_compass_angle`;
+    the raw camera compass is 0 or off by 20–40° on many panos. Checked by eye
+    on 20+ frames: they look down the street. **Known:** an occasional frame
+    still faces a storefront (bad compass on that capture). Non-pano photos
+    must face within 35° of the heading and are centre-cropped. The spike's
+    crop script wasn't committed, so this is new code.
+- [x] **Structured lighting in the contract (Person 2 needs it to render
       night accurately).** NEW, after the Person 2 spike. You already collect
       the lighting data — OSM `lit`, the DataSF streetlight inventory, 311
       outages — but the contract carries it only as **prose**, in `facts` and
@@ -327,6 +398,29 @@ California", network_type="walk")`, save to `backend/data/sf_walk.graphml`.
       0.33–0.54) whatever hour its timestamp claimed, including ones stamped
       22:25 and 04:06 local. Timestamps are not trustworthy for time of day.
       Use `astral` for darkness, as already planned.
+  - done, **final — Person 1 owns this field** (the human's decision). Every
+    waypoint carries `condition.lighting = { lit, lamp_count, side,
+    lamp_offsets_m, lamp_lateral_m, outages }`. It's in the schema, and optional
+    there only so the grade can degrade gracefully.
+    - `lamp_offsets_m`: integer metres ahead of this waypoint along the route,
+      one per lamp still ahead on the block, ascending.
+    - **`lamp_lateral_m`** (added to the proposal): same order, metres right
+      (+) or left (−) of the **street centreline**. The Mapillary seed camera is
+      usually in the roadway, so this places pools where the lamps really are
+      instead of guessing ±4.5m.
+    - `side`: which sides of the centreline the lamps are on. First measured
+      against the walked sidewalk, which was wrong: both curbs' lamps are on the
+      same side of a pedestrian.
+    - `lit`: the OSM tag.
+
+    Lamps come from the street beside the block (nearest parallel street edge).
+    They must be within 20m of its centreline and not past either end of the
+    block, which drops lamps at the corner or up the cross street.
+    Measured over three route pairs (71 blocks): median |lateral| 10m, ~9 lamps
+    per 100m, 66 both / 2 one / 3 none. The fixture carries example values
+    (laterals invented, ±6m). Caveat: Mapillary lamp positions carry a few
+    metres of error, and density depends on capture coverage. Treat offsets
+    and gaps as the signal, not exact counts.
 
 ### 🛑 CHECKPOINT 2 — end-to-end integration
 
@@ -647,6 +741,14 @@ depend on Person 1's real pipeline.
     is. The placement code (`paintLampPools`, a pinhole projection from
     `lamp_offsets_m` + `side`) is written and switched off until Person 1 ships
     the field.
+  - **Person 1, at the Checkpoint 2 merge:** the field has shipped, so pools
+    now paint from real data. Person 1 made one small edit in
+    `lib/orbis/lighting.ts`: `fromStructured` carries `lamp_lateral_m`, and
+    `gradeParamsFor` uses it for `lateralM`. It falls back to the old ±4.5m
+    alternation only when laterals are missing. Nothing else under
+    `lib/orbis/` was touched. The "look is generic" note in
+    `docs/reactor-findings.md` is now out of date for real routes; Person 2
+    should re-check it by eye.
 - [x] **Unavailable segments.** When `image_available` is false, render an
       explicit unavailable state. Do not generate a street from text alone to
       fill the gap.
@@ -805,8 +907,11 @@ ready — a judge may ask.
     ordinary sample photo (Aug 2025) is sharp, daytime, road-level. Gaps: fixture
     coords are approximate, so re-check against OSM-snapped waypoints in Phase 2.
     Google key not needed unless real routes show thin coverage.
-- [ ] Set up a Google Cloud billing account + Maps API key as fallback
-- [ ] Download DataSF streetlight + 311 extracts
+- [x] ~~Set up a Google Cloud billing account + Maps API key as fallback~~
+  - dropped: no Google fallback for the hackathon; fallback code removed.
+- [x] Download DataSF streetlight + 311 extracts
+  - 311 done (`backend/data/311_streetlights.json`). SF has no streetlight
+    inventory on DataSF; lamp positions come from Mapillary + OSM instead.
 - [ ] Both people read SHARED CONTRACT and agree on it
 
 All data prep is offline-cacheable. The only live dependency at the event is
@@ -885,6 +990,9 @@ Update this as you go so the human can `/clear` and resume.
     session manager and autoplay without it — the night grade just stays
     generic until it lands. Settle it before Person 1 starts their Phase 2
     prompt composition, since both read the same lighting data.
+  - **Resolved:** the human assigned `condition.lighting` to Person 1, and it
+    shipped in Person 1's Phase 2 with `lamp_lateral_m` added. See Person 1
+    Phase 2.
 - [ ] Checkpoint 2 — end-to-end integration
 - [ ] Checkpoint 3 — full demo runthrough
 - [ ] Final submission — branch pushed to Visko-Platform/orbis-hackathon-starter

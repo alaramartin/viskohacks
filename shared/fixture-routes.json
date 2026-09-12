@@ -39,7 +39,29 @@
                                 "label": "Road",
                                 "value": "Three lanes, one-way westbound"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 6,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                8,
+                                25,
+                                42,
+                                58,
+                                75,
+                                92
+                            ],
+                            "lamp_lateral_m": [
+                                -6.0,
+                                6.0,
+                                -6.0,
+                                6.0,
+                                -6.0,
+                                6.0
+                            ],
+                            "outages": 0
+                        }
                     }
                 },
                 {
@@ -78,7 +100,27 @@
                                 "label": "Road",
                                 "value": "Three lanes, one-way westbound"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 6,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                0,
+                                17,
+                                33,
+                                50,
+                                67
+                            ],
+                            "lamp_lateral_m": [
+                                6.0,
+                                -6.0,
+                                6.0,
+                                -6.0,
+                                6.0
+                            ],
+                            "outages": 0
+                        }
                     }
                 },
                 {
@@ -117,7 +159,23 @@
                                 "label": "Road",
                                 "value": "Three lanes, one-way westbound"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 6,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                8,
+                                25,
+                                42
+                            ],
+                            "lamp_lateral_m": [
+                                6.0,
+                                -6.0,
+                                6.0
+                            ],
+                            "outages": 0
+                        }
                     }
                 },
                 {
@@ -156,7 +214,21 @@
                                 "label": "Road",
                                 "value": "Three lanes, one-way westbound"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 6,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                0,
+                                17
+                            ],
+                            "lamp_lateral_m": [
+                                -6.0,
+                                6.0
+                            ],
+                            "outages": 0
+                        }
                     }
                 },
                 {
@@ -195,7 +267,23 @@
                                 "label": "Road",
                                 "value": "Three lanes, one-way westbound"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 3,
+                            "side": "one",
+                            "lamp_offsets_m": [
+                                12,
+                                38,
+                                62
+                            ],
+                            "lamp_lateral_m": [
+                                6.0,
+                                6.0,
+                                6.0
+                            ],
+                            "outages": 2
+                        }
                     }
                 },
                 {
@@ -234,7 +322,21 @@
                                 "label": "Road",
                                 "value": "Three lanes, one-way westbound"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 3,
+                            "side": "one",
+                            "lamp_offsets_m": [
+                                13,
+                                37
+                            ],
+                            "lamp_lateral_m": [
+                                6.0,
+                                6.0
+                            ],
+                            "outages": 2
+                        }
                     }
                 },
                 {
@@ -273,7 +375,19 @@
                                 "label": "Road",
                                 "value": "Three lanes, one-way westbound"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 3,
+                            "side": "one",
+                            "lamp_offsets_m": [
+                                12
+                            ],
+                            "lamp_lateral_m": [
+                                6.0
+                            ],
+                            "outages": 2
+                        }
                     }
                 },
                 {
@@ -312,7 +426,25 @@
                                 "label": "Road",
                                 "value": "Two lanes, no median"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 4,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                6,
+                                19,
+                                31,
+                                44
+                            ],
+                            "lamp_lateral_m": [
+                                -6.0,
+                                6.0,
+                                -6.0,
+                                6.0
+                            ],
+                            "outages": 1
+                        }
                     }
                 },
                 {
@@ -351,7 +483,21 @@
                                 "label": "Road",
                                 "value": "Two lanes, no median"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 4,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                6,
+                                19
+                            ],
+                            "lamp_lateral_m": [
+                                -6.0,
+                                6.0
+                            ],
+                            "outages": 1
+                        }
                     }
                 },
                 {
@@ -390,7 +536,27 @@
                                 "label": "Road",
                                 "value": "Two lanes, no median"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 5,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                8,
+                                22,
+                                38,
+                                52,
+                                68
+                            ],
+                            "lamp_lateral_m": [
+                                -6.0,
+                                6.0,
+                                -6.0,
+                                6.0,
+                                -6.0
+                            ],
+                            "outages": 0
+                        }
                     }
                 },
                 {
@@ -429,7 +595,23 @@
                                 "label": "Road",
                                 "value": "Two lanes, no median"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 5,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                13,
+                                27,
+                                43
+                            ],
+                            "lamp_lateral_m": [
+                                -6.0,
+                                6.0,
+                                -6.0
+                            ],
+                            "outages": 0
+                        }
                     }
                 },
                 {
@@ -468,7 +650,21 @@
                                 "label": "Road",
                                 "value": "Two lanes, no median"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 5,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                2,
+                                18
+                            ],
+                            "lamp_lateral_m": [
+                                6.0,
+                                -6.0
+                            ],
+                            "outages": 0
+                        }
                     }
                 }
             ]
@@ -512,7 +708,25 @@
                                 "label": "Road",
                                 "value": "Two lanes, no median"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 4,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                9,
+                                28,
+                                47,
+                                66
+                            ],
+                            "lamp_lateral_m": [
+                                -6.0,
+                                6.0,
+                                -6.0,
+                                6.0
+                            ],
+                            "outages": 0
+                        }
                     }
                 },
                 {
@@ -551,7 +765,23 @@
                                 "label": "Road",
                                 "value": "Two lanes, no median"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 4,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                3,
+                                22,
+                                41
+                            ],
+                            "lamp_lateral_m": [
+                                6.0,
+                                -6.0,
+                                6.0
+                            ],
+                            "outages": 0
+                        }
                     }
                 },
                 {
@@ -590,7 +820,19 @@
                                 "label": "Road",
                                 "value": "Two lanes, no median"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 4,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                16
+                            ],
+                            "lamp_lateral_m": [
+                                6.0
+                            ],
+                            "outages": 0
+                        }
                     }
                 },
                 {
@@ -633,7 +875,21 @@
                                 "label": "Street imagery",
                                 "value": "No coverage"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 2,
+                            "side": "one",
+                            "lamp_offsets_m": [
+                                12,
+                                38
+                            ],
+                            "lamp_lateral_m": [
+                                6.0,
+                                6.0
+                            ],
+                            "outages": 3
+                        }
                     }
                 },
                 {
@@ -676,7 +932,19 @@
                                 "label": "Street imagery",
                                 "value": "No coverage"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 2,
+                            "side": "one",
+                            "lamp_offsets_m": [
+                                13
+                            ],
+                            "lamp_lateral_m": [
+                                6.0
+                            ],
+                            "outages": 3
+                        }
                     }
                 },
                 {
@@ -715,7 +983,29 @@
                                 "label": "Road",
                                 "value": "Three lanes, one-way eastbound"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 6,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                6,
+                                19,
+                                31,
+                                44,
+                                56,
+                                69
+                            ],
+                            "lamp_lateral_m": [
+                                -6.0,
+                                6.0,
+                                -6.0,
+                                6.0,
+                                -6.0,
+                                6.0
+                            ],
+                            "outages": 1
+                        }
                     }
                 },
                 {
@@ -754,7 +1044,25 @@
                                 "label": "Road",
                                 "value": "Three lanes, one-way eastbound"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 6,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                6,
+                                19,
+                                31,
+                                44
+                            ],
+                            "lamp_lateral_m": [
+                                -6.0,
+                                6.0,
+                                -6.0,
+                                6.0
+                            ],
+                            "outages": 1
+                        }
                     }
                 },
                 {
@@ -793,7 +1101,21 @@
                                 "label": "Road",
                                 "value": "Three lanes, one-way eastbound"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 6,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                6,
+                                19
+                            ],
+                            "lamp_lateral_m": [
+                                -6.0,
+                                6.0
+                            ],
+                            "outages": 1
+                        }
                     }
                 },
                 {
@@ -832,7 +1154,27 @@
                                 "label": "Road",
                                 "value": "Three lanes, one-way eastbound"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 5,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                10,
+                                30,
+                                50,
+                                70,
+                                90
+                            ],
+                            "lamp_lateral_m": [
+                                -6.0,
+                                6.0,
+                                -6.0,
+                                6.0,
+                                -6.0
+                            ],
+                            "outages": 0
+                        }
                     }
                 },
                 {
@@ -871,7 +1213,25 @@
                                 "label": "Road",
                                 "value": "Three lanes, one-way eastbound"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 5,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                5,
+                                25,
+                                45,
+                                65
+                            ],
+                            "lamp_lateral_m": [
+                                6.0,
+                                -6.0,
+                                6.0,
+                                -6.0
+                            ],
+                            "outages": 0
+                        }
                     }
                 },
                 {
@@ -910,7 +1270,23 @@
                                 "label": "Road",
                                 "value": "Three lanes, one-way eastbound"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 5,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                0,
+                                20,
+                                40
+                            ],
+                            "lamp_lateral_m": [
+                                -6.0,
+                                6.0,
+                                -6.0
+                            ],
+                            "outages": 0
+                        }
                     }
                 },
                 {
@@ -949,7 +1325,19 @@
                                 "label": "Road",
                                 "value": "Three lanes, one-way eastbound"
                             }
-                        ]
+                        ],
+                        "lighting": {
+                            "lit": "yes",
+                            "lamp_count": 5,
+                            "side": "both",
+                            "lamp_offsets_m": [
+                                15
+                            ],
+                            "lamp_lateral_m": [
+                                -6.0
+                            ],
+                            "outages": 0
+                        }
                     }
                 }
             ]

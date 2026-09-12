@@ -103,7 +103,19 @@
                     "description": "Rendered verbatim in the evidence readout. Person 1 owns the wording.",
                     "items": { "$ref": "#/$defs/Fact" }
                 },
-                "lighting": { "$ref": "#/$defs/Lighting" }
+                "lighting": { "$ref": "#/$defs/Lighting" },
+                "ambient": { "$ref": "#/$defs/Ambient" }
+            }
+        },
+        "Ambient": {
+            "type": "object",
+            "description": "Numeric daylight for the night grade and real-time time-of-day changes (Phase 3). Always sent by the backend; optional so the old fixture validates.",
+            "required": ["phase", "sun_altitude_deg", "darkness"],
+            "additionalProperties": false,
+            "properties": {
+                "phase": { "enum": ["day", "dawn", "dusk", "night"] },
+                "sun_altitude_deg": { "type": "number", "description": "Sun elevation at the requested time, degrees (negative below the horizon)." },
+                "darkness": { "type": "number", "minimum": 0, "maximum": 1, "description": "0 with the sun up, 1 once it is 12° below the horizon; civil dusk is 0.5." }
             }
         },
         "Lighting": {

@@ -18,6 +18,9 @@ export type RouteQuery = {
   destination: string;
   /** ISO 8601, e.g. 2026-09-12T23:00:00 */
   datetime: string;
+  /** Viewer overrides; the backend labels the affected facts as set by the viewer. */
+  fog?: boolean;
+  crowd?: boolean;
 };
 
 /** `"2026-09-12"` + `"23:00"` → `"2026-09-12T23:00:00"`. Local time, no zone. */
@@ -35,6 +38,8 @@ export async function fetchRoutes(
     destination: query.destination,
     datetime: query.datetime,
   });
+  if (query.fog) params.set("fog", "true");
+  if (query.crowd) params.set("crowd", "true");
   const response = await fetch(`${API_BASE}/api/routes?${params}`, {
     signal,
     cache: "no-store",

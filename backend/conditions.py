@@ -17,6 +17,7 @@ import httpx
 import numpy as np
 import osmnx as ox
 from astral import LocationInfo
+from astral.sun import elevation as sun_elevation
 from astral.sun import sun as astral_sun
 from sklearn.neighbors import KDTree
 
@@ -29,6 +30,7 @@ SF_TZ = ZoneInfo("America/Los_Angeles")
 SF_OBSERVER = LocationInfo("San Francisco", "USA", "America/Los_Angeles", LAT0, LNG0).observer
 
 POI_RADIUS_M = 50
+CROWD_OPEN = 6  # "crowd" override: prompt as if this many nearby places were open
 LAMP_LATERAL_M = 25  # from the walked sidewalk: reaches the far curb of a wide street, not the next street over
 LAMP_DEDUPE_M = 6  # an OSM lamp this close to a Mapillary one is the same lamp
 LAMP_CLUSTER_M = 8  # SF lamps are ~25-35m apart along a block; closer detections are duplicates
@@ -197,19 +199,23 @@ class ConditionModel:
     # --- global conditions -----------------------------------------------
 
     def sun_state(self, local: datetime) -> dict:
+        altitude = float(sun_elevation(SF_OBSERVER, local))
+        # A dial for the night grade and for real-time time-of-day changes: 0 with the sun
+        # up, 1 once it is 12° below the horizon (nautical dusk); civil dusk (-6°) is 0.5.
+        light = {"altitude": altitude, "darkness": min(1.0, max(0.0, -altitude / 12))}
         today = astral_sun(SF_OBSERVER, date=local.date(), tzinfo=SF_TZ)
         if local >= today["dusk"]:
-            return {"dark": True, "dark_since": today["dusk"], "phase": "night"}
+            return {"dark": True, "dark_since": today["dusk"], "phase": "night", **light}
         if local < today["dawn"]:
             yesterday = astral_sun(SF_OBSERVER, date=local.date() - timedelta(days=1), tzinfo=SF_TZ)
-            return {"dark": True, "dark_since": yesterday["dusk"], "phase": "night"}
+            return {"dark": True, "dark_since": yesterday["dusk"], "phase": "night", **light}
         if local >= today["sunset"]:
             phase = "dusk"
         elif local < today["sunrise"]:
             phase = "dawn"
         else:
             phase = "day"
-        return {"dark": False, "dusk": today["dusk"], "phase": phase}
+        return {"dark": False, "dusk": today["dusk"], "phase": phase, **light}
 
     def weather(self, local: datetime) -> dict | None:
         day = local.date()
@@ -352,7 +358,12 @@ class ConditionModel:
         local: datetime,
         imagery: dict | None = None,
         block_street: dict | None = None,
+        overrides: dict | None = None,
     ) -> dict:
+        """`overrides`: {"fog": bool, "crowd": bool} set by the viewer. They change what the
+        render is told (prompts), never what the facts claim the data says — an overridden
+        fact is labelled as set by the viewer."""
+        overrides = overrides or {}
         x, y = to_xy(wp.lat, wp.lng)
         own = wp.span.data
         own_type, footway = first(own.get("highway")), first(own.get("footway"))
@@ -365,6 +376,10 @@ class ConditionModel:
         nearby = [self.pois[i] for i in self.poi_tree.query_radius([(x, y)], r=POI_RADIUS_M)[0]]
         states = [is_open(p["opening_hours"], local) for p in nearby]
         open_now = sum(s is True for s in states)
+        # Viewer overrides steer what the render is told; the facts below keep the data's values.
+        prompt_open = max(open_now, CROWD_OPEN) if overrides.get("crowd") else open_now
+        prompt_nearby = max(len(nearby), prompt_open)
+        prompt_weather = {**(weather or {}), "weather_code": 45, "visibility": 300} if overrides.get("fog") else weather
         unknown = sum(s is None for s in states)
 
         ahead = [(s, right) for s, right in light["lamps"] if wp.s <= s <= wp.block.end]
@@ -385,18 +400,25 @@ class ConditionModel:
             {"label": "Open businesses", "value": self._business_fact(len(nearby), open_now, unknown, local)},
             {"label": "Sidewalk", "value": self._sidewalk_fact(own_type, footway, street)},
             {"label": "Road", "value": self._road_fact(street)},
-            {"label": "Weather", "value": self._weather_fact(weather)},
+            {"label": "Weather", "value": self._weather_fact(weather) + (" · fog set by you" if overrides.get("fog") else "")},
             {"label": "Street imagery", "value": self._imagery_fact(imagery)},
         ]
-        scene = self._video_prompt(street, lighting, sun, weather, len(nearby), open_now, own_type, footway)
+        if overrides.get("crowd"):
+            facts.append({"label": "Foot traffic", "value": "Busy street (set by you)"})
+        scene = self._video_prompt(street, lighting, sun, prompt_weather, prompt_nearby, prompt_open, own_type, footway)
         return {
             # Replaced by the walk shot's prompt in main.py; the scene alone is the fallback.
             "video_prompt": scene,
             # Internal: backend/shots.py builds each leg's prompt from these. Popped before serving.
             "scene": scene,
-            "audio_prompt": self._audio_prompt(street, weather, open_now, sun),
+            "audio_prompt": self._audio_prompt(street, prompt_weather, prompt_open, sun),
             "facts": facts,
             "lighting": lighting,
+            "ambient": {
+                "phase": sun["phase"],
+                "sun_altitude_deg": round(sun["altitude"], 1),
+                "darkness": round(sun["darkness"], 2),
+            },
         }
 
     # --- fact wording ----------------------------------------------------

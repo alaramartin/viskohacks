@@ -32,6 +32,15 @@ export type Lighting = {
   outages?: number;
 };
 
+/** Numeric daylight at the requested time (Phase 3). */
+export type Ambient = {
+  phase: "day" | "dawn" | "dusk" | "night";
+  /** Sun elevation in degrees; negative below the horizon. */
+  sun_altitude_deg: number;
+  /** 0 with the sun up, 1 once it is 12° below the horizon; civil dusk is 0.5. */
+  darkness: number;
+};
+
 export type Condition = {
   /** Passed straight to Orbis `set_prompt`. */
   video_prompt: string;
@@ -40,6 +49,7 @@ export type Condition = {
   /** Rendered verbatim in the evidence readout. Person 1 owns the wording. */
   facts: Fact[];
   lighting?: Lighting;
+  ambient?: Ambient;
 };
 
 export type Waypoint = {

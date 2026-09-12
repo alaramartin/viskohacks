@@ -239,6 +239,15 @@ class StreetGraph:
         route_b = nx.shortest_path(self.G, origin, destination, weight=weight)
         return route_a, route_b
 
+    def shortest_route(self, origin: int, destination: int) -> list[int]:
+        """The one route the walk uses — route comparison was dropped before Checkpoint 3."""
+        if origin == destination:
+            raise GeoError("Origin and destination are the same place")
+        try:
+            return nx.shortest_path(self.G, origin, destination, weight="length")
+        except nx.NetworkXNoPath as exc:
+            raise GeoError("No walking path between those locations") from exc
+
     # --- geometry --------------------------------------------------------
 
     def edge_xy(self, u: int, v: int, data: dict) -> list[tuple[float, float]]:

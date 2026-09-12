@@ -33,9 +33,17 @@ type WalkStore = {
   setActiveRouteId: (routeId: string) => void;
   /** ISO 8601 local datetime for the current condition clock. */
   datetime: () => string;
-  /** Fetches both routes and returns the one to walk. Throws on failure. */
+  /** Fetches the route and returns the one to walk. Throws on failure. */
   loadRoutes: () => Promise<Route>;
+  /**
+   * Real-time conditions: the same route recomputed for `conditions`, without
+   * touching `loadingRoutes` (the setup panel's busy state). Resolves to null if
+   * a newer call superseded this one.
+   */
+  refreshConditions: (conditions: ConditionSettings) => Promise<Route | null>;
 };
+
+let conditionsRequest = 0;
 
 export const useWalkStore = create<WalkStore>((set, get) => ({
   screen: "setup",
@@ -64,10 +72,13 @@ export const useWalkStore = create<WalkStore>((set, get) => ({
     const { origin, destination, activeRouteId } = get();
     set({ loadingRoutes: true, routesError: null });
     try {
+      const { conditions } = get();
       const routes = await fetchRoutes({
         origin,
         destination,
         datetime: get().datetime(),
+        fog: conditions.fog,
+        crowd: conditions.crowd,
       });
       const chosen =
         routes.find((route) => route.route_id === activeRouteId) ?? routes[0];
@@ -82,5 +93,20 @@ export const useWalkStore = create<WalkStore>((set, get) => ({
       set({ loadingRoutes: false, routesError: message });
       throw caught;
     }
+  },
+
+  refreshConditions: async (conditions) => {
+    const request = ++conditionsRequest;
+    const { origin, destination } = get();
+    const routes = await fetchRoutes({
+      origin,
+      destination,
+      datetime: toIsoDateTime(conditions.date, conditions.time),
+      fog: conditions.fog,
+      crowd: conditions.crowd,
+    });
+    if (request !== conditionsRequest) return null;
+    set({ routes });
+    return routes[0] ?? null;
   },
 }));

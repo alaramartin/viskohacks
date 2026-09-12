@@ -63,9 +63,15 @@ Do not violate these even if they seem to make something easier:
 1. **Never display a raw daytime photo as the answer.** A Street View JPEG
    flashing before the night render contradicts the entire premise. When a
    segment isn't ready, hold the current live render.
-2. **No crossfades.** Cuts stay hard. This was decided deliberately.
+2. **No cuts, no crossfades during a walk.** Revised after Checkpoint 2 by the
+   human: the walk is one continuous generation from start to destination,
+   steered by prompts, like footage from a head-mounted camera. (Originally:
+   "cuts stay hard".)
 3. **No safety score.** Facts only; the user does the synthesis.
-4. **Segments without imagery render as visibly unavailable.** Never invented.
+4. **Say where the render isn't grounded in imagery.** Revised with rule 2:
+   the continuous walk can't stop for an "unavailable" card, so the evidence
+   readout must state when the current block has no street-level imagery.
+   (Originally: "segments without imagery render as visibly unavailable".)
 5. **Autoplay is the primary deliverable.** Arrow-key navigation is a stretch
    goal (Phase 4). Do not start it before Phase 4.
 
@@ -1061,15 +1067,29 @@ Update this as you go so the human can `/clear` and resume.
       cut. Cause: by design, each block is `reset` → seed from the block's
       first frame → 8–15s dwell → ~7s frozen hold → repeat. With one session
       nothing can preload in parallel.
-      Fix direction:
-      - **(Person 2, spike first)** Does `set_image` sent *mid-generation*
-        (no `reset`) re-condition at a chunk boundary, like `set_prompt`
-        does? If yes, re-seed every ~25–50m with no hold and no cut. If no,
-        keep the reset but start each block's seed where the previous video
-        visually ended, and shorten the hold.
-      - **(Person 1)** Serve a seed frame per waypoint, at its own position
-        and heading, not one per block. Add forward-walking wording to
-        `video_prompt`. Contract change: agree before building.
+      - **Spike result (Q7, `docs/reactor-findings.md`):** a live generation
+        cannot be re-seeded. `set_image` mid-run, `set_image` + `set_prompt`,
+        and `pause` → `set_image` → `resume` are all accepted, then ignored.
+        New real imagery only lands after `reset`, i.e. a ~7s gap and a cut.
+      - **HUMAN DECISION (supersedes the block-by-block design): no cuts.**
+        "It's literally a video generation model." The walk is **one
+        continuous generation for the whole route**, as if someone walked it
+        with a head-mounted camera. Real imagery seeds the start. From then on
+        `set_prompt` morphs steer the walk: "walking forward along the
+        sidewalk", "turning right at the corner onto Hyde Street", "crossing
+        the street at the crosswalk". Slowing the walking pace is fine, within
+        reason.
+      - Consequences, to confirm while building:
+        - `reset` is no longer used mid-walk. The hold card and hard cuts go.
+        - Past the first block the render is steered by text, not grounded in
+          imagery. Block drift (Q1) becomes accepted behaviour.
+        - A block without imagery no longer needs an "unavailable" card
+          (rule 4 below is revised).
+        - Motion cues come from route geometry (turns, crossings, street
+          names), so **Person 1** adds them to each waypoint's `video_prompt`.
+          The walk controller morphs to the next waypoint's prompt on a timer.
+        - **Open (spike next):** does one generation keep running for 2+
+          minutes, and does it actually follow turn/crossing cues?
     - [ ] **Lighting looks wrong.** Sometimes too dark to see anything, and
       often "a block with a dark blue filter on the top half". Cause,
       reproduced offline on real seeds: `nightgrade.ts`'s sky mask

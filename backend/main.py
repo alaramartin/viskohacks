@@ -1,28 +1,50 @@
 """WALK HOME backend.
 
-Phase 1: serves shared/fixture-routes.json verbatim. Phase 2 replaces the
-fixture with the real geo pipeline while keeping the response shape identical.
+GET /api/routes    — two candidate walking routes from the cached SF graph,
+                     sampled into waypoints with a condition model per waypoint.
+GET /api/imagery   — 16:9 seed frame for a block at a heading (Mapillary,
+                     Google Street View fallback), 404 without coverage.
+
+Response shape follows shared/waypoint.schema.json.
 """
 
-import io
-import json
+import logging
 import os
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import asynccontextmanager
 from datetime import datetime
+from functools import cache
 from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
-from PIL import Image, ImageDraw
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-FIXTURE_PATH = REPO_ROOT / "shared" / "fixture-routes.json"
-
 load_dotenv(REPO_ROOT / ".env.local")
 load_dotenv(REPO_ROOT / ".env")
 
-app = FastAPI(title="WALK HOME backend")
+from conditions import SF_TZ, ConditionModel  # noqa: E402
+from geo import BLOCK_ID_RE, DATA, GeoError, StreetGraph  # noqa: E402
+from imagery import Imagery  # noqa: E402
+
+logging.basicConfig(level=logging.INFO)
+
+
+@cache
+def services() -> tuple[StreetGraph, ConditionModel, Imagery]:
+    graph = StreetGraph()
+    return graph, ConditionModel(graph), Imagery(DATA / "imagery")
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    services()  # load the graph and data files before the first request
+    yield
+
+
+app = FastAPI(title="WALK HOME backend", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -32,10 +54,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-def load_fixture() -> dict:
-    with FIXTURE_PATH.open() as f:
-        return json.load(f)
+pool = ThreadPoolExecutor(max_workers=8)
+# Separate so a request's coverage lookups never queue behind another request's pano downloads.
+prewarm_pool = ThreadPoolExecutor(max_workers=4)
 
 
 @app.get("/api/routes")
@@ -45,30 +66,65 @@ def get_routes(
     datetime_: str = Query(..., alias="datetime"),
 ) -> dict:
     try:
-        datetime.fromisoformat(datetime_)
+        when = datetime.fromisoformat(datetime_)
     except ValueError:
         raise HTTPException(status_code=422, detail="datetime must be ISO 8601")
-    # FIXTURE: origin/destination/datetime are ignored until Phase 2.
-    return load_fixture()
+    # Naive datetimes are San Francisco local time.
+    local = when.replace(tzinfo=SF_TZ) if when.tzinfo is None else when.astimezone(SF_TZ)
 
+    graph, model, imagery = services()
+    try:
+        start = graph.nearest_node(*graph.geocode(origin))
+        end = graph.nearest_node(*graph.geocode(destination))
+        node_routes = graph.two_routes(start, end)
+    except GeoError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
 
-def placeholder_jpeg(block_id: str, heading: str) -> bytes:
-    # FIXTURE: labeled grey placeholder until Phase 2 fetches real imagery.
-    img = Image.new("RGB", (1280, 720), (90, 90, 90))
-    ImageDraw.Draw(img).text((40, 40), f"PLACEHOLDER IMAGERY  block={block_id}  heading={heading}", fill=(230, 230, 230))
-    buf = io.BytesIO()
-    img.save(buf, format="JPEG", quality=85)
-    return buf.getvalue()
+    geoms = [graph.route_geometry(nodes) for nodes in node_routes]
+    sun = model.sun_state(local)
+    weather = model.weather(local)
+
+    blocks = {b.block_id: b for g in geoms for b in g.blocks}
+    coverage = dict(zip(blocks, pool.map(
+        lambda b: imagery.coverage(*graph.seed_point(b.start_node, b.heading), b.heading),
+        blocks.values(),
+    )))
+
+    # Warm the frame cache so the first /api/imagery hit per block isn't a pano download.
+    for b in blocks.values():
+        if coverage[b.block_id] is not None:
+            prewarm_pool.submit(imagery.frame, f"{b.block_id}_{b.heading}", *graph.seed_point(b.start_node, b.heading), b.heading)
+
+    routes = []
+    for route_id, geom in zip("AB", geoms):
+        lighting = {b.block_id: model.block_lighting(geom, b, local) for b in geom.blocks}
+        waypoints = []
+        for wp in geom.waypoints:
+            available = coverage[wp.block.block_id] is not None
+            waypoints.append({
+                "index": wp.index,
+                "lat": wp.lat,
+                "lng": wp.lng,
+                "heading": wp.heading,
+                "block_id": wp.block.block_id,
+                "image_url": f"/api/imagery/{wp.block.block_id}/{wp.block.heading}" if available else None,
+                "image_available": available,
+                "condition": model.waypoint_condition(wp, lighting[wp.block.block_id], sun, weather, local),
+            })
+        routes.append({"route_id": route_id, "waypoints": waypoints})
+    return {"routes": routes}
 
 
 @app.get("/api/imagery/{block_id}/{heading}")
-def get_imagery(block_id: str, heading: str) -> Response:
-    covered = {
-        wp["block_id"]
-        for route in load_fixture()["routes"]
-        for wp in route["waypoints"]
-        if wp["image_available"]
-    }
-    if block_id not in covered:
+def get_imagery(block_id: str, heading: int) -> Response:
+    match = BLOCK_ID_RE.match(block_id)
+    if not match or not 0 <= heading < 360:
+        raise HTTPException(status_code=404, detail="Unknown block")
+    graph, _, imagery = services()
+    node = int(match["node"])
+    if node not in graph.G.nodes:
+        raise HTTPException(status_code=404, detail="Unknown block")
+    frame = imagery.frame(f"{block_id}_{heading}", *graph.seed_point(node, heading), heading)
+    if frame is None:
         raise HTTPException(status_code=404, detail="No imagery coverage")
-    return Response(content=placeholder_jpeg(block_id, heading), media_type="image/jpeg")
+    return Response(content=frame, media_type="image/jpeg", headers={"Cache-Control": "public, max-age=86400"})

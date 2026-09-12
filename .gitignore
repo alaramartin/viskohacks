@@ -1,5 +1,18 @@
+# Node / Next
 .env.local
 .next/
 node_modules/
 npm-debug.log*
 *.tsbuildinfo
+
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Backend data caches
+backend/data/imagery/

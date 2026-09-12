@@ -54,6 +54,15 @@ def test_night_facts(routes):
     assert "night" in routes["routes"][0]["waypoints"][0]["condition"]["video_prompt"]
 
 
+def test_prompts_carry_motion_and_imagery_fact(routes):
+    waypoints = routes["routes"][0]["waypoints"]
+    assert waypoints[0]["condition"]["video_prompt"].startswith("first-person view at eye level, starting to walk")
+    assert "coming to a stop" in waypoints[-1]["condition"]["video_prompt"]
+    assert any("turning" in wp["condition"]["video_prompt"] for wp in waypoints)
+    for wp in waypoints:
+        assert any(f["label"] == "Street imagery" for f in wp["condition"]["facts"])
+
+
 def test_lighting_is_consistent(routes):
     for route in routes["routes"]:
         for wp in route["waypoints"]:

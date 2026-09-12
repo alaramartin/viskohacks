@@ -109,7 +109,10 @@ def get_routes(
                 "block_id": wp.block.block_id,
                 "image_url": f"/api/imagery/{wp.block.block_id}/{wp.block.heading}" if available else None,
                 "image_available": available,
-                "condition": model.waypoint_condition(wp, lighting[wp.block.block_id], sun, weather, local),
+                "condition": model.waypoint_condition(
+                    wp, lighting[wp.block.block_id], sun, weather, local,
+                    motion=model.motion_cue(geom, wp), imagery=coverage[wp.block.block_id],
+                ),
             })
         routes.append({"route_id": route_id, "waypoints": waypoints})
     return {"routes": routes}

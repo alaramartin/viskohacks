@@ -37,6 +37,8 @@ STREET_SEARCH_M = 40  # mapped sidewalks can sit 25m+ from a wide street's centr
 STREET_PARALLEL_DEG = 30
 STREET_HALF_WIDTH_M = 20  # curb lamps sit within this of the centreline even on Market St
 WEATHER_TTL_S = 3600
+MOTION_LOOKAHEAD_M = 30  # cue a turn or crossing this far before it happens
+TURN_CUE_DEG = 35
 
 STREET_TYPES = {
     "trunk", "primary", "secondary", "tertiary", "unclassified", "residential", "living_street", "service",
@@ -302,7 +304,62 @@ class ConditionModel:
 
     # --- per waypoint ----------------------------------------------------
 
-    def waypoint_condition(self, wp: Waypoint, light: dict, sun: dict, weather: dict | None, local: datetime) -> dict:
+    # --- motion (continuous walk) -------------------------------------------
+
+    def motion_cue(self, geom: RouteGeometry, wp: Waypoint) -> str:
+        """What the walker is doing here, from route geometry. The walk is one continuous
+        Orbis generation steered by prompt morphs (no cuts), so turns and crossings
+        have to be spelled out in `video_prompt` ahead of time."""
+        if wp.index == 0:
+            return f"starting to walk forward along the sidewalk{self._street_name(geom, wp.block, ' on')}"
+        if wp.index == len(geom.waypoints) - 1:
+            return "slowing down and coming to a stop at the destination"
+
+        ahead = wp.s + MOTION_LOOKAHEAD_M
+        crossing = any(
+            first(span.data.get("footway")) == "crossing" and span.end > wp.s and wp.s - 5 <= span.start <= ahead
+            for span in geom.spans
+        )
+
+        # At a corner you usually cross *and* turn, so check the turn first and fold the
+        # crossing into the same cue rather than letting it hide the turn.
+        blocks = geom.blocks
+        i = blocks.index(wp.block)
+        if i + 1 < len(blocks) and blocks[i + 1].start - wp.s <= MOTION_LOOKAHEAD_M:
+            nxt = blocks[i + 1]
+            turn = (nxt.heading - wp.block.heading + 540) % 360 - 180  # + is clockwise, i.e. right
+            onto = self._street_name(geom, nxt, " onto")
+            cross = "crossing the street at the crosswalk, then " if crossing else "approaching the corner and "
+            if turn > TURN_CUE_DEG:
+                return f"{cross}turning right{onto}"
+            if turn < -TURN_CUE_DEG:
+                return f"{cross}turning left{onto}"
+            return "crossing the street at the crosswalk and continuing straight ahead" if crossing else (
+                "continuing straight ahead across the intersection"
+            )
+        if crossing:
+            return "stepping off the curb and crossing the street at the crosswalk"
+        return f"walking forward along the sidewalk{self._street_name(geom, wp.block, ' on')}"
+
+    def _street_name(self, geom: RouteGeometry, block: Block, prefix: str) -> str:
+        name = next((first(sp.data.get("name")) for sp in block.spans if first(sp.data.get("name"))), None)
+        if not name:
+            # Mapped sidewalks carry no name; use the street the block runs beside
+            # (the nearest street outright is often the cross street).
+            street_i, _ = self._street_alongside(geom, block, geom.slice(block.start, block.end))
+            name = first(self.street_edges[street_i].get("name")) if street_i is not None else None
+        return f"{prefix} {name}" if isinstance(name, str) else ""
+
+    def waypoint_condition(
+        self,
+        wp: Waypoint,
+        light: dict,
+        sun: dict,
+        weather: dict | None,
+        local: datetime,
+        motion: str = "",
+        imagery: dict | None = None,
+    ) -> dict:
         x, y = to_xy(wp.lat, wp.lng)
         own = wp.span.data
         own_type, footway = first(own.get("highway")), first(own.get("footway"))
@@ -332,9 +389,11 @@ class ConditionModel:
             {"label": "Sidewalk", "value": self._sidewalk_fact(own_type, footway, street)},
             {"label": "Road", "value": self._road_fact(street)},
             {"label": "Weather", "value": self._weather_fact(weather)},
+            {"label": "Street imagery", "value": self._imagery_fact(imagery)},
         ]
+        scene = self._video_prompt(street, lighting, sun, weather, len(nearby), open_now, own_type, footway)
         return {
-            "video_prompt": self._video_prompt(street, lighting, sun, weather, len(nearby), open_now, own_type, footway),
+            "video_prompt": f"first-person view at eye level, {motion}, {scene}" if motion else scene,
             "audio_prompt": self._audio_prompt(street, weather, open_now, sun),
             "facts": facts,
             "lighting": lighting,
@@ -394,6 +453,16 @@ class ConditionModel:
         if str(first(street.get("oneway"))) in ("True", "yes"):
             parts.append("one-way")
         return ", ".join(parts)
+
+    @staticmethod
+    def _imagery_fact(imagery: dict | None) -> str:
+        # Rule 4 (revised): the continuous walk can't stop for an "unavailable" card,
+        # so say plainly when the render here isn't grounded in a photo.
+        if imagery is None:
+            return "None here — render not grounded in a photo"
+        captured = imagery.get("captured_at")
+        when = datetime.fromtimestamp(captured / 1000, SF_TZ).strftime("%b %Y") if captured else "date unknown"
+        return f"Mapillary photo, {when}"
 
     @staticmethod
     def _weather_fact(weather: dict | None) -> str:

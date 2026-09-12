@@ -1,0 +1,958 @@
+{
+    "routes": [
+        {
+            "route_id": "A",
+            "waypoints": [
+                {
+                    "index": 0,
+                    "lat": 37.78389,
+                    "lng": -122.41247,
+                    "heading": 261.5,
+                    "block_id": "w8918401",
+                    "image_url": "/api/imagery/w8918401/262",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "narrow one-way street at night, amber sodium streetlights on both sides, wet asphalt reflecting light, cars parked tightly along both curbs, lit corner market sign, a few pedestrians on the sidewalk, multi-story brick apartment buildings with fire escapes",
+                        "audio_prompt": "city street at night, light traffic passing, faint music from a corner store, footsteps on wet pavement",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "6 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "0 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "2 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Three lanes, one-way westbound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 1,
+                    "lat": 37.78383,
+                    "lng": -122.412975,
+                    "heading": 261.5,
+                    "block_id": "w8918401",
+                    "image_url": "/api/imagery/w8918401/262",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "narrow one-way street at night, amber sodium streetlights on both sides, wet asphalt reflecting light, cars parked tightly along both curbs, lit corner market sign, a few pedestrians on the sidewalk, multi-story brick apartment buildings with fire escapes",
+                        "audio_prompt": "city street at night, light traffic passing, faint music from a corner store, footsteps on wet pavement",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "6 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "0 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "2 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Three lanes, one-way westbound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 2,
+                    "lat": 37.783771,
+                    "lng": -122.41348,
+                    "heading": 261.5,
+                    "block_id": "w8918401",
+                    "image_url": "/api/imagery/w8918401/262",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "narrow one-way street at night, amber sodium streetlights on both sides, wet asphalt reflecting light, cars parked tightly along both curbs, lit corner market sign, a few pedestrians on the sidewalk, multi-story brick apartment buildings with fire escapes",
+                        "audio_prompt": "city street at night, light traffic passing, faint music from a corner store, footsteps on wet pavement",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "6 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "0 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "2 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Three lanes, one-way westbound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 3,
+                    "lat": 37.783711,
+                    "lng": -122.413985,
+                    "heading": 261.5,
+                    "block_id": "w8918401",
+                    "image_url": "/api/imagery/w8918401/262",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "narrow one-way street at night, amber sodium streetlights on both sides, wet asphalt reflecting light, cars parked tightly along both curbs, lit corner market sign, a few pedestrians on the sidewalk, multi-story brick apartment buildings with fire escapes",
+                        "audio_prompt": "city street at night, light traffic passing, faint music from a corner store, footsteps on wet pavement",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "6 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "0 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "2 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Three lanes, one-way westbound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 4,
+                    "lat": 37.783651,
+                    "lng": -122.414489,
+                    "heading": 261.5,
+                    "block_id": "w8918402",
+                    "image_url": "/api/imagery/w8918402/262",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "narrow one-way street at night, sparse streetlights with a dark gap mid-block, damp asphalt, parked cars along both curbs, shuttered storefront security gates, apartment windows mostly dark, no pedestrians",
+                        "audio_prompt": "quiet street at night, distant traffic, a bus passing a block away, faint wind",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "3 tagged, north side only"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "2 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "0 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Three lanes, one-way westbound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 5,
+                    "lat": 37.783592,
+                    "lng": -122.414994,
+                    "heading": 261.5,
+                    "block_id": "w8918402",
+                    "image_url": "/api/imagery/w8918402/262",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "narrow one-way street at night, sparse streetlights with a dark gap mid-block, damp asphalt, parked cars along both curbs, shuttered storefront security gates, apartment windows mostly dark, no pedestrians",
+                        "audio_prompt": "quiet street at night, distant traffic, a bus passing a block away, faint wind",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "3 tagged, north side only"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "2 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "0 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Three lanes, one-way westbound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 6,
+                    "lat": 37.783532,
+                    "lng": -122.415499,
+                    "heading": 221.8,
+                    "block_id": "w8918402",
+                    "image_url": "/api/imagery/w8918402/222",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "narrow one-way street at night, sparse streetlights with a dark gap mid-block, damp asphalt, parked cars along both curbs, shuttered storefront security gates, apartment windows mostly dark, no pedestrians",
+                        "audio_prompt": "quiet street at night, distant traffic, a bus passing a block away, faint wind",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "3 tagged, north side only"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "2 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "0 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Three lanes, one-way westbound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 7,
+                    "lat": 37.783319,
+                    "lng": -122.415741,
+                    "heading": 171.5,
+                    "block_id": "w8918403",
+                    "image_url": "/api/imagery/w8918403/172",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "two-lane street at night, white LED streetlights, dry asphalt, parked cars on one side, construction scaffolding covering the sidewalk on the right, orange temporary lights, empty sidewalk",
+                        "audio_prompt": "street at night under scaffolding, hum of a generator, occasional car passing",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "4 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "1 (311, Jul 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "0 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides, west side under scaffolding"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Two lanes, no median"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 8,
+                    "lat": 37.78292,
+                    "lng": -122.415665,
+                    "heading": 171.5,
+                    "block_id": "w8918403",
+                    "image_url": "/api/imagery/w8918403/172",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "two-lane street at night, white LED streetlights, dry asphalt, parked cars on one side, construction scaffolding covering the sidewalk on the right, orange temporary lights, empty sidewalk",
+                        "audio_prompt": "street at night under scaffolding, hum of a generator, occasional car passing",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "4 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "1 (311, Jul 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "0 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides, west side under scaffolding"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Two lanes, no median"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 9,
+                    "lat": 37.782521,
+                    "lng": -122.41559,
+                    "heading": 171.5,
+                    "block_id": "w8918404",
+                    "image_url": "/api/imagery/w8918404/172",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "two-lane street at night, bright LED streetlights, dry asphalt, parked cars along both curbs, a lit laundromat and a closed cafe, a couple of pedestrians walking, bus stop shelter glowing",
+                        "audio_prompt": "street at night, laundromat machines humming, a bus idling at a stop, light footsteps",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "5 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "0 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "1 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Two lanes, no median"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 10,
+                    "lat": 37.782122,
+                    "lng": -122.415514,
+                    "heading": 171.5,
+                    "block_id": "w8918404",
+                    "image_url": "/api/imagery/w8918404/172",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "two-lane street at night, bright LED streetlights, dry asphalt, parked cars along both curbs, a lit laundromat and a closed cafe, a couple of pedestrians walking, bus stop shelter glowing",
+                        "audio_prompt": "street at night, laundromat machines humming, a bus idling at a stop, light footsteps",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "5 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "0 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "1 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Two lanes, no median"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 11,
+                    "lat": 37.781723,
+                    "lng": -122.415439,
+                    "heading": 171.5,
+                    "block_id": "w8918404",
+                    "image_url": "/api/imagery/w8918404/172",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "two-lane street at night, bright LED streetlights, dry asphalt, parked cars along both curbs, a lit laundromat and a closed cafe, a couple of pedestrians walking, bus stop shelter glowing",
+                        "audio_prompt": "street at night, laundromat machines humming, a bus idling at a stop, light footsteps",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "5 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "0 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "1 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Two lanes, no median"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "route_id": "B",
+            "waypoints": [
+                {
+                    "index": 0,
+                    "lat": 37.78389,
+                    "lng": -122.41247,
+                    "heading": 171.5,
+                    "block_id": "w8918501",
+                    "image_url": "/api/imagery/w8918501/172",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "two-way street at night, amber streetlights, wet asphalt, parked cars on both sides, a lit hotel entrance with an awning, a few people standing near the doorway, tall residential hotel buildings",
+                        "audio_prompt": "city street at night, conversation murmur near a doorway, passing car on wet road",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "4 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "0 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "1 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Two lanes, no median"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 1,
+                    "lat": 37.783491,
+                    "lng": -122.412395,
+                    "heading": 171.5,
+                    "block_id": "w8918501",
+                    "image_url": "/api/imagery/w8918501/172",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "two-way street at night, amber streetlights, wet asphalt, parked cars on both sides, a lit hotel entrance with an awning, a few people standing near the doorway, tall residential hotel buildings",
+                        "audio_prompt": "city street at night, conversation murmur near a doorway, passing car on wet road",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "4 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "0 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "1 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Two lanes, no median"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 2,
+                    "lat": 37.783092,
+                    "lng": -122.412319,
+                    "heading": 171.5,
+                    "block_id": "w8918501",
+                    "image_url": "/api/imagery/w8918501/172",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "two-way street at night, amber streetlights, wet asphalt, parked cars on both sides, a lit hotel entrance with an awning, a few people standing near the doorway, tall residential hotel buildings",
+                        "audio_prompt": "city street at night, conversation murmur near a doorway, passing car on wet road",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "4 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "0 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "1 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Two lanes, no median"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 3,
+                    "lat": 37.782693,
+                    "lng": -122.412244,
+                    "heading": 171.5,
+                    "block_id": "w8918502",
+                    "image_url": null,
+                    "image_available": false,
+                    "condition": {
+                        "video_prompt": "street segment without imagery coverage",
+                        "audio_prompt": "quiet street at night, distant traffic",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "2 tagged, east side only"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "3 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "0 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Two lanes, no median"
+                            },
+                            {
+                                "label": "Street imagery",
+                                "value": "No coverage"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 4,
+                    "lat": 37.782294,
+                    "lng": -122.412168,
+                    "heading": 221.8,
+                    "block_id": "w8918502",
+                    "image_url": null,
+                    "image_available": false,
+                    "condition": {
+                        "video_prompt": "street segment without imagery coverage",
+                        "audio_prompt": "quiet street at night, distant traffic",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "2 tagged, east side only"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "3 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "0 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Two lanes, no median"
+                            },
+                            {
+                                "label": "Street imagery",
+                                "value": "No coverage"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 5,
+                    "lat": 37.782081,
+                    "lng": -122.41241,
+                    "heading": 261.5,
+                    "block_id": "w8918503",
+                    "image_url": "/api/imagery/w8918503/262",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "wide three-lane one-way street at night, tall cobra-head streetlights, dry asphalt, few parked cars, a lit theater marquee turned off, closed storefronts with roll-down gates, empty sidewalk",
+                        "audio_prompt": "wide street at night, cars accelerating past, low wind, distant siren",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "6 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "1 (311, Jun 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "0 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Three lanes, one-way eastbound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 6,
+                    "lat": 37.782021,
+                    "lng": -122.412915,
+                    "heading": 261.5,
+                    "block_id": "w8918503",
+                    "image_url": "/api/imagery/w8918503/262",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "wide three-lane one-way street at night, tall cobra-head streetlights, dry asphalt, few parked cars, a lit theater marquee turned off, closed storefronts with roll-down gates, empty sidewalk",
+                        "audio_prompt": "wide street at night, cars accelerating past, low wind, distant siren",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "6 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "1 (311, Jun 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "0 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Three lanes, one-way eastbound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 7,
+                    "lat": 37.781961,
+                    "lng": -122.41342,
+                    "heading": 261.5,
+                    "block_id": "w8918503",
+                    "image_url": "/api/imagery/w8918503/262",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "wide three-lane one-way street at night, tall cobra-head streetlights, dry asphalt, few parked cars, a lit theater marquee turned off, closed storefronts with roll-down gates, empty sidewalk",
+                        "audio_prompt": "wide street at night, cars accelerating past, low wind, distant siren",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "6 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "1 (311, Jun 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "0 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Three lanes, one-way eastbound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 8,
+                    "lat": 37.781902,
+                    "lng": -122.413924,
+                    "heading": 261.5,
+                    "block_id": "w8918504",
+                    "image_url": "/api/imagery/w8918504/262",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "wide three-lane one-way street at night, tall streetlights, damp asphalt, parked cars on the south curb, a lit liquor store and a closed church entrance, a few pedestrians, trees along the sidewalk",
+                        "audio_prompt": "wide street at night, passing traffic, a shop door chime, leaves rustling",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "5 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "0 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "1 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Three lanes, one-way eastbound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 9,
+                    "lat": 37.781842,
+                    "lng": -122.414429,
+                    "heading": 261.5,
+                    "block_id": "w8918504",
+                    "image_url": "/api/imagery/w8918504/262",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "wide three-lane one-way street at night, tall streetlights, damp asphalt, parked cars on the south curb, a lit liquor store and a closed church entrance, a few pedestrians, trees along the sidewalk",
+                        "audio_prompt": "wide street at night, passing traffic, a shop door chime, leaves rustling",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "5 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "0 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "1 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Three lanes, one-way eastbound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 10,
+                    "lat": 37.781782,
+                    "lng": -122.414934,
+                    "heading": 261.5,
+                    "block_id": "w8918504",
+                    "image_url": "/api/imagery/w8918504/262",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "wide three-lane one-way street at night, tall streetlights, damp asphalt, parked cars on the south curb, a lit liquor store and a closed church entrance, a few pedestrians, trees along the sidewalk",
+                        "audio_prompt": "wide street at night, passing traffic, a shop door chime, leaves rustling",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "5 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "0 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "1 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Three lanes, one-way eastbound"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "index": 11,
+                    "lat": 37.781723,
+                    "lng": -122.415439,
+                    "heading": 261.5,
+                    "block_id": "w8918504",
+                    "image_url": "/api/imagery/w8918504/262",
+                    "image_available": true,
+                    "condition": {
+                        "video_prompt": "wide three-lane one-way street at night, tall streetlights, damp asphalt, parked cars on the south curb, a lit liquor store and a closed church entrance, a few pedestrians, trees along the sidewalk",
+                        "audio_prompt": "wide street at night, passing traffic, a shop door chime, leaves rustling",
+                        "facts": [
+                            {
+                                "label": "Dark since",
+                                "value": "7:44pm"
+                            },
+                            {
+                                "label": "Streetlights",
+                                "value": "5 tagged, both sides"
+                            },
+                            {
+                                "label": "Reported outages",
+                                "value": "0 (311, Aug 2026)"
+                            },
+                            {
+                                "label": "Open businesses",
+                                "value": "1 at 11pm"
+                            },
+                            {
+                                "label": "Sidewalk",
+                                "value": "Both sides"
+                            },
+                            {
+                                "label": "Road",
+                                "value": "Three lanes, one-way eastbound"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

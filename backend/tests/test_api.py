@@ -54,17 +54,38 @@ def test_night_facts(routes):
     assert "night" in routes["routes"][0]["waypoints"][0]["condition"]["video_prompt"]
 
 
-def test_prompts_carry_motion_and_imagery_fact(routes):
-    waypoints = routes["routes"][0]["waypoints"]
-    prompts = [wp["condition"]["video_prompt"] for wp in waypoints]
-    assert prompts[0].startswith("smooth first-person footage")
-    assert "starting to walk" in prompts[0]
-    assert "slowing to a stop" in prompts[-1]
-    assert any("about to turn" in p for p in prompts)
-    assert any("around the corner" in p for p in prompts)
-    assert all("always moving forward" in p for p in prompts)
+def test_shot_list_is_a_steady_script(routes):
+    route = routes["routes"][0]
+    shots, waypoints = route["shots"], route["waypoints"]
+    kinds = [s["kind"] for s in shots]
+    assert kinds[0] == "walk" and kinds[-1] == "arrive"
+    assert "turn" in kinds  # the Tenderloin test route turns at corners
+    for before, after in zip(kinds, kinds[1:]):
+        assert before != "turn" or after == "walk", "a turn is always followed by a straight leg"
+
+    walks = [s for s in shots if s["kind"] == "walk"]
+    covered = [i for s in walks for i in range(s["waypoint_start"], s["waypoint_end"] + 1)]
+    assert covered == list(range(len(waypoints))), "walk shots partition the waypoints in order"
+    assert len(shots) <= len(waypoints) // 2, "far fewer prompt changes than waypoints"
+
+    for s in walks:
+        assert "walking straight ahead" in s["video_prompt"] and "vanishing point" in s["video_prompt"]
+        assert 6_000 <= s["duration_ms"] <= 20_000
+        for i in range(s["waypoint_start"], s["waypoint_end"] + 1):
+            assert waypoints[i]["condition"]["video_prompt"] == s["video_prompt"]
+    assert all("turning" in s["video_prompt"] for s in shots if s["kind"] == "turn")
+    assert not any("panning" in s["video_prompt"] for s in shots)
     for wp in waypoints:
         assert any(f["label"] == "Street imagery" for f in wp["condition"]["facts"])
+
+
+def test_shot_structure_is_stable_across_times(client, routes):
+    """Real-time conditions swap in the same route at a new time; the script's shape must not move."""
+    late = routes["routes"][0]["shots"]
+    early = client.get("/api/routes", params={**PARAMS, "datetime": "2026-09-12T19:00:00"}).json()["routes"][0]["shots"]
+    assert [(s["kind"], s["waypoint_start"], s["waypoint_end"]) for s in early] == [
+        (s["kind"], s["waypoint_start"], s["waypoint_end"]) for s in late
+    ]
 
 
 def test_lighting_is_consistent(routes):

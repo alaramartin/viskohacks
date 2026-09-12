@@ -59,9 +59,28 @@ export type Waypoint = {
   condition: Condition;
 };
 
+/**
+ * One step of the walk's script. The continuous Orbis generation plays shots in
+ * order and changes its prompt only at shot boundaries: one steady prompt per
+ * straight leg, one short cue per turn.
+ */
+export type Shot = {
+  shot_id: string;
+  kind: "walk" | "turn" | "arrive";
+  video_prompt: string;
+  audio_prompt: string;
+  duration_ms: number;
+  /** First waypoint index the shot covers. */
+  waypoint_start: number;
+  /** Last waypoint index the shot covers, inclusive. */
+  waypoint_end: number;
+};
+
 export type Route = {
   route_id: string;
   waypoints: Waypoint[];
+  /** Always sent by the backend; absent in the old fixture. */
+  shots?: Shot[];
 };
 
 export type RoutesResponse = {

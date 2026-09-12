@@ -25,9 +25,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 load_dotenv(REPO_ROOT / ".env.local")
 load_dotenv(REPO_ROOT / ".env")
 
-from conditions import SF_TZ, ConditionModel, compose_prompt  # noqa: E402
+from conditions import SF_TZ, ConditionModel  # noqa: E402
 from geo import BLOCK_ID_RE, DATA, GeoError, StreetGraph  # noqa: E402
 from imagery import Imagery  # noqa: E402
+from shots import build_shots  # noqa: E402
 
 logging.basicConfig(level=logging.INFO)
 
@@ -98,23 +99,16 @@ def get_routes(
     routes = []
     for route_id, geom in zip("AB", geoms):
         lighting = {b.block_id: model.block_lighting(geom, b, local) for b in geom.blocks}
-        waypoints = []
-        held_scene = None
         streets = {b.block_id: model.block_street(geom, b) for b in geom.blocks}
+        waypoints, scenes, audios = [], [], []
         for wp in geom.waypoints:
             available = coverage[wp.block.block_id] is not None
-            motion, motion_kind = model.motion_cue(geom, wp)
             condition = model.waypoint_condition(
                 wp, lighting[wp.block.block_id], sun, weather, local,
-                motion=motion, imagery=coverage[wp.block.block_id], block_street=streets[wp.block.block_id],
+                imagery=coverage[wp.block.block_id], block_street=streets[wp.block.block_id],
             )
-            scene = condition.pop("scene")
-            if motion_kind in ("approach", "turn") and held_scene:
-                # Keep describing the street being left until the turn is done: a new
-                # street's scene stacked on a turn cue made Orbis stop and re-imagine.
-                condition["video_prompt"] = compose_prompt(motion, held_scene)
-            else:
-                held_scene = scene
+            scenes.append(condition.pop("scene"))
+            audios.append(condition["audio_prompt"])
             waypoints.append({
                 "index": wp.index,
                 "lat": wp.lat,
@@ -125,7 +119,15 @@ def get_routes(
                 "image_available": available,
                 "condition": condition,
             })
-        routes.append({"route_id": route_id, "waypoints": waypoints})
+        shots = build_shots(model, geom, scenes, audios)
+        # Every waypoint carries the prompt of the walk shot it belongs to, so anything
+        # reading per-waypoint prompts sees the same steady script the walk plays.
+        for shot in shots:
+            if shot["kind"] == "walk":
+                for i in range(shot["waypoint_start"], shot["waypoint_end"] + 1):
+                    waypoints[i]["condition"]["video_prompt"] = shot["video_prompt"]
+                    waypoints[i]["condition"]["audio_prompt"] = shot["audio_prompt"]
+        routes.append({"route_id": route_id, "waypoints": waypoints, "shots": shots})
     return {"routes": routes}
 
 

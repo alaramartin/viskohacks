@@ -38,21 +38,13 @@ STREET_SEARCH_M = 40  # mapped sidewalks can sit 25m+ from a wide street's centr
 STREET_PARALLEL_DEG = 30
 STREET_HALF_WIDTH_M = 20  # curb lamps sit within this of the centreline even on Market St
 WEATHER_TTL_S = 3600
-MOTION_LOOKAHEAD_M = 30  # cue a turn or crossing this far before it happens
-# Repeated at the front of every prompt in the continuous walk. Without it, a 2-minute
-# generation let the camera sink toward the ground and the colour drift green
-# (docs/spike/runs/continuous-walk-script). UNTESTED as worded: the anchored re-run hit
-# the one-session 429.
+# Identical at the front of every shot prompt (backend/shots.py). Without a camera anchor a
+# 2-minute generation let the camera sink toward the ground and the colour drift green
+# (docs/spike/runs/continuous-walk-script).
 CAMERA_ANCHOR = (
-    "smooth first-person footage from a camera worn at head height, walking steadily forward along the "
-    "sidewalk beside the buildings, always moving forward, looking straight ahead, natural color balance, "
-    "warm amber and white streetlight glow"
+    "smooth first-person footage from a camera at head height, walking steadily forward and looking "
+    "straight ahead, natural color balance, warm amber and white streetlight glow"
 )
-TURN_WINDOW_M = 25  # the turn cue covers this much of the new block after the corner
-
-
-def compose_prompt(motion: str, scene: str) -> str:
-    return f"{CAMERA_ANCHOR}, {motion}, {scene}" if motion else scene
 TURN_CUE_DEG = 35
 
 STREET_TYPES = {
@@ -339,59 +331,7 @@ class ConditionModel:
 
     # --- per waypoint ----------------------------------------------------
 
-    # --- motion (continuous walk) -------------------------------------------
-
-    def motion_cue(self, geom: RouteGeometry, wp: Waypoint) -> tuple[str, str]:
-        """What the walker is doing here, from route geometry, as (cue, kind).
-
-        The walk is one continuous Orbis generation steered by prompt morphs (no cuts),
-        so turns and crossings are spelled out in `video_prompt` ahead of time. A turn
-        is spread over waypoints — "about to turn" before the corner, "turning around
-        the corner" just after it — because a single abrupt "turning right" made the
-        render slow to a stop, re-imagine a different street and then walk backwards
-        (human review after the continuous-walk change). kind is one of
-        start, walk, approach, turn, cross, arrive.
-        """
-        if wp.index == 0:
-            return f"starting to walk forward along the sidewalk{self._street_name(geom, wp.block, ' on')}", "start"
-        if wp.index == len(geom.waypoints) - 1:
-            return "walking forward and slowing to a stop at the destination", "arrive"
-
-        ahead = wp.s + MOTION_LOOKAHEAD_M
-        crossing = any(
-            first(span.data.get("footway")) == "crossing" and span.end > wp.s and wp.s - 5 <= span.start <= ahead
-            for span in geom.spans
-        )
-        blocks = geom.blocks
-        i = blocks.index(wp.block)
-
-        # Just past a corner: the turn itself, over the first stretch of the new block.
-        if i > 0 and wp.s - wp.block.start <= TURN_WINDOW_M:
-            direction = self._turn_direction(blocks[i - 1], wp.block)
-            if direction:
-                onto = self._street_name(geom, wp.block, " onto")
-                return (
-                    f"turning {direction} around the corner{onto} while walking forward, "
-                    f"the view panning smoothly to the {direction}",
-                    "turn",
-                )
-
-        # Before a corner: say the turn is coming, but keep walking forward.
-        if i + 1 < len(blocks) and blocks[i + 1].start - wp.s <= MOTION_LOOKAHEAD_M:
-            direction = self._turn_direction(wp.block, blocks[i + 1])
-            if direction:
-                onto = self._street_name(geom, blocks[i + 1], " onto")
-                lead = "walking forward across the street at the crosswalk" if crossing else "walking forward toward the corner"
-                return f"{lead}, about to turn {direction}{onto}", "approach"
-
-        if crossing:
-            return "walking forward across the street at the crosswalk, cars stopped and waiting at the line", "cross"
-        return f"walking forward along the sidewalk{self._street_name(geom, wp.block, ' on')}", "walk"
-
-    @staticmethod
-    def _turn_direction(before: Block, after: Block) -> str | None:
-        turn = (after.heading - before.heading + 540) % 360 - 180  # + is clockwise, i.e. right
-        return "right" if turn > TURN_CUE_DEG else "left" if turn < -TURN_CUE_DEG else None
+    # --- street names (used by backend/shots.py) --------------------------------
 
     def _street_name(self, geom: RouteGeometry, block: Block, prefix: str) -> str:
         name = next((first(sp.data.get("name")) for sp in block.spans if first(sp.data.get("name"))), None)
@@ -409,7 +349,6 @@ class ConditionModel:
         sun: dict,
         weather: dict | None,
         local: datetime,
-        motion: str = "",
         imagery: dict | None = None,
         block_street: dict | None = None,
     ) -> dict:
@@ -450,8 +389,9 @@ class ConditionModel:
         ]
         scene = self._video_prompt(street, lighting, sun, weather, len(nearby), open_now, own_type, footway)
         return {
-            "video_prompt": compose_prompt(motion, scene),
-            # Internal: main.py holds the previous street's scene through a turn. Popped before serving.
+            # Replaced by the walk shot's prompt in main.py; the scene alone is the fallback.
+            "video_prompt": scene,
+            # Internal: backend/shots.py builds each leg's prompt from these. Popped before serving.
             "scene": scene,
             "audio_prompt": self._audio_prompt(street, weather, open_now, sun),
             "facts": facts,

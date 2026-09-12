@@ -22,7 +22,26 @@
                 "waypoints": {
                     "type": "array",
                     "items": { "$ref": "#/$defs/Waypoint" }
+                },
+                "shots": {
+                    "type": "array",
+                    "description": "The walk's script for the continuous Orbis generation: walk (one straight leg) → turn (short cue) → … → arrive. Played in order; the prompt changes only at shot boundaries. The backend always sends it; optional so older fixtures still validate.",
+                    "items": { "$ref": "#/$defs/Shot" }
                 }
+            }
+        },
+        "Shot": {
+            "type": "object",
+            "required": ["shot_id", "kind", "video_prompt", "audio_prompt", "duration_ms", "waypoint_start", "waypoint_end"],
+            "additionalProperties": false,
+            "properties": {
+                "shot_id": { "type": "string" },
+                "kind": { "enum": ["walk", "turn", "arrive"] },
+                "video_prompt": { "type": "string", "description": "Sent with set_prompt when the shot starts, held for its whole duration." },
+                "audio_prompt": { "type": "string" },
+                "duration_ms": { "type": "integer", "minimum": 1 },
+                "waypoint_start": { "type": "integer", "minimum": 0, "description": "First waypoint index this shot covers (for the evidence strip and minimap)." },
+                "waypoint_end": { "type": "integer", "minimum": 0, "description": "Last waypoint index this shot covers, inclusive." }
             }
         },
         "Waypoint": {

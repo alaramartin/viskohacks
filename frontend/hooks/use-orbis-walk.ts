@@ -15,10 +15,12 @@
  * chunk (Q5). So:
  *
  *   connect → pin seed/resolution → night-grade the first imaged block's frame
- *   → `set_image` → `set_prompt` → `start` → then, on a steady clock, morph to
- *   each waypoint's `video_prompt`, which carries the backend's motion cue
- *   ("crossing the street at the crosswalk, then turning left onto
- *   Leavenworth Street") and that spot's conditions.
+ *   → `set_image` → `set_prompt` → `start` → then play the route's shot list
+ *   (`route.shots`, planned by `backend/shots.py`): one steady "walking
+ *   straight ahead down Jones Street, the street stretching toward the
+ *   vanishing point, buildings on the right…" prompt per straight leg, a ~4s
+ *   "turning right at the intersection onto Turk Street" cue per corner, then
+ *   arrive. The prompt changes only at shot boundaries.
  *
  * Real imagery grounds the start; after that the render is steered by text.
  * The evidence readout's "Street imagery" fact says so per block (rule 4).
@@ -34,7 +36,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchSeedImage, imageryUrl } from "@/lib/api";
 import type { Route } from "@/lib/contract";
 import { ORBIS_RESOLUTION } from "@/lib/orbis";
-import { WAYPOINT_DWELL_MS, groupIntoBlocks, type Block } from "@/lib/orbis/blocks";
+import { groupIntoBlocks, type Block } from "@/lib/orbis/blocks";
+import { shotsOf } from "@/lib/orbis/shots";
 import { estimateLighting, gradeParamsFor } from "@/lib/orbis/lighting";
 import { nightGradeSeed } from "@/lib/orbis/nightgrade";
 import {
@@ -123,6 +126,7 @@ function sameGeometry(a: Route, b: Route): boolean {
   return (
     a.route_id === b.route_id &&
     a.waypoints.length === b.waypoints.length &&
+    shotsOf(a).length === shotsOf(b).length &&
     a.waypoints.every((waypoint, index) => waypoint.block_id === b.waypoints[index].block_id)
   );
 }
@@ -259,43 +263,60 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
   }, []);
 
   /**
-   * Walk every waypoint on a steady clock inside the one live generation.
-   * Prompts morph (no cuts); a condition change re-sends the current
-   * waypoint's prompt straight away instead of waiting for the next one.
+   * Play the route's shot list inside the one live generation. The prompt
+   * changes only at a shot boundary — one steady prompt per straight leg, one
+   * short cue per turn — because a new prompt every waypoint made the render
+   * wander (sideways, into walls, doubling back). A condition change re-sends
+   * the current shot's prompt at once. The evidence strip and minimap advance
+   * through the shot's waypoints as it plays.
    */
   const walkRoute = useCallback(
     async (run: RunHandle, blocks: Block[]) => {
       const initial = routeRef.current;
       if (!initial) return;
-      let sentVideo: string | null = initial.waypoints[0]?.condition.video_prompt ?? null;
-      let sentAudio: string | null = initial.waypoints[0]?.condition.audio_prompt ?? null;
       const blockOf = new Map<string, number>(blocks.map((block) => [block.blockId, block.index]));
+      const shotCount = shotsOf(initial).length;
+      // The first shot's prompt went in with `start`.
+      let sentVideo: string | null = shotsOf(initial)[0]?.video_prompt ?? null;
+      let sentAudio: string | null = shotsOf(initial)[0]?.audio_prompt ?? null;
+      let shownIndex = -1;
 
-      for (let index = 0; index < initial.waypoints.length; index += 1) {
+      for (let s = 0; s < shotCount; s += 1) {
+        const startedAt = Date.now();
         let version = -1;
-        const deadline = Date.now() + WAYPOINT_DWELL_MS;
-        while (Date.now() < deadline) {
+        for (;;) {
           if (run.cancelled) throw new WalkCancelled();
+          const route = routeRef.current ?? initial;
+          const shot = shotsOf(route)[s];
+          const elapsed = Date.now() - startedAt;
+          if (elapsed >= shot.duration_ms) break;
+
           if (version !== run.conditionsVersion) {
             version = run.conditionsVersion;
-            const waypoint = (routeRef.current ?? initial).waypoints[index];
-            patch({
-              route: routeRef.current,
-              waypointIndex: index,
-              blockIndex: blockOf.get(waypoint.block_id) ?? 0,
-            });
-            const { video_prompt: video, audio_prompt: audio } = waypoint.condition;
-            if (video && video !== sentVideo) {
-              await morphPrompt(context, video);
-              sentVideo = video;
+            patch({ route });
+            if (shot.video_prompt && shot.video_prompt !== sentVideo) {
+              await morphPrompt(context, shot.video_prompt);
+              sentVideo = shot.video_prompt;
             }
-            if (audio && audio !== sentAudio) {
+            if (shot.audio_prompt && shot.audio_prompt !== sentAudio) {
               // Audio morphing mid-run is unverified; never let it stop the walk.
-              await morphAudioPrompt(context, audio).catch(() => {});
-              sentAudio = audio;
+              await morphAudioPrompt(context, shot.audio_prompt).catch(() => {});
+              sentAudio = shot.audio_prompt;
             }
           }
-          await sleep(Math.max(0, deadline - Date.now()), run, true);
+
+          const progress = Math.min(1, elapsed / shot.duration_ms);
+          const index = Math.round(
+            shot.waypoint_start + progress * (shot.waypoint_end - shot.waypoint_start),
+          );
+          if (index !== shownIndex) {
+            shownIndex = index;
+            patch({
+              waypointIndex: index,
+              blockIndex: blockOf.get(route.waypoints[index].block_id) ?? 0,
+            });
+          }
+          await sleep(Math.min(400, Math.max(0, shot.duration_ms - elapsed)), run, true);
         }
       }
     },
@@ -376,11 +397,11 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
           statusText: "Starting the walk",
         });
 
-        const first = route.waypoints[0];
+        const firstShot = shotsOf(route)[0];
         const seeded = await seedBlock(context, {
           image: graded.file,
-          videoPrompt: first.condition.video_prompt,
-          audioPrompt: first.condition.audio_prompt,
+          videoPrompt: firstShot.video_prompt,
+          audioPrompt: firstShot.audio_prompt,
         });
         patch({ imageConditioned: seeded.imageConditioned });
 

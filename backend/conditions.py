@@ -19,7 +19,7 @@ from astral import LocationInfo
 from astral.sun import sun as astral_sun
 from sklearn.neighbors import KDTree
 
-from geo import DATA, LAT0, LNG0, Block, RouteGeometry, StreetGraph, Waypoint, first, to_xy
+from geo import DATA, LAT0, LNG0, Block, RouteGeometry, StreetGraph, Waypoint, angle_diff, bearing, first, to_xy
 from hours import is_open
 
 log = logging.getLogger("conditions")
@@ -28,12 +28,14 @@ SF_TZ = ZoneInfo("America/Los_Angeles")
 SF_OBSERVER = LocationInfo("San Francisco", "USA", "America/Los_Angeles", LAT0, LNG0).observer
 
 POI_RADIUS_M = 50
-LAMP_LATERAL_M = 20
+LAMP_LATERAL_M = 25  # from the walked sidewalk: reaches the far curb of a wide street, not the next street over
 LAMP_DEDUPE_M = 6  # an OSM lamp this close to a Mapillary one is the same lamp
 LAMP_CLUSTER_M = 8  # SF lamps are ~25-35m apart along a block; closer detections are duplicates
 OUTAGE_RADIUS_M = 30
 OUTAGE_WINDOW_DAYS = 90
 STREET_SEARCH_M = 25
+STREET_PARALLEL_DEG = 30
+STREET_HALF_WIDTH_M = 20  # curb lamps sit within this of the centreline even on Market St
 WEATHER_TTL_S = 3600
 
 STREET_TYPES = {
@@ -86,6 +88,20 @@ def _cluster(points: list[tuple[float, float]], radius: float) -> list[tuple[flo
     return out
 
 
+def _perpendicular(points: np.ndarray, line: np.ndarray) -> np.ndarray:
+    """Signed distance (left +) from the infinite line through each point's nearest segment.
+    Unclamped, so a lamp just past the end of a short street edge still gets its curb offset."""
+    a, b = line[:-1], line[1:]
+    ab = b - a
+    seg_len = np.maximum(np.hypot(ab[:, 0], ab[:, 1]), 1e-9)
+    ap = points[:, None, :] - a[None, :, :]
+    t = np.clip((ap * ab[None]).sum(-1) / seg_len[None] ** 2, 0, 1)
+    dist = np.hypot(*(ap - t[..., None] * ab[None]).transpose(2, 0, 1))
+    j = dist.argmin(axis=1)
+    rows = np.arange(len(points))
+    return (ab[j, 0] * ap[rows, j, 1] - ab[j, 1] * ap[rows, j, 0]) / seg_len[j]
+
+
 def _project(points: np.ndarray, line: np.ndarray, line_start: float) -> tuple[np.ndarray, np.ndarray]:
     """Distance along `line` (offset by line_start) and signed lateral distance (left +) per point."""
     a, b = line[:-1], line[1:]
@@ -135,10 +151,11 @@ class ConditionModel:
         self._weather_lock = threading.Lock()
 
     def _build_street_index(self) -> None:
-        points, owners, self.street_edges = [], [], []
+        points, owners, self.street_edges, self.street_uv = [], [], [], []
         for u, v, data in self.graph.G.edges(data=True):
             if u > v or first(data.get("highway")) not in STREET_TYPES:
                 continue
+            self.street_uv.append((u, v))
             xy = np.array(self.graph.edge_xy(u, v, data))
             steps = np.hypot(*np.diff(xy, axis=0).T)
             cum = np.concatenate([[0.0], np.cumsum(steps)])
@@ -208,12 +225,25 @@ class ConditionModel:
         centre = line.mean(axis=0)
         reach = np.hypot(*(line - centre).T).max() + LAMP_LATERAL_M
 
+        street_i, street_line = self._street_alongside(geom, block, line)
         lamps = []
         idx = self.lamp_tree.query_radius([centre], r=reach)[0]
         if len(idx):
-            along, lateral = _project(self.lamp_xy[idx], line, block.start)
-            inside = (np.abs(lateral) <= LAMP_LATERAL_M) & (along >= block.start - 1) & (along <= block.end + 1)
-            lamps = sorted(zip(along[inside].tolist(), np.sign(lateral[inside]).tolist()))
+            points = self.lamp_xy[idx]
+            along, walk_dist = _project(points, line, block.start)
+            walk_perp = _perpendicular(points, line)
+            # Clamped distance well above the perpendicular one means the lamp is past an
+            # end of the block — at the intersection or up the cross street.
+            inside = (np.abs(walk_dist) <= LAMP_LATERAL_M) & (np.abs(walk_dist) - np.abs(walk_perp) < 2)
+            if street_line is not None:
+                # Side is relative to the street's centreline, not the walked sidewalk:
+                # lamps at both curbs are on the same side of someone on the sidewalk.
+                lateral = _perpendicular(points, street_line)
+                inside &= np.abs(lateral) <= STREET_HALF_WIDTH_M
+            else:
+                lateral = walk_perp
+            # (metres along the route, metres right of the centreline — left is negative)
+            lamps = sorted(zip(along[inside].tolist(), (-lateral[inside]).tolist()))
 
         window_end = min(local.replace(tzinfo=None), self.outage_data_end)
         window_start = window_end - timedelta(days=OUTAGE_WINDOW_DAYS)
@@ -226,14 +256,13 @@ class ConditionModel:
                            & (times >= np.datetime64(window_start)) & (times <= np.datetime64(window_end))).sum())
 
         tags = [first(sp.data.get("lit")) for sp in block.spans]
-        street = self.nearest_street(*geom.point_at((block.start + block.end) / 2))
-        if street is not None:
-            tags.append(first(street.get("lit")))
+        if street_i is not None:
+            tags.append(first(self.street_edges[street_i].get("lit")))
         yes = sum(t in ("yes", "24/7", "automatic") for t in tags)
         no = sum(t == "no" for t in tags)
         lit = "yes" if yes and yes >= no else "no" if no else "unknown"
 
-        sides = {side for _, side in lamps}
+        sides = {right >= 0 for _, right in lamps}
         return {
             "lit": lit,
             "lamps": lamps,
@@ -242,11 +271,34 @@ class ConditionModel:
             "window_end": window_end,
         }
 
-    def nearest_street(self, x: float, y: float) -> dict | None:
-        idx, dist = self.street_tree.query_radius([(x, y)], r=STREET_SEARCH_M, return_distance=True, sort_results=True)
-        candidates = [self.street_edges[self.street_owner[i]] for i in idx[0]]
-        named = [e for e in candidates if first(e.get("highway")) != "service"]
+    def _street_alongside(self, geom: RouteGeometry, block: Block, line: np.ndarray) -> tuple[int | None, np.ndarray | None]:
+        """The street the block runs beside: nearest street edge within reach that is roughly
+        parallel to the block (the nearest one outright is often the cross street). Its
+        polyline is oriented along the walking direction."""
+        mid = geom.point_at((block.start + block.end) / 2)
+        idx = self.street_tree.query_radius([mid], r=STREET_SEARCH_M, return_distance=True, sort_results=True)[0][0]
+        fallback = None
+        for i in dict.fromkeys(int(self.street_owner[j]) for j in idx):
+            u, v = self.street_uv[i]
+            street_line = np.array(self.graph.edge_xy(u, v, self.street_edges[i]))
+            if angle_diff(bearing(*street_line[0], *street_line[-1]) % 180, block.heading % 180) > STREET_PARALLEL_DEG:
+                continue
+            if np.dot(street_line[-1] - street_line[0], line[-1] - line[0]) < 0:
+                street_line = street_line[::-1]
+            if first(self.street_edges[i].get("highway")) != "service":
+                return i, street_line
+            fallback = fallback or (i, street_line)
+        return fallback or (None, None)
+
+    def _nearest_street_idx(self, x: float, y: float) -> int | None:
+        idx, _ = self.street_tree.query_radius([(x, y)], r=STREET_SEARCH_M, return_distance=True, sort_results=True)
+        candidates = [int(self.street_owner[i]) for i in idx[0]]
+        named = [e for e in candidates if first(self.street_edges[e].get("highway")) != "service"]
         return (named or candidates or [None])[0]
+
+    def nearest_street(self, x: float, y: float) -> dict | None:
+        i = self._nearest_street_idx(x, y)
+        return None if i is None else self.street_edges[i]
 
     # --- per waypoint ----------------------------------------------------
 
@@ -261,13 +313,13 @@ class ConditionModel:
         open_now = sum(s is True for s in states)
         unknown = sum(s is None for s in states)
 
-        block_end = wp.block.end
-        offsets = [round(s - wp.s) for s, _ in light["lamps"] if wp.s <= s <= block_end]
+        ahead = [(s, right) for s, right in light["lamps"] if wp.s <= s <= wp.block.end]
         lighting = {
             "lit": light["lit"],
             "lamp_count": len(light["lamps"]),
             "side": light["side"],
-            "lamp_offsets_m": offsets,
+            "lamp_offsets_m": [round(s - wp.s) for s, _ in ahead],
+            "lamp_lateral_m": [round(right, 1) for _, right in ahead],
             "outages": light["outages"],
         }
 

@@ -54,6 +54,16 @@ def test_night_facts(routes):
     assert "night" in routes["routes"][0]["waypoints"][0]["condition"]["video_prompt"]
 
 
+def test_lighting_is_consistent(routes):
+    for route in routes["routes"]:
+        for wp in route["waypoints"]:
+            light = wp["condition"]["lighting"]
+            assert len(light["lamp_offsets_m"]) == len(light["lamp_lateral_m"])
+            assert light["lamp_offsets_m"] == sorted(light["lamp_offsets_m"])
+            assert len(light["lamp_offsets_m"]) <= light["lamp_count"]
+            assert (light["side"] == "none") == (light["lamp_count"] == 0)
+
+
 def test_routes_rejects_bad_input(client):
     assert client.get("/api/routes", params={**PARAMS, "datetime": "tonight"}).status_code == 422
     assert client.get("/api/routes", params={**PARAMS, "origin": "40.7128,-74.0060"}).status_code == 422

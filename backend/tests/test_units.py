@@ -3,7 +3,7 @@ from datetime import datetime
 import numpy as np
 from PIL import Image
 
-from conditions import SF_TZ, ConditionModel, clock
+from conditions import SF_TZ, ConditionModel, _perpendicular, clock
 from hours import is_open
 from imagery import OUT_H, OUT_W, crop_equirect, fit_16_9
 
@@ -35,6 +35,12 @@ def test_sun_state():
     after_midnight = model.sun_state(datetime(2026, 9, 13, 2, 0, tzinfo=SF_TZ))
     assert after_midnight["dark"] and after_midnight["dark_since"].day == 12
     assert model.sun_state(MON_10AM.replace(tzinfo=SF_TZ))["phase"] == "day"
+
+
+def test_perpendicular_sign_and_unclamped():
+    line = np.array([[0.0, 0.0], [0.0, 10.0]])  # walking north
+    points = np.array([[5.0, 5.0], [-3.0, 20.0]])  # 5m east (right), 3m west past the line's end
+    assert np.allclose(_perpendicular(points, line), [-5.0, 3.0])  # left positive
 
 
 def test_crop_equirect_centres_heading():

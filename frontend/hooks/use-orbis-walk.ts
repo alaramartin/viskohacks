@@ -73,6 +73,11 @@ const INITIAL: WalkSnapshot = {
 
 class WalkCancelled extends Error {}
 
+type PreparedSeed = {
+  graded: Awaited<ReturnType<typeof nightGradeSeed>>;
+  lighting: ReturnType<typeof estimateLighting>;
+};
+
 type RunHandle = { cancelled: boolean };
 
 /** Deterministic noise seed per route, so a rerun of the demo looks the same. */
@@ -109,12 +114,42 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
   const runRef = useRef<RunHandle | null>(null);
   const statusRef = useRef(status);
   const firstFrameRef = useRef(false);
+  const connecting = useRef<Promise<void> | null>(null);
   const onFirstFrame = useRef(options.onFirstFrame);
 
   onFirstFrame.current = options.onFirstFrame;
   statusRef.current = status;
 
   useReactorMessage((message) => signals.handle(message));
+
+  // A dead session cannot be reused, so the next warm-up has to mint a new one.
+  useEffect(() => {
+    if (status === "disconnected") connecting.current = null;
+  }, [status]);
+
+  /**
+   * Connect at most once, and let a second caller wait on the first attempt
+   * rather than opening a second session — the account has exactly one slot.
+   */
+  const ensureConnected = useCallback(async () => {
+    if (statusRef.current === "ready") return;
+    connecting.current ??= connect().catch((caught) => {
+      connecting.current = null;
+      throw caught;
+    });
+    await connecting.current;
+  }, [connect]);
+
+  /**
+   * Start connecting before the walk is requested. Connecting is ~7s of the
+   * ~15s cold start and needs nothing from the form, so the moment someone
+   * touches the setup panel we spend it in the background. Failures are
+   * swallowed here: `start()` retries and reports properly.
+   */
+  const warmUp = useCallback(() => {
+    if (runRef.current) return;
+    void ensureConnected().catch(() => {});
+  }, [ensureConnected]);
 
   const patch = useCallback((next: Partial<WalkSnapshot>) => {
     setSnapshot((current) => ({ ...current, ...next }));
@@ -171,6 +206,20 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
     [context, patch, sleep],
   );
 
+  /**
+   * Fetch a block's seed frame and convert it to night. Needs no session, so
+   * the first block's seed is prepared while the connection is still opening.
+   */
+  const prepareSeed = useCallback(async (block: Block) => {
+    const seedWaypoint = block.seedWaypoint;
+    const seedUrl = seedWaypoint ? imageryUrl(seedWaypoint) : null;
+    if (!seedWaypoint || !seedUrl) throw new Error("No imagery for this block.");
+    const frame = await fetchSeedImage(seedUrl);
+    const lighting = estimateLighting(seedWaypoint.condition);
+    const graded = await nightGradeSeed(frame, gradeParamsFor(lighting));
+    return { graded, lighting };
+  }, []);
+
   const walkBlock = useCallback(
     async (
       block: Block,
@@ -179,6 +228,8 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
       run: RunHandle,
       /** True when the block we just walked had no imagery. */
       afterUnavailable: boolean,
+      /** Seed prepared ahead of time, for the first block of a walk. */
+      prepared: Promise<PreparedSeed> | null,
     ): Promise<boolean> => {
       const label = `Block ${block.index + 1} of ${blocks.length}`;
       const positionOf = (waypoint: Waypoint) => route.waypoints.indexOf(waypoint);
@@ -217,8 +268,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
         return true;
       }
 
-      const seedUrl = imageryUrl(block.seedWaypoint);
-      if (!seedUrl) {
+      if (!imageryUrl(block.seedWaypoint)) {
         await showUnavailable("No street-level imagery covers this block.");
         return true;
       }
@@ -226,16 +276,13 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
       try {
         patch({
           phase: block.index === 0 ? "preparing" : holdPhase,
-          statusText: `${label} — fetching imagery`,
+          statusText: prepared
+            ? `${label} — seeding Orbis`
+            : `${label} — converting the seed frame to night`,
         });
-        const frame = await fetchSeedImage(seedUrl);
-        if (run.cancelled) throw new WalkCancelled();
-
         // The daytime frame is converted before it reaches Orbis and is never
         // displayed either way — it is an intermediate, not an answer.
-        const lighting = estimateLighting(block.seedWaypoint.condition);
-        patch({ statusText: `${label} — converting the seed frame to night` });
-        const graded = await nightGradeSeed(frame, gradeParamsFor(lighting));
+        const { graded, lighting } = await (prepared ?? prepareSeed(block));
         if (run.cancelled) throw new WalkCancelled();
         patch({
           seedNote: `seed mean luma ${graded.meanLuma.toFixed(3)} · lighting from ${lighting.source}`,
@@ -283,7 +330,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
       );
       return false;
     },
-    [context, gate, patch, walkWaypoints],
+    [context, gate, patch, prepareSeed, walkWaypoints],
   );
 
   const stop = useCallback(() => {
@@ -302,10 +349,20 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
       setSnapshot({ ...INITIAL, phase: "connecting", statusText: "Connecting to Orbis" });
 
       try {
-        if (statusRef.current !== "ready") await connect();
+        // Three things that do not depend on each other: opening the session,
+        // computing the routes, and preparing the first seed frame. Run them
+        // together — stacked, they are most of the cold start.
+        const connected = ensureConnected();
+        connected.catch(() => {});
+        const route = await Promise.resolve(routeSource);
         if (run.cancelled) throw new WalkCancelled();
 
-        const route = await Promise.resolve(routeSource);
+        const blocks = groupIntoBlocks(route);
+        patch({ route, blocks });
+        const firstSeed = blocks[0]?.imageAvailable ? prepareSeed(blocks[0]) : null;
+        firstSeed?.catch(() => {});
+
+        await connected;
         if (run.cancelled) throw new WalkCancelled();
 
         await pinRouteSession(context, {
@@ -314,9 +371,6 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
           seed: seedFromString(`${route.route_id}:${route.waypoints.length}`),
           resolution: ORBIS_RESOLUTION,
         });
-
-        const blocks = groupIntoBlocks(route);
-        patch({ route, blocks });
 
         let afterUnavailable = false;
         for (const block of blocks) {
@@ -327,6 +381,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
             route,
             run,
             afterUnavailable,
+            block.index === 0 ? firstSeed : null,
           );
         }
 
@@ -354,7 +409,16 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
         runRef.current = null;
       }
     },
-    [connect, context, disconnect, gate, patch, signals, walkBlock],
+    [
+      context,
+      disconnect,
+      ensureConnected,
+      gate,
+      patch,
+      prepareSeed,
+      signals,
+      walkBlock,
+    ],
   );
 
   // Same rule on unmount: a closed tab must not take the slot with it.
@@ -383,6 +447,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
     gate,
     start,
     stop,
+    warmUp,
     isRunning: snapshot.phase !== "idle" && snapshot.phase !== "error",
   };
 }

@@ -176,6 +176,7 @@ function WalkShell({ onDisconnected }: { onDisconnected: () => void }) {
               onDestinationChange={store.setDestination}
               onConditionsChange={store.setConditions}
               onSubmit={startWalk}
+              onInteract={walk.warmUp}
               busy={busy}
               statusText={walk.statusText || (store.loadingRoutes ? "Computing routes" : "")}
               error={walk.error ?? store.routesError}

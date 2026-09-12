@@ -21,6 +21,12 @@ export type SetupPanelProps = {
   onDestinationChange: (value: string) => void;
   onConditionsChange: (next: ConditionSettings) => void;
   onSubmit: () => void;
+  /**
+   * Fired the first time the walker touches the form. Opening the Orbis session
+   * takes ~7s and needs nothing from these fields, so it starts here rather
+   * than on submit.
+   */
+  onInteract: () => void;
   busy: boolean;
   statusText: string;
   error: string | null;
@@ -34,6 +40,7 @@ export function SetupPanel({
   onDestinationChange,
   onConditionsChange,
   onSubmit,
+  onInteract,
   busy,
   statusText,
   error,
@@ -59,7 +66,12 @@ export function SetupPanel({
   }
 
   return (
-    <form className="panel setup-panel" onSubmit={submit}>
+    <form
+      className="panel setup-panel"
+      onSubmit={submit}
+      onFocusCapture={onInteract}
+      onChangeCapture={onInteract}
+    >
       <h2>Walk home</h2>
       <p className="hint">
         Two walking routes across San Francisco, rendered at night from

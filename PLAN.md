@@ -657,10 +657,14 @@ depend on Person 1's real pipeline.
 - [x] **Absorb first-load cost into the Setup screen.** Warm the first block's
       session while the user is still on setup, so the walk starts
       immediately. One deliberate wait where a wait is expected.
-  - done. Submitting starts the route fetch and the Orbis connect together (the
-    connect does not need the routes, so the two waits overlap instead of
-    stacking). The setup panel becomes a progress readout and the screen flips to
-    Walk on the first frame.
+  - done, then tightened after Checkpoint 2 review: the session now starts
+    connecting on the walker's **first touch of the form**, not on submit, and
+    the first seed frame is fetched and graded while it connects. Neither needs
+    anything from the form. **Cold start 15.7s -> 9.0s**; the remaining ~5.8s is
+    Orbis priming and is not ours to remove (`native` resolution was measured and
+    does not help — see `docs/reactor-findings.md`). The setup panel is a
+    progress readout while it works, and the screen flips to Walk on the first
+    frame.
 - [x] **Autoplay flythrough.** Walk the route end to end automatically,
       advancing block by block. **This is the primary deliverable.** It must
       work standalone with no interaction.

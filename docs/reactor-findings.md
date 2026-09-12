@@ -300,8 +300,8 @@ live API on 2026-09-12.
 
 | | Measured |
 |---|---|
-| Setup submit → first visible frame (cold) | **15.7s** (Q4 predicted 12–16s) |
-| Block boundary → first visible frame | **8.3s** (Q4/Q6 predicted 7–8s) |
+| Setup submit → first visible frame (cold) | **9.0s** — was 15.7s, see below |
+| Block boundary → first visible frame | **8.3–9.4s** (Q4/Q6 predicted 7–8s) |
 | Block dwell | 8–15s, as designed |
 | Night-graded seed mean luma | 0.051–0.064 (target ~0.06, Q1) |
 | Rendered video mean luma | 0.07–0.24 — night throughout, never daylight |
@@ -322,6 +322,38 @@ Two things the build changed:
    changes by less than the threshold between samples, which held the opening
    cut ~7s longer than necessary. It now cuts on the first non-black frame that
    differs from the frame being held.
+
+### Cutting the cold start: 15.7s → 9.0s
+
+Where the original 15.7s went:
+
+| Step | Time |
+|---|---|
+| route fetch (local backend) | ~0.7s |
+| `connect()` → ready | **~7s** |
+| fetch seed + night-grade it | ~0.8s |
+| `uploadFile` → `set_image` → `set_prompt` → `start` | ~2.5s |
+| `generation_started` → first visible frame | **~5.8s** |
+
+Only the middle three are ours. Two of them are now off the critical path:
+
+1. **Connect on the walker's first touch of the setup form**, not on submit.
+   Opening a session needs nothing from the form, so by the time anyone has
+   typed an address it is already open. Worth ~7s. The cost is that the
+   account's only session slot is taken from that first keystroke — acceptable
+   for a demo, and the walk is the only thing this app does.
+2. **Prepare the first seed frame while connecting**, since fetching and
+   grading need no session either. Worth ~0.8s.
+
+Measured after both: **9.0s** with a realistic 8s form fill, **11.2s** if you
+submit the instant the page loads (the connect has not finished yet).
+
+**Negative result: `set_resolution: "native"` does not help.** Dynamic reports
+`['native','1080p','2k','4k']`, and the hypothesis was that the ~5.8s gap is the
+upscaler priming, so asking for its native 640×368 would skip it. It does not:
+first frame landed at **9.0s at native and 9.0s at 1080p**. The gap is the model
+priming, not upscaling — and native costs a 640×368 picture on the projector.
+Stay on 1080p. The remaining ~5.8s is Reactor's, not ours.
 
 ### The night grade's look is generic, and will stay that way until the data lands
 

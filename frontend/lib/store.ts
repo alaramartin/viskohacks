@@ -69,7 +69,7 @@ export const useWalkStore = create<WalkStore>((set, get) => ({
   destination: DEFAULT_DESTINATION,
   // `date` is filled in on mount, client-side — a server-rendered "today" and a
   // client-rendered one would not always agree.
-  conditions: { date: "", time: "23:00", fog: false, crowd: false },
+  conditions: { date: "", time: "00:00", fog: false, crowd: false },
   routes: [],
   routesError: null,
   loadingRoutes: false,

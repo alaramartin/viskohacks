@@ -77,6 +77,17 @@ def test_fog_and_crowd_overrides_are_labelled(client, routes):
     assert facts["Open businesses"] == plain_facts["Open businesses"], "an override never rewrites a data fact"
 
 
+def test_prompts_follow_the_clock_and_the_crowd(client, routes):
+    """The light leads every shot prompt, so a time change reaches the live render."""
+    night = routes["routes"][0]["shots"]
+    noon = client.get("/api/routes", params={**PARAMS, "datetime": "2026-09-12T12:00:00", "crowd": "true"}).json()
+    noon = noon["routes"][0]["shots"]
+    assert all("dark night" in s["video_prompt"] for s in night)
+    assert all("daytime" in s["video_prompt"] and "dark night" not in s["video_prompt"] for s in noon)
+    assert all("crowded" in s["video_prompt"] for s in noon if s["kind"] == "walk")
+    assert not any("empty" in s["video_prompt"] for s in night + noon), "'empty' cancels the crowd override"
+
+
 def test_night_facts(routes):
     facts = {f["label"]: f["value"] for f in routes["routes"][0]["waypoints"][0]["condition"]["facts"]}
     assert facts["Dark since"].endswith("pm")

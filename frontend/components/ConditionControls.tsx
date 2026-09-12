@@ -28,11 +28,14 @@ export type ConditionControlsProps = {
   live?: boolean;
 };
 
+/** The whole day in 4-hour steps, so a live change can go night → day and back. */
 const TIME_PRESETS = [
-  { label: "7pm", time: "19:00" },
-  { label: "9pm", time: "21:00" },
-  { label: "11pm", time: "23:00" },
-  { label: "2am", time: "02:00" },
+  { label: "12am", time: "00:00" },
+  { label: "4am", time: "04:00" },
+  { label: "8am", time: "08:00" },
+  { label: "12pm", time: "12:00" },
+  { label: "4pm", time: "16:00" },
+  { label: "8pm", time: "20:00" },
 ];
 
 export function ConditionControls({ settings, onChange, disabled, live }: ConditionControlsProps) {
@@ -67,7 +70,7 @@ export function ConditionControls({ settings, onChange, disabled, live }: Condit
         </label>
       </div>
 
-      <div className="preset-row" role="group" aria-label="Time of night">
+      <div className="preset-row" role="group" aria-label="Time of day">
         {TIME_PRESETS.map((preset) => (
           <button
             key={preset.time}

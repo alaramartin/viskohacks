@@ -447,7 +447,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
           resolution: ORBIS_RESOLUTION,
         });
 
-        patch({ phase: "preparing", statusText: "Converting the first block to night" });
+        patch({ phase: "preparing", statusText: "Grading the first block for the time of day" });
         // The daytime frame is converted before it reaches Orbis and is never
         // displayed either way — it is an intermediate, not an answer.
         const { graded, lighting, ambient } = await prepared;

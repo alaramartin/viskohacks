@@ -123,7 +123,8 @@ def get_routes(
                 "image_available": available,
                 "condition": condition,
             })
-        shots = build_shots(model, geom, scenes, audios)
+        light = model.light_prompt(sun, model.prompt_weather(weather, overrides))
+        shots = build_shots(model, geom, scenes, audios, light)
         # Every waypoint carries the prompt of the walk shot it belongs to, so anything
         # reading per-waypoint prompts sees the same steady script the walk plays.
         for shot in shots:

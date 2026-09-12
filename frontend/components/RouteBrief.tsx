@@ -8,7 +8,7 @@
  * Facts only, summed along the route. No score, no verdict.
  */
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import type { ConditionSettings } from "@/components/ConditionControls";
 import type { Route, Waypoint } from "@/lib/contract";
@@ -29,7 +29,8 @@ function factValue(waypoint: Waypoint | undefined, label: string): string {
 }
 
 export function RouteBrief({ route, origin, destination, datetime, conditions, shareUrl }: RouteBriefProps) {
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "manual">("idle");
+  const linkRef = useRef<HTMLInputElement | null>(null);
 
   const waypoints = route?.waypoints ?? [];
   const first = waypoints[0];
@@ -46,11 +47,16 @@ export function RouteBrief({ route, origin, destination, datetime, conditions, s
 
   const copy = async () => {
     try {
+      // `navigator.clipboard` is undefined on plain-http origins other than localhost
+      // (e.g. the app opened by LAN IP), and writeText rejects without focus/permission.
       await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      setCopyState("copied");
+      setTimeout(() => setCopyState("idle"), 1500);
     } catch {
-      setCopied(false);
+      // Don't fail silently: select the link so ⌘C / Ctrl+C copies it.
+      linkRef.current?.focus();
+      linkRef.current?.select();
+      setCopyState("manual");
     }
   };
 
@@ -103,11 +109,22 @@ export function RouteBrief({ route, origin, destination, datetime, conditions, s
 
       <p className="modeled-label">Modeled estimates · no score, no verdict</p>
       <div className="share-row">
-        <input readOnly value={shareUrl} aria-label="Share link" onFocus={(event) => event.currentTarget.select()} />
+        <input
+          ref={linkRef}
+          readOnly
+          value={shareUrl}
+          aria-label="Share link"
+          onFocus={(event) => event.currentTarget.select()}
+        />
         <button type="button" onClick={copy}>
-          {copied ? "Copied" : "Copy link"}
+          {copyState === "copied" ? "Copied" : "Copy link"}
         </button>
       </div>
+      {copyState === "manual" ? (
+        <p className="hint" role="status">
+          Couldn&apos;t copy automatically — the link is selected, press ⌘C / Ctrl+C.
+        </p>
+      ) : null}
     </section>
   );
 }

@@ -74,7 +74,7 @@ export function SetupPanel({
     >
       <h2>Walk home</h2>
       <p className="hint">
-        Two walking routes across San Francisco, rendered at night from
+        A walking route across San Francisco, rendered at night from
         street-level imagery of those exact blocks. A familiarisation tool — no
         score, no verdict.
       </p>

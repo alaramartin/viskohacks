@@ -968,16 +968,32 @@ Checkpoint 2 fixes.
   - Exposure interpolates **geometrically** (0.40 day → ~0.095 night), because
     luma reads as ratios; a linear blend spends the whole dial in the bright
     half and then falls off a cliff. Dusk (0.5) lands at 0.21.
-  - Checked numerically, not by eye: at `darkness` 1 the dial reproduces the
-    Checkpoint 2 values exactly (0.085 unlit → 0.110 six-lamp), so the look the
-    human reviewed does not move; `MIN_TARGET_LUMA` 0.085 holds at every
-    darkness; lamp-count separation survives at night and collapses to nothing
-    at noon.
+  - Measured offline in headless Chrome against three real seeds, old pipeline
+    vs new, pixel by pixel (`docs/reactor-findings.md`, "Grade dial"): at
+    `darkness` 1 on a **daytime** seed the output is **byte-for-byte
+    identical**, so the look the human reviewed does not move. The dial is
+    monotonic, tracks its target within 0.01, keeps the 0.085 floor, and the
+    sodium cast goes from neutral at noon to full warmth at night.
+  - **One real change at `darkness` 1, found by that test and worth knowing:**
+    the exposure ceiling had to rise 0.9 → 1.6 (at darkness 0 the target *is*
+    daylight). On a **dark source frame** the old ceiling was already binding
+    and silently undershooting — asked 0.110, delivered 0.067. The new one
+    reaches 0.099. That is the Checkpoint 2 "too dark to see anything" failure
+    in miniature, so the change is in the right direction, but it is a change,
+    not a no-op. Real Mapillary daytime crops never hit it.
   - **Contract:** `condition.ambient` added to `shared/waypoint.schema.json` and
     `lib/contract.ts` as **optional**, in the shape Person 1 proposed —
     `{ phase, sun_altitude_deg, darkness }`. Agreed from this side; `phase`
     includes `"dawn"` because `backend/conditions.py` `sun_state()` already
     produces it. **Person 1 still has to emit it**; until then the fallback runs.
+  - Checked against the live backend: the fallback already gives the demo its
+    moment. 19:00 → "Dark since: Not yet (dark at 7:48pm)" → dusk (0.55);
+    23:00 → "7:48pm" → night (1.0). So 7pm → 11pm changes the grade **today**.
+    Its limit is measured too: **14:00 also reads as dusk**, because the fact is
+    a boolean. Only a numeric `darkness` fixes that.
+  - Also checked: `/api/routes` returns 200 and an identical body when sent
+    `fog` / `crowd` (or any unknown parameter), so the frontend being wired
+    ahead of the backend breaks nothing.
 
 - [x] **Remove comparison from the UI.** Route comparison is dropped (see
       WHAT WE ARE BUILDING). Remove the "Compare routes" button, the

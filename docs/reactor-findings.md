@@ -492,7 +492,57 @@ Two honest caveats, both recorded rather than papered over:
   seed grade is a dial (dusk → night continuous, floored at `MIN_TARGET_LUMA`
   0.085) rather than a day/night switch.
 
-**Unverified by eye.** The grade dial was checked numerically — at `darkness` 1
-it reproduces the Checkpoint 2 values exactly (0.085–0.110), so the reviewed
-look does not regress — but no live walk has been run through a condition
+### Grade dial: measured, not argued
+
+Run offline in headless Chrome against three real seeds
+(`spike/seeds/tenderloin-eddy-west.jpg`, `golden-gate-ave-west.jpg`,
+`midrun-1.jpg`), comparing the whole old pipeline at 60b83f0 against the new one
+pixel by pixel.
+
+**At `darkness` 1 on a daytime seed the output is byte-for-byte identical** —
+0 differing bytes across both daytime seeds × {6 lamps, unlit, 6 lamps/3 out},
+same exposure to 4dp. The look the human reviewed does not move.
+
+**One real behaviour change, and it is not identity.** The exposure solver's
+ceiling was raised 0.9 → 1.6, because at `darkness` 0 the target *is* daylight
+and 0.9 would darken a frame the dial asked to leave alone. On a **dark source
+frame** that ceiling was already binding in the old code: `midrun-1.jpg` (itself
+an already-graded night frame) asked for 0.110 and the old code delivered
+**0.067** — it silently undershot. The new ceiling reaches 0.099. That is the
+Checkpoint 2 "too dark to see anything" failure mode, in the small, and the
+change fixes it — but it *is* a change at `darkness` 1, not the no-op the rest
+of the dial is. Real Mapillary daytime crops never hit it.
+
+Related: with a very dark source the solver saturates and cannot reach a
+daylight target (0.138 against 0.400). Correct — exposure cannot invent daylight
+— and unreachable in the real pipeline, which always feeds it a daytime crop.
+
+The dial itself, on a real seed, 6 lamps:
+
+| darkness | target | actual | exposure | warmth (R−B) |
+|---|---|---|---|---|
+| 0.00 | 0.400 | 0.398 | 1.111 | −0.001 |
+| 0.25 | 0.290 | 0.290 | 0.847 | +0.053 |
+| 0.50 | 0.210 | 0.213 | 0.640 | +0.080 |
+| 0.75 | 0.152 | 0.157 | 0.481 | +0.094 |
+| 1.00 | 0.110 | 0.118 | 0.361 | +0.101 |
+
+Monotonic, tracks its target within 0.01, and the sodium cast goes from *neutral*
+at noon to full warmth at night. The floor holds: an unlit block bottoms out at
+0.093 actual against a 0.085 target.
+
+### Verified against the live backend
+
+`/api/routes` tolerates the new `fog` / `crowd` query parameters today — 200 and
+a byte-identical response, as it does for any unknown parameter — so the
+frontend is wired ahead of Person 1 without breaking anything.
+
+The ambient fallback also works on real responses **now**, before
+`condition.ambient` exists: at 19:00 the "Dark since" fact reads `Not yet (dark
+at 7:48pm)` → dusk (0.55), and at 23:00 it reads `7:48pm` → night (1.0). So the
+7pm → 11pm demo moment already produces a visibly different grade. Its limit is
+also real and measured: **14:00 also reads as dusk**, because the fact is a
+boolean. Only Person 1's numeric `darkness` fixes that.
+
+**Still unverified by eye.** No live walk has been run through a condition
 change, for the rate-limit reason above.

@@ -109,15 +109,24 @@ function WalkShell({ onDisconnected }: { onDisconnected: () => void }) {
     await walk.start(routePromise);
   }, [store, walk]);
 
+  const conditionsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onConditionsChange = useCallback(
     (next: ConditionSettings) => {
       store.setConditions(next);
-      // One shared condition clock: a change applies to both routes, so the
-      // comparison stays a controlled counterfactual.
-      if (walk.isRunning) {
-        walk.stop();
-        store.setScreen("setup");
-      }
+      if (!walk.isRunning) return;
+      // Real-time conditions (PLAN.md Phase 3, CORE): the same route recomputed for
+      // the new setting and handed to the live walk, which re-sends the current
+      // shot's prompt instead of restarting. Debounced so a burst of changes sends
+      // one request; a failed refresh leaves the walk on its current conditions.
+      if (conditionsTimer.current) clearTimeout(conditionsTimer.current);
+      conditionsTimer.current = setTimeout(() => {
+        void store
+          .refreshConditions(next)
+          .then((route) => {
+            if (route) walk.applyConditions(route);
+          })
+          .catch(() => {});
+      }, 400);
     },
     [store, walk],
   );
@@ -132,18 +141,17 @@ function WalkShell({ onDisconnected }: { onDisconnected: () => void }) {
     origin: store.origin,
     destination: store.destination,
     datetime: store.datetime(),
-    route: store.activeRouteId ?? undefined,
   });
 
   if (store.screen === "brief") {
     return (
       <main className="walk-home">
         <RouteBrief
-          routes={store.routes}
-          chosenRouteId={store.activeRouteId}
+          route={walk.route ?? store.routes[0] ?? null}
           origin={store.origin}
           destination={store.destination}
           datetime={store.datetime()}
+          conditions={store.conditions}
           shareUrl={shareUrl}
         />
         <div className="button-row">
@@ -184,14 +192,13 @@ function WalkShell({ onDisconnected }: { onDisconnected: () => void }) {
           ) : (
             <>
               <Minimap
-                routes={store.routes}
-                activeRouteId={store.activeRouteId}
+                route={walk.route ?? store.routes[0] ?? null}
                 waypointIndex={walk.waypointIndex}
               />
               <ConditionControls
                 settings={store.conditions}
                 onChange={onConditionsChange}
-                disabled={walk.isRunning}
+                live={walk.isRunning}
               />
               <div className="button-row">
                 <button type="button" disabled title="Compare view lands in Phase 3">

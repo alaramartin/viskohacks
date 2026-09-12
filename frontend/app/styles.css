@@ -344,3 +344,165 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---- Person 1, Phase 3: evidence, minimap, conditions, brief ----------- */
+
+.evidence-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.evidence-title,
+.modeled-label {
+  color: #8a826c;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.evidence-title {
+  color: #aaa69a;
+}
+
+/* A quiet highlight on a fact that changed — no flashing. */
+.fact-changed {
+  border-radius: 4px;
+  animation: fact-changed 1.6s ease-out;
+}
+
+@keyframes fact-changed {
+  from {
+    background: rgba(229, 201, 120, 0.16);
+  }
+  to {
+    background: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fact-changed {
+    animation: none;
+  }
+}
+
+.minimap svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 6px;
+}
+
+.minimap-ahead,
+.minimap-walked {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.minimap-ahead {
+  stroke: #4a4740;
+  stroke-dasharray: 2 5;
+}
+
+.minimap-walked {
+  stroke: #e5c978;
+}
+
+.minimap-start {
+  fill: #111113;
+  stroke: #e5c978;
+  stroke-width: 2;
+}
+
+.minimap-end {
+  fill: #f6f4ed;
+}
+
+.minimap-here {
+  fill: #e5c978;
+  stroke: #111113;
+  stroke-width: 2;
+}
+
+.condition-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  padding: 4px 10px;
+  border: 1px solid #3a3830;
+  border-radius: 999px;
+  background: transparent;
+  color: #cfcabd;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.chip[aria-pressed="true"] {
+  border-color: #e5c978;
+  background: #e5c978;
+  color: #111113;
+}
+
+.chip:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.route-brief {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 640px;
+}
+
+.brief-route {
+  margin: 0;
+  color: #f6f4ed;
+  font-size: 1rem;
+}
+
+.brief-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 24px;
+  margin: 0;
+}
+
+.brief-facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.82rem;
+}
+
+.brief-facts dt {
+  color: #77746b;
+}
+
+.brief-facts dd {
+  margin: 0;
+  color: #f6f4ed;
+  text-align: right;
+}
+
+.share-row {
+  display: flex;
+  gap: 8px;
+}
+
+.share-row input {
+  flex: 1;
+  min-width: 0;
+}

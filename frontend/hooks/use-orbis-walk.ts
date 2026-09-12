@@ -64,8 +64,10 @@ import { WalkTrace } from "@/lib/orbis/walk-trace";
  * visibly change toward it.
  */
 function reseedMode(): string | null {
-  if (typeof window === "undefined") return "image";
-  return new URLSearchParams(window.location.search).get("reseed") === "off" ? null : "image";
+  // Off by default: feeding a different block's frame made Orbis invent its own
+  // bridge between the two views (walking under a truck, out under a road).
+  if (typeof window === "undefined" || process.env.NODE_ENV === "production") return null;
+  return new URLSearchParams(window.location.search).get("reseed") === "image" ? "image" : null;
 }
 
 type ReactorIntrospection = { getSchema?: () => unknown; getCapabilities?: () => unknown };
@@ -361,6 +363,8 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
       let sentVideo: string | null = shotsOf(initial)[0]?.video_prompt ?? null;
       let sentAudio: string | null = shotsOf(initial)[0]?.audio_prompt ?? null;
       let shownIndex = -1;
+      // Conditions already baked into the live render (the seed was graded for these).
+      let litVersion = run.conditionsVersion;
       const reseed = reseedMode();
       const seeded = new Set<string>([blocks.find((block) => block.imageAvailable)?.blockId ?? ""]);
       // Grade every block's frame up front so a set_image lands on the shot boundary, not ~1s after.
@@ -407,6 +411,32 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
           if (version !== run.conditionsVersion) {
             version = run.conditionsVersion;
             patch({ route });
+            if (litVersion !== run.conditionsVersion) {
+              litVersion = run.conditionsVersion;
+              // TIME CHANGES. The prompt alone barely moves the light of a running
+              // render — the seed's light wins (Q1) — but a mid-run set_image does
+              // take hold. So re-grade the real frame of the block being walked for
+              // the new conditions and feed it in with the new prompt. Same street
+              // as on screen, so the model has only the light to change.
+              const here = route.waypoints[Math.max(0, shownIndex)]?.block_id;
+              const routeBlocks = groupIntoBlocks(route);
+              const at = routeBlocks.findIndex((block) => block.blockId === here);
+              const lit =
+                routeBlocks.slice(0, at + 1).reverse().find((block) => block.imageAvailable) ??
+                routeBlocks.find((block) => block.imageAvailable);
+              if (lit) {
+                try {
+                  const { graded, ambient } = await prepareSeed(lit);
+                  if (run.cancelled) throw new WalkCancelled();
+                  trace.log("relight", { block_id: lit.blockId, darkness: ambient.darkness });
+                  const uploaded = await context.uploadFile(graded.file, { name: `relight-${lit.blockId}.jpg` });
+                  await context.sendCommand("set_image", { image: uploaded });
+                } catch (caught) {
+                  if (caught instanceof WalkCancelled) throw caught;
+                  // A failed re-grade leaves the prompt to do what it can.
+                }
+              }
+            }
             if (shot.video_prompt && shot.video_prompt !== sentVideo) {
               await morphPrompt(context, shot.video_prompt);
               sentVideo = shot.video_prompt;

@@ -56,7 +56,8 @@ def test_night_facts(routes):
 
 def test_prompts_carry_motion_and_imagery_fact(routes):
     waypoints = routes["routes"][0]["waypoints"]
-    assert waypoints[0]["condition"]["video_prompt"].startswith("first-person view at eye level, starting to walk")
+    assert waypoints[0]["condition"]["video_prompt"].startswith("smooth first-person walking footage")
+    assert "starting to walk" in waypoints[0]["condition"]["video_prompt"]
     assert "coming to a stop" in waypoints[-1]["condition"]["video_prompt"]
     assert any("turning" in wp["condition"]["video_prompt"] for wp in waypoints)
     for wp in waypoints:

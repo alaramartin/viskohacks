@@ -38,6 +38,14 @@ STREET_PARALLEL_DEG = 30
 STREET_HALF_WIDTH_M = 20  # curb lamps sit within this of the centreline even on Market St
 WEATHER_TTL_S = 3600
 MOTION_LOOKAHEAD_M = 30  # cue a turn or crossing this far before it happens
+# Repeated at the front of every prompt in the continuous walk. Without it, a 2-minute
+# generation let the camera sink toward the ground and the colour drift green
+# (docs/spike/runs/continuous-walk-script). UNTESTED as worded: the anchored re-run hit
+# the one-session 429.
+CAMERA_ANCHOR = (
+    "smooth first-person walking footage from a camera worn at head height, looking straight ahead "
+    "along the sidewalk, natural color balance, warm amber and white streetlight glow"
+)
 TURN_CUE_DEG = 35
 
 STREET_TYPES = {
@@ -393,7 +401,7 @@ class ConditionModel:
         ]
         scene = self._video_prompt(street, lighting, sun, weather, len(nearby), open_now, own_type, footway)
         return {
-            "video_prompt": f"first-person view at eye level, {motion}, {scene}" if motion else scene,
+            "video_prompt": f"{CAMERA_ANCHOR}, {motion}, {scene}" if motion else scene,
             "audio_prompt": self._audio_prompt(street, weather, open_now, sun),
             "facts": facts,
             "lighting": lighting,

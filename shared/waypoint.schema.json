@@ -83,6 +83,38 @@
                     "type": "array",
                     "description": "Rendered verbatim in the evidence readout. Person 1 owns the wording.",
                     "items": { "$ref": "#/$defs/Fact" }
+                },
+                "lighting": { "$ref": "#/$defs/Lighting" }
+            }
+        },
+        "Lighting": {
+            "type": "object",
+            "description": "PROPOSED after the Person 2 spike, not yet agreed. Structured lighting for the day->night seed grade. Optional so the fixture and older consumers stay valid.",
+            "required": ["lit", "lamp_count", "side", "lamp_offsets_m", "outages"],
+            "additionalProperties": false,
+            "properties": {
+                "lit": {
+                    "enum": ["yes", "no", "unknown"],
+                    "description": "OSM lit tag on this block's edges (and the street beside a mapped sidewalk)."
+                },
+                "lamp_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Mapped streetlights on the whole block (Mapillary detections, clustered, plus OSM street_lamp)."
+                },
+                "side": {
+                    "enum": ["both", "one", "none"],
+                    "description": "Which sides of the walked line the block's lamps are on."
+                },
+                "lamp_offsets_m": {
+                    "type": "array",
+                    "items": { "type": "integer", "minimum": 0 },
+                    "description": "Metres ahead of this waypoint, along the route, of each lamp still ahead on this block. Ascending."
+                },
+                "outages": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "311 streetlight-out reports within 30m of the block in the 90 days before the requested time."
                 }
             }
         },

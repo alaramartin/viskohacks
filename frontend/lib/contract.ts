@@ -32,21 +32,12 @@ export type Lighting = {
   outages?: number;
 };
 
-/**
- * Numeric ambient light, so the seed grade is a dial instead of a day/night
- * switch — 7pm dusk and 11pm night have to be visibly different renders of the
- * same block, and neither may be black (PLAN.md Phase 3).
- *
- * Shape proposed by Person 1, agreed here. Optional because the backend does
- * not send it yet; without it the grade assumes full night, which is exactly
- * what it did before this field existed.
- */
+/** Numeric daylight at the requested time (Phase 3). */
 export type Ambient = {
-  /** `dawn` included because `backend/conditions.py` `sun_state()` already produces it. */
   phase: "day" | "dawn" | "dusk" | "night";
-  /** Solar altitude in degrees; negative below the horizon. */
+  /** Sun elevation in degrees; negative below the horizon. */
   sun_altitude_deg: number;
-  /** 0 = full daylight, 1 = fully dark (at or below astral's dusk, ~-6°). */
+  /** 0 with the sun up, 1 once it is 12° below the horizon; civil dusk is 0.5. */
   darkness: number;
 };
 

@@ -65,6 +65,8 @@ def get_routes(
     origin: str = Query(..., min_length=1),
     destination: str = Query(..., min_length=1),
     datetime_: str = Query(..., alias="datetime"),
+    fog: bool = Query(False, description="Override the modeled weather with fog. Facts say it was set by the viewer."),
+    crowd: bool = Query(False, description="Override the modeled foot traffic with a busy street. Facts say so."),
 ) -> dict:
     try:
         when = datetime.fromisoformat(datetime_)
@@ -77,7 +79,7 @@ def get_routes(
     try:
         start = graph.nearest_node(*graph.geocode(origin))
         end = graph.nearest_node(*graph.geocode(destination))
-        node_routes = graph.two_routes(start, end)
+        node_routes = [graph.shortest_route(start, end)]
     except GeoError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
 
@@ -97,7 +99,8 @@ def get_routes(
             prewarm_pool.submit(imagery.frame, f"{b.block_id}_{b.heading}", *graph.seed_point(b.start_node, b.heading), b.heading)
 
     routes = []
-    for route_id, geom in zip("AB", geoms):
+    overrides = {"fog": fog, "crowd": crowd}
+    for route_id, geom in zip("A", geoms):
         lighting = {b.block_id: model.block_lighting(geom, b, local) for b in geom.blocks}
         streets = {b.block_id: model.block_street(geom, b) for b in geom.blocks}
         waypoints, scenes, audios = [], [], []
@@ -106,6 +109,7 @@ def get_routes(
             condition = model.waypoint_condition(
                 wp, lighting[wp.block.block_id], sun, weather, local,
                 imagery=coverage[wp.block.block_id], block_street=streets[wp.block.block_id],
+                overrides=overrides,
             )
             scenes.append(condition.pop("scene"))
             audios.append(condition["audio_prompt"])

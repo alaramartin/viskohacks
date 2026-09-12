@@ -18,12 +18,7 @@ export type RouteQuery = {
   destination: string;
   /** ISO 8601, e.g. 2026-09-12T23:00:00 */
   datetime: string;
-  /**
-   * Viewer overrides of the modeled weather and foot traffic (PLAN.md Phase 3,
-   * Person 1's `/api/routes` parameters). Sent only when set — a backend that
-   * does not know them yet ignores unknown query parameters, so the frontend
-   * can be wired ahead of them without breaking.
-   */
+  /** Viewer overrides; the backend labels the affected facts as set by the viewer. */
   fog?: boolean;
   crowd?: boolean;
 };

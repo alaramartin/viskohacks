@@ -5,8 +5,8 @@
  * current waypoint) lives in `use-orbis-walk`; this is everything around it.
  *
  * **One route.** Route comparison was dropped before Checkpoint 3 (PLAN.md,
- * human decision): one start, one destination, one walk. The backend still
- * returns an array, and the shell walks `routes[0]`.
+ * human decision): one start, one destination, one walk. The backend now
+ * returns just the one, still inside an array, and the shell walks `routes[0]`.
  */
 
 import { create } from "zustand";
@@ -38,11 +38,13 @@ type WalkStore = {
   /** Fetches the route to walk. Throws on failure. */
   loadRoutes: () => Promise<Route>;
   /**
-   * The same route recomputed for a new condition clock, for a change made
-   * *during* a walk. Deliberately does not touch `loadingRoutes`: the walk is
-   * still playing and nothing here may put the shell into a loading state.
+   * Real-time conditions: the same route recomputed for `conditions`, without
+   * touching `loadingRoutes` (the setup panel's busy state) — the walk is still
+   * playing and nothing here may put the shell into a loading state. Resolves
+   * to null if a newer call superseded this one, so a slow request that lands
+   * late cannot roll the render back to a time the viewer has moved off.
    */
-  routeForConditions: (conditions: ConditionSettings) => Promise<Route>;
+  refreshConditions: (conditions: ConditionSettings) => Promise<Route | null>;
 };
 
 function queryFor(
@@ -58,6 +60,8 @@ function queryFor(
     crowd: conditions.crowd,
   };
 }
+
+let conditionsRequest = 0;
 
 export const useWalkStore = create<WalkStore>((set, get) => ({
   screen: "setup",
@@ -94,12 +98,14 @@ export const useWalkStore = create<WalkStore>((set, get) => ({
     }
   },
 
-  routeForConditions: async (conditions) => {
+  refreshConditions: async (conditions) => {
+    const request = ++conditionsRequest;
     const { origin, destination } = get();
     const routes = await fetchRoutes(queryFor(origin, destination, conditions));
+    if (request !== conditionsRequest) return null;
     // Keep the minimap and the brief on the same route object the walk is
     // reading, so the evidence on screen agrees with the render.
     set({ routes });
-    return routes[0];
+    return routes[0] ?? null;
   },
 }));

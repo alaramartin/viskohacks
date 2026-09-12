@@ -128,16 +128,12 @@ function WalkShell({ onDisconnected }: { onDisconnected: () => void }) {
     await walk.start(routePromise);
   }, [store, walk]);
 
-  // Only the newest condition change may win: the walk is live, and an earlier
-  // slow refetch landing last would leave the render describing a time the
-  // viewer has already moved off.
-  const conditionTicket = useRef(0);
-  const conditionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const conditionsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [conditionNote, setConditionNote] = useState<string | null>(null);
 
   useEffect(
     () => () => {
-      if (conditionTimer.current) clearTimeout(conditionTimer.current);
+      if (conditionsTimer.current) clearTimeout(conditionsTimer.current);
     },
     [],
   );
@@ -149,26 +145,28 @@ function WalkShell({ onDisconnected }: { onDisconnected: () => void }) {
       // these up when it starts.
       if (!walk.isRunning) return;
 
-      const ticket = (conditionTicket.current += 1);
-      if (conditionTimer.current) clearTimeout(conditionTimer.current);
+      // Real-time conditions (PLAN.md Phase 3, CORE): the same route recomputed
+      // for the new setting and handed to the live walk, which re-sends the
+      // current shot's prompt instead of restarting. Debounced so a burst of
+      // changes sends one request; `refreshConditions` resolves to null when a
+      // newer change has superseded this one, so a slow request landing late
+      // cannot roll the render back to a time the viewer has moved off.
+      if (conditionsTimer.current) clearTimeout(conditionsTimer.current);
       setConditionNote("Updating conditions");
 
-      conditionTimer.current = setTimeout(() => {
-        store
-          .routeForConditions(next)
+      conditionsTimer.current = setTimeout(() => {
+        void store
+          .refreshConditions(next)
           .then((route) => {
-            if (ticket !== conditionTicket.current) return;
+            if (!route) return; // superseded; the newer request owns the note
             const result = walk.applyConditions(route);
             setConditionNote(
-              result === "applied"
-                ? null
-                : result === "geometry-changed"
-                  ? "Those conditions changed the route itself — stop and start again to walk it."
-                  : null,
+              result === "geometry-changed"
+                ? "Those conditions changed the route itself — stop and start again to walk it."
+                : null,
             );
           })
           .catch((caught: unknown) => {
-            if (ticket !== conditionTicket.current) return;
             // The walk keeps playing on the conditions it already has. A failed
             // refetch is a stale readout, not a reason to drop the session.
             setConditionNote(
@@ -186,8 +184,6 @@ function WalkShell({ onDisconnected }: { onDisconnected: () => void }) {
   }, [store, walk]);
 
   const busy = store.loadingRoutes || (walk.isRunning && store.screen === "setup");
-  // One route, so the walked one is simply the first.
-  const walkedRouteId = store.routes[0]?.route_id ?? null;
   const shareUrl = buildShareUrl({
     origin: store.origin,
     destination: store.destination,
@@ -200,11 +196,11 @@ function WalkShell({ onDisconnected }: { onDisconnected: () => void }) {
     return (
       <main className="walk-home">
         <RouteBrief
-          routes={store.routes}
-          chosenRouteId={walkedRouteId}
+          route={walk.route ?? store.routes[0] ?? null}
           origin={store.origin}
           destination={store.destination}
           datetime={store.datetime()}
+          conditions={store.conditions}
           shareUrl={shareUrl}
         />
         <div className="button-row">
@@ -245,14 +241,14 @@ function WalkShell({ onDisconnected }: { onDisconnected: () => void }) {
           ) : (
             <>
               <Minimap
-                routes={store.routes}
-                activeRouteId={walkedRouteId}
+                route={walk.route ?? store.routes[0] ?? null}
                 waypointIndex={walk.waypointIndex}
               />
               {/* Usable *while* the walk runs — that is the whole point of it. */}
               <ConditionControls
                 settings={store.conditions}
                 onChange={onConditionsChange}
+                live={walk.isRunning}
               />
               <div className="button-row">
                 <button type="button" onClick={openBrief}>

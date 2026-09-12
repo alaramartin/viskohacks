@@ -1,15 +1,13 @@
 "use client";
 
 /**
- * STUB — PERSON 1, PHASE 3.
+ * Horizontal strip beneath the viewport: the current waypoint's facts,
+ * **verbatim**, in two columns, under a persistent "Modeled estimate" label.
  *
- * Horizontal strip beneath the viewport. Renders `condition.facts` for the
- * current waypoint **verbatim**, in two columns, with "Modeled estimate" as a
- * persistent label, and briefly emphasises fields that changed since the
- * previous waypoint.
- *
- * The props below are the contract; the placeholder body is yours to replace.
- * `factsDiffer` in `lib/contract.ts` is there for the change emphasis.
+ * A fact whose value differs from the previous waypoint's gets a brief, quiet
+ * highlight — motion in the periphery only when there is something to see, and
+ * no flashing. That includes a live condition change: the walk swaps in the same
+ * waypoint with new conditions, so the facts that moved light up.
  */
 
 import type { Waypoint } from "@/lib/contract";
@@ -20,28 +18,34 @@ export type EvidenceReadoutProps = {
   previousWaypoint?: Waypoint | null;
 };
 
-export function EvidenceReadout({ waypoint }: EvidenceReadoutProps) {
-  if (!waypoint) {
-    return (
-      <section className="panel evidence-strip">
-        <p className="stub-note">EvidenceReadout — Person 1, Phase 3</p>
-      </section>
-    );
-  }
+export function EvidenceReadout({ waypoint, previousWaypoint }: EvidenceReadoutProps) {
+  const previous = new Map(
+    (previousWaypoint?.condition.facts ?? []).map((fact) => [fact.label, fact.value]),
+  );
 
   return (
-    <section className="panel evidence-strip">
-      <div className="evidence-facts">
-        {waypoint.condition.facts.map((fact) => (
-          <p key={fact.label}>
-            <span className="fact-label">{fact.label}</span>
-            <span className="fact-value">{fact.value}</span>
-          </p>
-        ))}
-      </div>
-      <p className="stub-note">
-        Modeled estimate · EvidenceReadout placeholder (Person 1, Phase 3)
-      </p>
+    <section className="panel evidence-strip" aria-live="polite">
+      <header className="evidence-header">
+        <span className="evidence-title">Evidence</span>
+        <span className="modeled-label">Modeled estimate</span>
+      </header>
+
+      {waypoint ? (
+        <div className="evidence-facts">
+          {waypoint.condition.facts.map((fact) => {
+            const changed = previousWaypoint != null && previous.get(fact.label) !== fact.value;
+            return (
+              // Keyed on the value so the highlight restarts each time it changes.
+              <p key={`${fact.label}:${fact.value}`} className={changed ? "fact-changed" : undefined}>
+                <span className="fact-label">{fact.label}</span>
+                <span className="fact-value">{fact.value}</span>
+              </p>
+            );
+          })}
+        </div>
+      ) : (
+        <p className="hint">The facts behind each block appear here during the walk.</p>
+      )}
     </section>
   );
 }

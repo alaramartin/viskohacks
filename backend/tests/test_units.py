@@ -32,6 +32,8 @@ def test_sun_state():
     model = ConditionModel.__new__(ConditionModel)  # sun_state needs no data files
     night = model.sun_state(SAT_11PM.replace(tzinfo=SF_TZ))
     assert night["dark"] and night["dark_since"].hour == 19
+    assert night["darkness"] == 1 and night["altitude"] < -12
+    assert model.sun_state(MON_10AM.replace(tzinfo=SF_TZ))["darkness"] == 0
     after_midnight = model.sun_state(datetime(2026, 9, 13, 2, 0, tzinfo=SF_TZ))
     assert after_midnight["dark"] and after_midnight["dark_since"].day == 12
     assert model.sun_state(MON_10AM.replace(tzinfo=SF_TZ))["phase"] == "day"

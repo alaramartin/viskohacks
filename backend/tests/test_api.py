@@ -30,7 +30,7 @@ def routes(client):
 
 def test_routes_match_schema(routes):
     jsonschema.validate(routes, SCHEMA)
-    assert [route["route_id"] for route in routes["routes"]] == ["A", "B"]
+    assert [route["route_id"] for route in routes["routes"]] == ["A"]  # one route; comparison dropped
 
 
 def test_waypoints_are_spaced_and_grouped_into_blocks(routes):
@@ -43,9 +43,38 @@ def test_waypoints_are_spaced_and_grouped_into_blocks(routes):
         assert 2 <= len(block_runs) < len(waypoints)
 
 
-def test_routes_differ(routes):
-    a, b = ([wp["block_id"] for wp in r["waypoints"]] for r in routes["routes"])
-    assert set(a) != set(b)
+def geometry(route):
+    return [(wp["index"], wp["block_id"], wp["image_url"], wp["lat"], wp["lng"]) for wp in route["waypoints"]]
+
+
+def test_new_conditions_keep_the_geometry(client, routes):
+    """Real-time controls swap in the same route for a new time or override; only `condition` may change."""
+    base = routes["routes"][0]
+    for extra in ({"datetime": "2026-09-12T19:40:00"}, {"fog": "true"}, {"crowd": "true"}):
+        other = client.get("/api/routes", params={**PARAMS, **extra}).json()["routes"][0]
+        assert geometry(other) == geometry(base), extra
+
+
+def test_ambient_darkness_tracks_the_clock(client, routes):
+    night = routes["routes"][0]["waypoints"][0]["condition"]["ambient"]
+    assert night["phase"] == "night" and night["darkness"] == 1
+    early = client.get("/api/routes", params={**PARAMS, "datetime": "2026-09-12T18:00:00"}).json()
+    day = early["routes"][0]["waypoints"][0]["condition"]["ambient"]
+    assert day["phase"] == "day" and day["darkness"] == 0 and day["sun_altitude_deg"] > 0
+    dusk = client.get("/api/routes", params={**PARAMS, "datetime": "2026-09-12T19:50:00"}).json()
+    assert 0 < dusk["routes"][0]["waypoints"][0]["condition"]["ambient"]["darkness"] < 1
+
+
+def test_fog_and_crowd_overrides_are_labelled(client, routes):
+    plain = routes["routes"][0]["waypoints"][0]["condition"]
+    forced = client.get("/api/routes", params={**PARAMS, "fog": "true", "crowd": "true"}).json()
+    forced = forced["routes"][0]["waypoints"][0]["condition"]
+    facts = {f["label"]: f["value"] for f in forced["facts"]}
+    plain_facts = {f["label"]: f["value"] for f in plain["facts"]}
+    assert "set by you" in facts["Weather"] and facts["Foot traffic"].endswith("(set by you)")
+    assert "fog" in forced["video_prompt"] and "people walking" in forced["video_prompt"]
+    assert "Foot traffic" not in plain_facts
+    assert facts["Open businesses"] == plain_facts["Open businesses"], "an override never rewrites a data fact"
 
 
 def test_night_facts(routes):

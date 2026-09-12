@@ -485,72 +485,155 @@ change. It sits on top of a smooth start-to-destination walk (Checkpoint 2
 fixes), not instead of it. Person 2 owns applying it to the live session (see
 Person 2 Phase 3); Person 1 owns the data and the controls:
 
-- [ ] **Conditions at a new time without new geometry.** Re-requesting
+- [x] **Conditions at a new time without new geometry.** Re-requesting
       `/api/routes` with only `datetime` (or fog/crowd) changed must return
       identical routes: same `block_id`s, waypoint indices, `image_url`s.
       Only `condition` changes. Warm response well under 1s. Add a test that
       locks geometry across two datetimes.
-- [ ] **Numeric ambient light in the contract.** Today darkness is a
+  - done. Geometry never depended on the time. `test_new_conditions_keep_the_geometry`
+    locks index/block_id/image_url/lat/lng across 19:40, `fog` and `crowd`, and
+    `test_shot_structure_is_stable_across_times` locks the shot list's shape.
+    Warm requests return in ~0.1s.
+- [x] **Numeric ambient light in the contract.** Today darkness is a
       yes/no plus prose. The grade needs a dial to move smoothly from 7pm
       (dusk) to 11pm (night), so add e.g. `condition.ambient = { phase:
       "day"|"dusk"|"night", sun_altitude_deg, darkness: 0..1 }` from
       `astral`. Agree the shape with Person 2 first.
-  - **Shape agreed by Person 2 (2026-09-12) and already in
-    `shared/waypoint.schema.json` + `frontend/lib/contract.ts` as optional.**
-    Exactly as proposed, with one addition: `phase` accepts `"dawn"` too,
-    because `conditions.py` `sun_state()` already produces it. `darkness` is
-    0 = full daylight, 1 = at or below astral's dusk (~-6°).
-  - **Only the backend side is left: emit it.** The grade consumes it now
-    (`lib/orbis/ambient.ts` → `nightgrade.ts`); without it the frontend falls
-    back to the "Dark since" fact, which is a boolean and can only produce
-    "night" or a coarse "dusk". A real `darkness` is what makes 7pm and 11pm
-    look different.
-- [ ] **Fog and crowd overrides.** `fog` and `crowd` query parameters on
+  - done: `condition.ambient = { phase: day|dawn|dusk|night, sun_altitude_deg,
+    darkness }`, where darkness = −altitude/12 clamped to 0..1 (sun up 0,
+    civil dusk 0.5, −12° or lower 1). It's in the schema and in TS as `Ambient`.
+  - **Both people arrived at the same shape independently and it merged
+    cleanly** — Person 2 had added the identical field (including `"dawn"`,
+    because `conditions.py` `sun_state()` already produces it) while Person 1
+    was emitting it. Person 1's wording of `darkness` is the authoritative one
+    and is what survived the merge; it is a finer definition than Person 2's
+    (which stopped at civil dusk rather than −12°).
+  - **It is consumed now** (superseding "nothing consumes it yet"):
+    `lib/orbis/ambient.ts` → `lighting.ts` → `nightgrade.ts` grade the seed
+    along `darkness`. Without the field the render falls back to the "Dark
+    since" fact, which is a boolean; with it, 7pm and 11pm differ properly.
+- [x] **Fog and crowd overrides.** `fog` and `crowd` query parameters on
       `/api/routes` that override the modeled weather and foot-traffic
       wording in `video_prompt` / `audio_prompt` / `facts`. Overridden
       facts must say so (e.g. "Fog (set by you)"), so they aren't mistaken
       for data.
-- [ ] **`ConditionControls.tsx` drives the live walk** (replaces the
+  - done:
+    - `fog=true` puts thick fog in the prompts, and the Weather fact reads
+      "… · fog set by you".
+    - `crowd=true` prompts lit storefronts and people plus voices in the audio,
+      and adds a "Foot traffic: Busy street (set by you)" fact.
+    - Data facts (e.g. Open businesses) are never rewritten; tested.
+- [x] **`ConditionControls.tsx` drives the live walk** (replaces the
       refetch-only behaviour below). Time slider/picker plus fog and crowd
       toggles, usable **while a walk is running**. Debounce, fetch
       conditions for the new setting, and hand them to the walk controller
       without stopping it (`walk.applyConditions(route)` already exists in
       `use-orbis-walk.ts`). One route only.
-  - **The shell side is done (Person 2, 2026-09-12) — only the controls
-    themselves are left.** `onChange(next)` in `walk-home.tsx` already
-    debounces, refetches and morphs the live render; **do not** debounce or
-    refetch again inside the component, just call `onChange` with the full next
-    settings as often as you like. The walk screen no longer passes `disabled`,
-    so the controls stay live mid-walk. Updated handoff notes are in the stub's
-    header comment. Fog and crowd already ride the query string as
-    `fog=true` / `crowd=true` and the share link.
-- [ ] **One route only.** Route comparison is dropped (see WHAT WE ARE
+  - done in code, **not browser-tested**: Orbis is rate-limited across the
+    hackathon, so no walk could be started to see it.
+    - Controls: date, time (15-min steps), 7pm / 9pm / 11pm / 2am presets,
+      Fog / Crowd toggles, with a "changes apply to the walk as it plays"
+      hint.
+    - `walk-home.tsx` no longer stops the walk on a change: it debounces
+      → `store.refreshConditions` (latest request wins) →
+      `walk.applyConditions(route)`, which re-sends the current shot's
+      prompt.
+    - **Limitation:** mid-walk only the prompt changes (Q7: a live generation
+      can't be re-seeded), so a 7pm → 11pm change relies on Orbis following
+      the prompt, not a re-graded seed. Person 2's Phase 3 spike should
+      measure how visible that is.
+  - **Merge note (both people built this half each).** Person 2 had written
+    the same shell plumbing; the merged version keeps Person 1's
+    `store.refreshConditions` (the latest-request guard belongs in the store)
+    and Person 2's reporting on top of it — a status line while the refetch is
+    in flight, a message if a refetch fails (the walk keeps playing on the
+    conditions it has), and a message if the recomputed route's geometry
+    differs, which is refused rather than morphed. Debounce settled at 250ms.
+  - **The spike this note asks for is already answered** — see Person 2's
+    Phase 3 and `docs/reactor-findings.md`: Q7 measured it, the prompt is the
+    only lever, and the render follows it within ~10s (~5 chunks), not ~2.
+- [x] **One route only.** Route comparison is dropped (see WHAT WE ARE
       BUILDING). `/api/routes` returns just the shortest route as
       `routes[0]`, `route_id: "A"`, still an array so the contract shape
       holds. Stop computing route B: it roughly halves the cold request's
       imagery lookups. Update `shared/fixture-routes.json` and the tests to
       one route.
+  - done:
+    - `graph.shortest_route`; route B is no longer computed (`two_routes` is
+      left in `geo.py`, unused).
+    - Fixture and tests are one route; the share link no longer carries
+      `route`.
+    - Minimap and RouteBrief take the walked route.
+    - The "Compare routes" button is left for Person 2's "Remove comparison
+      from the UI".
 
-- [ ] **`EvidenceReadout.tsx`** — horizontal strip beneath the viewport.
+- [x] **`EvidenceReadout.tsx`** — horizontal strip beneath the viewport.
       Renders `condition.facts` for the current waypoint verbatim, in two
       columns, with "Modeled estimate" as a persistent label. Updates on every
       waypoint change.
-- [ ] **Fact-change emphasis.** When moving to a waypoint whose facts differ
+  - done: an "Evidence / Modeled estimate" header, facts verbatim in two
+    columns, and an empty-state hint before a walk.
+- [x] **Fact-change emphasis.** When moving to a waypoint whose facts differ
       from the previous one, briefly emphasize the changed fields. Motion in
       the periphery earns attention only when there's something to see. Keep
       it subtle — no flashing.
-- [ ] **`Minimap.tsx`** — upper right. Draw the route, with the part
+  - done: a 1.6s amber background fade on each changed fact (keyed on its
+    value, so it restarts per change), turned off under
+    `prefers-reduced-motion`. It also fires on a live condition change, since
+    the same waypoint comes back with new facts.
+- [x] **`Minimap.tsx`** — upper right. Draw the route, with the part
       already walked distinguished and the current position marked. Leaflet
       or a plain SVG projection of the waypoint coordinates; SVG is fine and
       has fewer dependencies. (Was "both routes"; comparison dropped.)
+  - done: SVG via `projectPoints`. Walked part solid amber, the rest dashed,
+    start ring, end square, current-position dot. It takes `walk.route`, so
+    it follows live condition swaps.
 - [ ] ~~**`ConditionControls.tsx`** — refetches routes and applies to both
       routes at once.~~ Superseded by "`ConditionControls.tsx` drives the
       live walk" above: one route, changed live without stopping.
-- [ ] **`RouteBrief.tsx`** — the shareable artifact. The walked route, its
+- [x] **`RouteBrief.tsx`** — the shareable artifact. The walked route, its
       conditions at the chosen time, and a share link. Encode
       origin/destination/datetime in the URL query string — no database, the
       link just regenerates the preview. (Was "both routes, which was picked,
       chosen-route"; comparison dropped.)
+  - done:
+    - Shows origin → destination, date/time and fog/crowd "(set by you)";
+      distance and block count; dark since; lamps mapped along the route;
+      311 outages; weather; street-imagery coverage (x of y blocks).
+    - "Modeled estimates · no score, no verdict", and a share link with a
+      Copy button.
+    - The share link encodes origin/destination/datetime only; fog/crowd
+      aren't in it.
+  - **Phase 3 verification (Person 1):**
+    - backend `pytest` 18/18;
+    - frontend typecheck and `next build` clean.
+    - **Browser-tested without Orbis** via a dev-only harness,
+      `frontend/app/preview/page.tsx` (`/preview`). It renders the four
+      components against a real `/api/routes` response and changes conditions
+      the same way the shell does mid-walk. All passed in Chrome:
+      - **Stepping waypoints:** facts update; only changed facts highlight
+        (none when nothing changed); the minimap's walked line and label
+        advance.
+      - **Debounce:** Fog + 7pm pressed within 400ms sent **one** request.
+      - **Live values:** darkness went 1 → 0 at 7pm (sun +3.7°), "Dark since"
+        read "Not yet (dark at 7:48pm)", Weather showed "· fog set by you",
+        and the changed facts highlighted.
+      - **Latest wins:** 9pm then 11pm quickly applied only 11pm.
+      - **Crowd:** added "Foot traffic: Busy street (set by you)".
+      - **Geometry:** unchanged throughout (21 waypoints, same index).
+      - **Brief:** 470 m · 4 blocks, 45 lamps, 0 outages, weather with the
+        fog label, imagery 4 of 4.
+      - **Share link round trip:** opening a share URL pre-fills From, To,
+        date and time on the setup screen.
+    - **Fixed from testing:**
+      - Copy link failed silently when the clipboard was refused (as it will
+        be on a plain-http LAN IP). It now selects the link and shows "press
+        ⌘C / Ctrl+C"; verified.
+      - The setup text still said "Two walking routes"; now it's one route.
+    - **Noticed, not changed:** "Open businesses" changes on most waypoints,
+      so its highlight fires often.
+    - **Still untested:** the real Walk screen with Orbis, i.e. whether a live
+      change visibly alters the video.
 
 ### 🛑 CHECKPOINT 3 — full demo runthrough
 
@@ -1277,7 +1360,7 @@ Update this as you go so the human can `/clear` and resume.
         cached graph of drivable streets (`data/sf_streets.graphml`,
         `fetch_data.py streets`) feeds the street index. Routing still uses
         the walk graph.
-  - Not yet checked: audio by ear.
+  - Audio: **checked by ear by the human, works** (2026-09-12).
   - **Paused (human decision, 2026-09-12): moving on to Checkpoint 3 work.**
     The human couldn't test further: Orbis is rate-limited on concurrent use,
     and the whole hackathon is using it at once. Walk-quality work is recorded
@@ -1286,7 +1369,10 @@ Update this as you go so the human can `/clear` and resume.
     - the left turn onto Leavenworth hits a parked car in both runs (~10s
       near-black);
     - the second half of a walk drifts too bright;
-    - audio never checked by ear.
+    - ~~audio never checked by ear~~ — **checked by the human (2026-09-12):
+      audio works.**
+    - video still untested by the human (hackathon-wide concurrent session
+      limit).
 
     For the demo meanwhile: pick a route without a sharp left turn and keep it
     short.
@@ -1296,6 +1382,14 @@ Update this as you go so the human can `/clear` and resume.
     complicated for the timeframe, and only one concurrent Orbis session.
     PLAN updated for both people: Person 1 "One route only" and Person 2
     "Remove comparison from the UI" tasks added; compare tasks dropped.
+  - **Person 1 Phase 3: code complete, awaiting the runthrough.** All Person 1
+    tasks are ticked with notes. Not browser-verified (Orbis rate limit).
+    Still open on Person 2's side:
+    - the live-render spike;
+    - "Apply condition changes to the live session" — the hook exists; how
+      visible prompt-only changes are is unmeasured;
+    - "Grade driven by ambient light";
+    - "Remove comparison from the UI" — the Compare button is still there.
 - [ ] Final submission — branch pushed to Visko-Platform/orbis-hackathon-starter
 
 ---

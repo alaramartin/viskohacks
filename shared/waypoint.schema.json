@@ -109,24 +109,13 @@
         },
         "Ambient": {
             "type": "object",
-            "description": "Numeric ambient light, so the seed grade is a continuous dial rather than a day/night switch (PLAN.md Phase 3; shape proposed by Person 1, agreed by Person 2). Optional in the schema only so an older fixture still validates — without it the grade assumes full night, which is what it did before this field existed.",
+            "description": "Numeric daylight for the night grade and real-time time-of-day changes (Phase 3). Always sent by the backend; optional so the old fixture validates.",
             "required": ["phase", "sun_altitude_deg", "darkness"],
             "additionalProperties": false,
             "properties": {
-                "phase": {
-                    "enum": ["day", "dawn", "dusk", "night"],
-                    "description": "astral's phase at the requested time. `dawn` is included because backend/conditions.py sun_state() already produces it."
-                },
-                "sun_altitude_deg": {
-                    "type": "number",
-                    "description": "Solar altitude in degrees; negative below the horizon."
-                },
-                "darkness": {
-                    "type": "number",
-                    "minimum": 0,
-                    "maximum": 1,
-                    "description": "0 = full daylight, 1 = fully dark (sun at or below astral's dusk, about -6 deg). The renderer grades the seed along this dial, so 7pm -> 11pm is a smooth change and never a cut to black."
-                }
+                "phase": { "enum": ["day", "dawn", "dusk", "night"] },
+                "sun_altitude_deg": { "type": "number", "description": "Sun elevation at the requested time, degrees (negative below the horizon)." },
+                "darkness": { "type": "number", "minimum": 0, "maximum": 1, "description": "0 with the sun up, 1 once it is 12° below the horizon; civil dusk is 0.5." }
             }
         },
         "Lighting": {

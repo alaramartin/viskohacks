@@ -1119,6 +1119,39 @@ Update this as you go so the human can `/clear` and resume.
           (`WAYPOINT_DWELL_MS`). `applyConditions(route)` swaps in recomputed
           conditions and morphs immediately, ready for Phase 3's live
           controls. Typecheck clean; **not yet watched in the browser**.
+        - **Human review of that build: it didn't walk the route.** The walk
+          was continuous but random: sideways walking, into a wall, doubling
+          back. Cause: a full ~550-char prompt swap on 14 of 20 waypoint steps,
+          scene wording flip-flopping, and turn cues spread over several
+          waypoints.
+        - **Replaced with a shot list** (`backend/shots.py`, contract
+          `route.shots`). The walk is planned once: walk (one steady prompt per
+          straight leg, "straight ahead… toward the vanishing point") → turn (one
+          4s cue) → … → arrive, ~8 prompt changes per route. The frontend plays
+          shots and changes the prompt only at shot boundaries.
+        - **Watched in the browser, two full runs** on Eddy & Jones → Golden
+          Gate & Hyde (`docs/spike/evidence/16-…`, `17-…`):
+          - **Fixed:** no sideways walking, walls or doubling back in either
+            run. Every straight leg holds its direction; the route follows the
+            right streets in order; the right turns onto Turk and Golden Gate
+            were smooth in both runs. Run 2 describes the camera where the seed
+            puts it (middle of the street, symmetric parked cars, no
+            crosswalk/sidewalk wording), and its arrival stays in the street
+            (run 1 veered into buildings).
+          - **Still broken:** the **left turn onto Leavenworth** runs into a
+            parked car in **both** runs, then ~10s of near-black before
+            recovering onto Leavenworth. The **second half drifts bright**
+            (mean luma 0.21 in run 1, 0.26 in run 2 vs ~0.10 early), with a
+            glare patch on the road; "dark night with deep shadows" didn't hold
+            it.
+        - **Session limits found while testing:** Reactor also enforces
+          `sessions_per_minute` (10). The first 429 retry (every 3s) hit it in
+          ~30s and ended a walk. The retry is now 15s × at most 4, never on the
+          per-minute limit, and never from the setup-form warm-up.
+        - Unconfirmed: in three browser attempts the first click on "Walk it"
+          after a page load didn't reach the page (a click logger saw nothing);
+          the next click worked. Possibly the automation focusing the window,
+          not the app.
     - [ ] **Lighting looks wrong.** Sometimes too dark to see anything, and
       often "a block with a dark blue filter on the top half". Cause,
       reproduced offline on real seeds: `nightgrade.ts`'s sky mask

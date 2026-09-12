@@ -29,6 +29,9 @@ log = logging.getLogger("imagery")
 
 OUT_W, OUT_H = 854, 480  # 16:9, Orbis stable's native frame
 HFOV_DEG = 90
+# Car-mounted Mapillary panos show the roof rig in the bottom ~15% of a level
+# view, and Orbis faithfully reproduces it. Looking up slightly crops it out.
+PANO_PITCH_DEG = 9
 SEARCH_RADIUS_M = 40
 MAX_PERSPECTIVE_ANGLE = 35  # a non-pano photo must face within this of the heading
 MAX_ACROSS_M = 18  # mapped sidewalk to far lane on a wide SF street
@@ -39,15 +42,20 @@ TILE_ZOOM = 14
 TILE_URL = "https://tiles.mapillary.com/maps/vtp/mly1_public/2/{z}/{x}/{y}"
 
 
-def crop_equirect(pano: Image.Image, yaw_deg: float, hfov_deg: float = HFOV_DEG, size=(OUT_W, OUT_H)) -> Image.Image:
-    """Rectilinear view of an equirectangular pano. yaw 0 = the pano's centre column."""
+def crop_equirect(
+    pano: Image.Image, yaw_deg: float, hfov_deg: float = HFOV_DEG, size=(OUT_W, OUT_H), pitch_deg: float = 0.0
+) -> Image.Image:
+    """Rectilinear view of an equirectangular pano. yaw 0 = the pano's centre column; pitch + looks up."""
     w, h = size
     src = np.asarray(pano.convert("RGB"), dtype=np.float32)
     ph, pw = src.shape[:2]
     f = (w / 2) / math.tan(math.radians(hfov_deg) / 2)
     x, y = np.meshgrid(np.arange(w) - (w - 1) / 2, (h - 1) / 2 - np.arange(h))
-    lon = np.arctan2(x, f) + math.radians(yaw_deg)
-    lat = np.arctan2(y, np.hypot(x, f))
+    pitch = math.radians(pitch_deg)
+    z = np.full_like(x, f, dtype=np.float64)
+    y, z = y * math.cos(pitch) + z * math.sin(pitch), -y * math.sin(pitch) + z * math.cos(pitch)
+    lon = np.arctan2(x, z) + math.radians(yaw_deg)
+    lat = np.arctan2(y, np.hypot(x, z))
     u = ((lon / (2 * math.pi) + 0.5) % 1.0) * pw - 0.5
     v = np.clip((0.5 - lat / math.pi) * ph - 0.5, 0, ph - 1)
 
@@ -216,5 +224,5 @@ class Imagery:
         url = info.get("thumb_original_url") if meta["is_pano"] else None
         img = Image.open(io.BytesIO(self.client.get(url or info["thumb_2048_url"]).raise_for_status().content))
         if meta["is_pano"]:
-            return crop_equirect(img, heading - info.get("computed_compass_angle", meta["compass"]))
+            return crop_equirect(img, heading - info.get("computed_compass_angle", meta["compass"]), pitch_deg=PANO_PITCH_DEG)
         return fit_16_9(img)

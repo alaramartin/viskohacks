@@ -292,6 +292,57 @@ across it.
 2. ~~Can Reactor raise the concurrency quota?~~ **Asked and answered: no.**
    One session is permanent. Closed.
 
+## Phase 2 — what the build measured (Person 2, Checkpoint 2)
+
+The numbers above were measured on the spike harness. These are from the real
+app, `frontend/`, walking the fixture end to end in headless Chrome against the
+live API on 2026-09-12.
+
+| | Measured |
+|---|---|
+| Setup submit → first visible frame (cold) | **15.7s** (Q4 predicted 12–16s) |
+| Block boundary → first visible frame | **8.3s** (Q4/Q6 predicted 7–8s) |
+| Block dwell | 8–15s, as designed |
+| Night-graded seed mean luma | 0.051–0.064 (target ~0.06, Q1) |
+| Rendered video mean luma | 0.07–0.24 — night throughout, never daylight |
+
+Confirmed in the app, not just the spike: one session per route with
+`reset`+re-seed per block; `set_seed`/`set_resolution` surviving every reset; the
+hold-and-hard-cut covering both gaps; and a block with `image_available: false`
+rendering as an explicit unavailable card with nothing generated behind it.
+
+Two things the build changed:
+
+1. **`sendCommand` resolves to `undefined` for `set_seed`, `set_resolution`,
+   `start` and `reset`** — they report through the message stream instead.
+   Treating a missing reply as a failure breaks the run at the first command.
+   Only `set_image` must answer (`image_accepted`).
+2. **"First visible frame" cannot be detected from motion alone.** The gate
+   originally required consecutive samples to differ; a slow night street
+   changes by less than the threshold between samples, which held the opening
+   cut ~7s longer than necessary. It now cuts on the first non-black frame that
+   differs from the frame being held.
+
+### The night grade's look is generic, and will stay that way until the data lands
+
+`condition.lighting` does not exist yet, so `lib/orbis/lighting.ts` reads the
+prose in `facts` — the streetlight count and the outage count — and uses it for
+one thing only: **exposure and glow strength**. A block with nothing tagged
+grades to mean luma ~0.045 with the lamp glow at 35%; six working lamps grade to
+~0.068 at full strength. That is a real, visible difference between blocks, and
+it is honest about *darkness*.
+
+It says nothing true about **where** the light is. No lamp is placed anywhere,
+because we do not know where any lamp is, and inventing one would make the
+render assert something the data does not. The code to place them is written and
+waiting (`paintLampPools`, a pinhole projection from `lamp_offsets_m` and
+`side`); it stays switched off until Person 1's `condition.lighting` arrives.
+
+**Caveat on everything visual above:** the backend still serves Person 1's grey
+PLACEHOLDER JPEG, so what Orbis is conditioning on is a graded grey card, not a
+street. The *pipeline* is verified; the fidelity of "that block at night" cannot
+be judged until real Mapillary frames are served. Re-check Q1's conclusion then.
+
 ## Reproducing
 
 ```

@@ -29,9 +29,9 @@ from collections import Counter
 from conditions import CAMERA_ANCHOR, TURN_CUE_DEG, ConditionModel
 from geo import Block, RouteGeometry
 
-SCREEN_SPEED_MPS = 4.5  # route metres per second of screen time — brisk, so ~500m fits a 2-minute demo
+SCREEN_SPEED_MPS = 2.0  # the pace the footage actually moves (walk trace: ~2 m/s); 4.5 ran the minimap blocks ahead
 WALK_MIN_MS = 6_000
-WALK_MAX_MS = 20_000  # an unchanged prompt held much longer drifts; long legs just go by faster
+WALK_MAX_MS = 25_000  # Orbis holds a real seed ~25s (Q1); each leg now starts from its own real frame at the corner
 # A prompt change shows at the next ~1.8s chunk but takes ~10s to settle (reactor-findings Q7).
 # At 4s the next leg's "straight ahead" took over mid-turn and the camera drifted across the
 # street instead of rounding the corner.

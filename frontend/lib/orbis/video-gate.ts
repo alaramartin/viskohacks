@@ -70,6 +70,83 @@ export class VideoGate {
     return true;
   }
 
+  /**
+   * Corner transition. Orbis can't turn a live generation or take a new image
+   * mid-run (docs/reactor-findings.md, "Walk trace"), so a corner is a reset
+   * onto the next street's real frame — and this covers it as a head turn
+   * instead of a cut: the last live frame pans out sideways, the new street's
+   * (already graded) frame pans in, then drifts slowly forward until live
+   * frames from the new generation arrive and `release()` hands back to them.
+   *
+   * Returns a stop function. Call `freeze()` semantics are included: the
+   * baseline is the outgoing frame, so `waitForLiveFrames` works as before.
+   */
+  turnTransition(next: Blob, side: "left" | "right"): () => void {
+    const hold = this.hold;
+    if (!this.freeze() || !hold) return () => {};
+    const width = hold.width;
+    const height = hold.height;
+    const outgoing = document.createElement("canvas");
+    outgoing.width = width;
+    outgoing.height = height;
+    outgoing.getContext("2d")?.drawImage(hold, 0, 0);
+    const context = hold.getContext("2d");
+    let incoming: ImageBitmap | null = null;
+    let stopped = false;
+    void createImageBitmap(next).then((bitmap) => {
+      if (stopped) bitmap.close();
+      else incoming = bitmap;
+    });
+
+    const PAN_MS = 1_300;
+    const DRIFT_ZOOM_PER_S = 0.012;
+    const started = performance.now();
+    // Turning right, the world slides left.
+    const sign = side === "right" ? -1 : 1;
+    const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+
+    const frame = () => {
+      if (stopped || !context) return;
+      const elapsed = performance.now() - started;
+      const t = Math.min(1, elapsed / PAN_MS);
+      context.fillStyle = "#000";
+      context.fillRect(0, 0, width, height);
+      if (!incoming && t >= 1) {
+        // The new frame is still decoding: hold the end of the pan on the old one.
+        context.drawImage(outgoing, 0, 0);
+      } else {
+        const offset = ease(t) * width * sign;
+        // A little smear during the fastest part of the pan reads as motion blur.
+        const blur = Math.sin(t * Math.PI) * 0.35;
+        context.globalAlpha = 1;
+        context.drawImage(outgoing, offset, 0, width, height);
+        if (blur > 0.01) {
+          context.globalAlpha = blur;
+          context.drawImage(outgoing, offset - sign * width * 0.03, 0, width, height);
+        }
+        if (incoming) {
+          const zoom = 1 + (Math.max(0, elapsed - PAN_MS) / 1000) * DRIFT_ZOOM_PER_S;
+          const w = width * zoom;
+          const h = height * zoom;
+          context.globalAlpha = 1;
+          context.drawImage(incoming, offset - sign * width + (width - w) / 2, (height - h) / 2, w, h);
+          if (blur > 0.01) {
+            context.globalAlpha = blur;
+            context.drawImage(incoming, offset - sign * width * 1.03, 0, width, height);
+          }
+        }
+        context.globalAlpha = 1;
+      }
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+
+    return () => {
+      stopped = true;
+      incoming?.close();
+    };
+  }
+
   /** Hard cut to the live render. No fade — that was decided deliberately. */
   release() {
     this.frozen = false;

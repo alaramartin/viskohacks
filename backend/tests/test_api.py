@@ -110,7 +110,7 @@ def test_shot_list_is_a_steady_script(routes):
 
     for s in walks:
         assert "walking straight ahead" in s["video_prompt"] and "vanishing point" in s["video_prompt"]
-        assert 6_000 <= s["duration_ms"] <= 20_000
+        assert 6_000 <= s["duration_ms"] <= 25_000
         for i in range(s["waypoint_start"], s["waypoint_end"] + 1):
             assert waypoints[i]["condition"]["video_prompt"] == s["video_prompt"]
     assert all("turning" in s["video_prompt"] for s in shots if s["kind"] == "turn")

@@ -38,6 +38,7 @@ import type { Route } from "@/lib/contract";
 import { ORBIS_RESOLUTION } from "@/lib/orbis";
 import { groupIntoBlocks, type Block } from "@/lib/orbis/blocks";
 import { shotsOf } from "@/lib/orbis/shots";
+import { describeAmbient, estimateAmbient } from "@/lib/orbis/ambient";
 import { estimateLighting, gradeParamsFor } from "@/lib/orbis/lighting";
 import { nightGradeSeed } from "@/lib/orbis/nightgrade";
 import {
@@ -119,6 +120,12 @@ const INITIAL: WalkSnapshot = {
 };
 
 class WalkCancelled extends Error {}
+
+/**
+ * What `applyConditions` did. `geometry-changed` means the backend returned a
+ * different walk for the new settings, which is a restart, not a morph.
+ */
+export type ApplyConditionsResult = "applied" | "geometry-changed" | "not-running";
 
 type RunHandle = {
   cancelled: boolean;
@@ -282,15 +289,23 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
     if (run.cancelled) throw new WalkCancelled();
   }, []);
 
-  /** Fetch a block's seed frame and convert it to night. Needs no session. */
+  /**
+   * Fetch a block's seed frame and convert it to the light at the requested
+   * time. Needs no session.
+   *
+   * `lighting` says where the light comes from, `ambient` how much of it there
+   * is; the grade needs both. At 7pm the same block comes back as dusk, at 11pm
+   * as night, and neither as black.
+   */
   const prepareSeed = useCallback(async (block: Block) => {
     const seedWaypoint = block.seedWaypoint;
     const seedUrl = seedWaypoint ? imageryUrl(seedWaypoint) : null;
     if (!seedWaypoint || !seedUrl) throw new Error("No imagery for this block.");
     const frame = await fetchSeedImage(seedUrl);
     const lighting = estimateLighting(seedWaypoint.condition);
-    const graded = await nightGradeSeed(frame, gradeParamsFor(lighting));
-    return { graded, lighting };
+    const ambient = estimateAmbient(seedWaypoint.condition);
+    const graded = await nightGradeSeed(frame, gradeParamsFor(lighting, ambient.darkness));
+    return { graded, lighting, ambient };
   }, []);
 
   /**
@@ -365,21 +380,35 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
   }, [disconnect, signals]);
 
   /**
-   * Real-time conditions: the same route recomputed for a new time, fog or
-   * crowd setting. Applied to the live render within ~2s via prompt morphs.
-   * Returns false (and changes nothing) if the geometry differs.
+   * Real-time conditions — the Phase 3 deliverable. The same route recomputed
+   * for a new time, fog or crowd setting, applied to the *running* generation:
+   * no `reset`, no reconnect, no hold card, no "preparing".
+   *
+   * Prompt only, and that is not a shortcut. Q7 measured all three ways of
+   * changing the imagery mid-generation (`set_image`, `set_image` + prompt,
+   * `pause`/`set_image`/`resume`): Orbis accepts each and ignores each — new
+   * imagery lands only after `reset`, which is the ~7s cut this whole walk is
+   * built to avoid. `set_prompt` is the one lever that reaches a live render,
+   * and `-dynamic` morphs it in at the next ~1.8s chunk (Q5).
+   *
+   * So the seed keeps the geometry it started with and the light changes by
+   * text. The walk loop picks the bump up within ~150ms and re-sends the
+   * current shot's prompt straight away, rather than waiting for the next shot
+   * boundary — the change has to be visible while the viewer is still looking
+   * at the control they moved.
    */
-  const applyConditions = useCallback(
-    (next: Route) => {
-      const run = runRef.current;
-      const current = routeRef.current;
-      if (!run || !current || !sameGeometry(current, next)) return false;
-      routeRef.current = next;
-      run.conditionsVersion += 1;
-      return true;
-    },
-    [],
-  );
+  const applyConditions = useCallback((next: Route): ApplyConditionsResult => {
+    const run = runRef.current;
+    const current = routeRef.current;
+    if (!run || !current) return "not-running";
+    // Conditions may only change the light, never the walk. A different shape
+    // means the backend recomputed the geometry too, and morphing a prompt for
+    // a route we are not walking would describe a street that isn't there.
+    if (!sameGeometry(current, next)) return "geometry-changed";
+    routeRef.current = next;
+    run.conditionsVersion += 1;
+    return "applied";
+  }, []);
 
   const start = useCallback(
     async (routeSource: Route | Promise<Route>) => {
@@ -421,10 +450,10 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
         patch({ phase: "preparing", statusText: "Converting the first block to night" });
         // The daytime frame is converted before it reaches Orbis and is never
         // displayed either way — it is an intermediate, not an answer.
-        const { graded, lighting } = await prepared;
+        const { graded, lighting, ambient } = await prepared;
         if (run.cancelled) throw new WalkCancelled();
         patch({
-          seedNote: `seed mean luma ${graded.meanLuma.toFixed(3)} · lighting from ${lighting.source}`,
+          seedNote: `seed mean luma ${graded.meanLuma.toFixed(3)} · ${describeAmbient(ambient)} · lighting from ${lighting.source}`,
           statusText: "Starting the walk",
         });
 

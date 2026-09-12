@@ -32,6 +32,24 @@ export type Lighting = {
   outages?: number;
 };
 
+/**
+ * Numeric ambient light, so the seed grade is a dial instead of a day/night
+ * switch — 7pm dusk and 11pm night have to be visibly different renders of the
+ * same block, and neither may be black (PLAN.md Phase 3).
+ *
+ * Shape proposed by Person 1, agreed here. Optional because the backend does
+ * not send it yet; without it the grade assumes full night, which is exactly
+ * what it did before this field existed.
+ */
+export type Ambient = {
+  /** `dawn` included because `backend/conditions.py` `sun_state()` already produces it. */
+  phase: "day" | "dawn" | "dusk" | "night";
+  /** Solar altitude in degrees; negative below the horizon. */
+  sun_altitude_deg: number;
+  /** 0 = full daylight, 1 = fully dark (at or below astral's dusk, ~-6°). */
+  darkness: number;
+};
+
 export type Condition = {
   /** Passed straight to Orbis `set_prompt`. */
   video_prompt: string;
@@ -40,6 +58,7 @@ export type Condition = {
   /** Rendered verbatim in the evidence readout. Person 1 owns the wording. */
   facts: Fact[];
   lighting?: Lighting;
+  ambient?: Ambient;
 };
 
 export type Waypoint = {

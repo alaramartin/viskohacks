@@ -19,6 +19,11 @@
  *      which also stops a bright frame and a dim frame grading differently.
  *   2. The sky mask must catch overcast (bright + desaturated), not only blue.
  *      A blueness test alone leaves SF's grey sky hijacking the render.
+ *
+ * Since Phase 3 the whole conversion runs on a `darkness` dial (0..1, from
+ * `ambient.ts`) rather than being all-or-nothing, so changing the condition
+ * clock from 7pm to 11pm is a continuous change of light on the same block.
+ * `lighting.ts` holds the floor that keeps the dark end visible.
  */
 
 import { SEED_HEIGHT, SEED_WIDTH } from "@/lib/orbis";
@@ -28,11 +33,20 @@ const SODIUM = [1.25, 0.82, 0.45] as const;
 const LAMP = [1.0, 0.72, 0.36] as const;
 const SKY = [8 / 255, 11 / 255, 24 / 255] as const;
 const SKY_HAZE = [0.1, 0.07, 0.05] as const;
+/** SF overcast, which is what the seeds mostly show. The sky at `darkness` 0. */
+const DAY_SKY = [0.66, 0.71, 0.78] as const;
 /** Added to every pixel before the sky, so no block grades to pure black. */
 const AMBIENT_FLOOR = 0.012;
 const BASE_EXPOSURE = 0.2;
 const HIGHLIGHT_KNEE = 0.72;
 const LUMA = [0.2126, 0.7152, 0.0722] as const;
+/** Night crushes the shadows; daylight should not. */
+const NIGHT_GAMMA = 1.3;
+const DAY_GAMMA = 1;
+
+function mix(day: number, night: number, darkness: number): number {
+  return day * (1 - darkness) + night * darkness;
+}
 
 export type NightGradeResult = {
   file: File;
@@ -211,10 +225,28 @@ function precompute(rgb: Float32Array, width: number, height: number): Precomput
   return { rgb, skyMask, highlight, glow, width, height };
 }
 
+/**
+ * `darkness` 0..1 turns the whole conversion down rather than off: at 1 this is
+ * the night grade the spike validated, at 0 it is close to a pass-through of the
+ * daytime crop, and 0.5 is a real dusk — warm sky, weak sodium, shadows still
+ * open. That continuity is the point (PLAN.md Phase 3): moving the clock from
+ * 7pm to 11pm has to look like the light changing, not like a different mode.
+ */
 function grade(pre: Precomputed, exposure: number, params: GradeParams): Float32Array {
   const { rgb, skyMask, highlight, glow, width, height } = pre;
   const out = new Float32Array(rgb.length);
   const lampGain = params.lampGain;
+  const darkness = params.darkness;
+
+  // Per-frame, not per-pixel.
+  const gamma = mix(DAY_GAMMA, NIGHT_GAMMA, darkness);
+  // The sodium cast and the lamp colour fade toward neutral as the sun comes
+  // up; a daylit frame tinted orange would be a lie the data never told.
+  const cast = SODIUM.map((channel) => mix(1, channel, darkness));
+  const lampTint = LAMP.map((channel) => mix(1, channel, darkness));
+  const skyTint = SKY.map((channel, index) => mix(DAY_SKY[index], channel, darkness));
+  const hazeTint = SKY_HAZE.map((channel) => channel * darkness);
+  const floor = AMBIENT_FLOOR * darkness;
 
   for (let p = 0; p < width * height; p += 1) {
     const row = Math.floor(p / width) / height;
@@ -227,23 +259,24 @@ function grade(pre: Precomputed, exposure: number, params: GradeParams): Float32
     const sheen = Math.exp(-(centred * centred) / 0.1) * road * params.sheen;
 
     // Night sky: deep navy overhead, a faint sodium haze toward the horizon —
-    // a gradient, so the sky edge doesn't read as a flat painted band.
-    const haze = row * row;
+    // a gradient, so the sky edge doesn't read as a flat painted band. At low
+    // darkness the haze vanishes and the sky is just overcast daylight.
+    const hazeRamp = row * row;
 
     for (let channel = 0; channel < 3; channel += 1) {
       const index = p * 3 + channel;
       // Night exposure with a gentle toe, plus a small ambient lift so even an
       // unlit block never renders pure black.
-      let value = Math.pow(Math.min(1, Math.max(0, rgb[index])), 1.3) * exposure;
-      value = value * SODIUM[channel] + AMBIENT_FLOOR * SODIUM[channel];
+      let value = Math.pow(Math.min(1, Math.max(0, rgb[index])), gamma) * exposure;
+      value = value * cast[channel] + floor * cast[channel];
       // Keep the brightest things bright — windows, signs and the glow at the
       // end of the street become the light sources.
       value +=
-        (glow[p] * 0.55 + highlight[p] * 0.3) * LAMP[channel] * lampGain;
+        (glow[p] * 0.55 + highlight[p] * 0.3) * lampTint[channel] * lampGain;
       // Sky last, so the glow cannot bleed a daylit sky back in.
-      const sky = SKY[channel] + haze * SKY_HAZE[channel];
+      const sky = skyTint[channel] + hazeRamp * hazeTint[channel];
       value = value * (1 - skyMask[p]) + sky * skyMask[p];
-      value += sheen * LAMP[channel];
+      value += sheen * lampTint[channel];
       out[index] = value;
     }
   }
@@ -265,8 +298,11 @@ function paintLampPools(
   width: number,
   height: number,
   pools: LampPool[],
+  darkness: number,
 ) {
-  if (pools.length === 0) return;
+  // A streetlight pool painted onto a daylit frame is something nobody would
+  // see on the street, so it fades out with everything else.
+  if (pools.length === 0 || darkness <= 0) return;
   const focal = width / 1.4;
   const horizon = height * 0.46;
   const cameraHeightM = 1.6;
@@ -279,7 +315,7 @@ function paintLampPools(
     if (x < -width || x > width * 2 || y < -height) continue;
 
     const radius = Math.max(6, (focal * 3) / pool.distanceM);
-    const intensity = 0.5 * Math.min(1, 25 / pool.distanceM);
+    const intensity = 0.5 * Math.min(1, 25 / pool.distanceM) * darkness;
     const minX = Math.max(0, Math.floor(x - radius));
     const maxX = Math.min(width - 1, Math.ceil(x + radius));
     const minY = Math.max(0, Math.floor(y - radius));
@@ -345,17 +381,20 @@ export async function nightGradeSeed(
   // close to linear in exposure apart from the additive glow, so two or three
   // passes converge, and a dim source frame no longer grades darker than a
   // bright one — which is exactly how the spike lost block B.
+  // The upper clamp has to clear 1.0: at `darkness` 0 the target is daylight
+  // itself, and a ceiling of 0.9 would darken a frame the dial asked to leave
+  // alone. At night the solver lands near 0.2 and never sees it.
   let exposure = BASE_EXPOSURE;
   let graded = grade(pre, exposure, params);
   let mean = meanLumaOf(graded);
   for (let attempt = 0; attempt < 4; attempt += 1) {
     if (Math.abs(mean - params.targetLuma) < 0.003 || mean <= 0) break;
-    exposure = Math.min(0.9, Math.max(0.02, exposure * (params.targetLuma / mean)));
+    exposure = Math.min(1.6, Math.max(0.02, exposure * (params.targetLuma / mean)));
     graded = grade(pre, exposure, params);
     mean = meanLumaOf(graded);
   }
 
-  paintLampPools(graded, SEED_WIDTH, SEED_HEIGHT, params.pools);
+  paintLampPools(graded, SEED_WIDTH, SEED_HEIGHT, params.pools, params.darkness);
 
   for (let p = 0; p < pixels; p += 1) {
     image.data[p * 4] = Math.min(255, Math.max(0, graded[p * 3] * 255));

@@ -495,6 +495,16 @@ Person 2 Phase 3); Person 1 owns the data and the controls:
       (dusk) to 11pm (night), so add e.g. `condition.ambient = { phase:
       "day"|"dusk"|"night", sun_altitude_deg, darkness: 0..1 }` from
       `astral`. Agree the shape with Person 2 first.
+  - **Shape agreed by Person 2 (2026-09-12) and already in
+    `shared/waypoint.schema.json` + `frontend/lib/contract.ts` as optional.**
+    Exactly as proposed, with one addition: `phase` accepts `"dawn"` too,
+    because `conditions.py` `sun_state()` already produces it. `darkness` is
+    0 = full daylight, 1 = at or below astral's dusk (~-6°).
+  - **Only the backend side is left: emit it.** The grade consumes it now
+    (`lib/orbis/ambient.ts` → `nightgrade.ts`); without it the frontend falls
+    back to the "Dark since" fact, which is a boolean and can only produce
+    "night" or a coarse "dusk". A real `darkness` is what makes 7pm and 11pm
+    look different.
 - [ ] **Fog and crowd overrides.** `fog` and `crowd` query parameters on
       `/api/routes` that override the modeled weather and foot-traffic
       wording in `video_prompt` / `audio_prompt` / `facts`. Overridden
@@ -506,6 +516,14 @@ Person 2 Phase 3); Person 1 owns the data and the controls:
       conditions for the new setting, and hand them to the walk controller
       without stopping it (`walk.applyConditions(route)` already exists in
       `use-orbis-walk.ts`). One route only.
+  - **The shell side is done (Person 2, 2026-09-12) — only the controls
+    themselves are left.** `onChange(next)` in `walk-home.tsx` already
+    debounces, refetches and morphs the live render; **do not** debounce or
+    refetch again inside the component, just call `onChange` with the full next
+    settings as often as you like. The walk screen no longer passes `disabled`,
+    so the controls stay live mid-walk. Updated handoff notes are in the stub's
+    header comment. Fog and crowd already ride the query string as
+    `fog=true` / `crowd=true` and the share link.
 - [ ] **One route only.** Route comparison is dropped (see WHAT WE ARE
       BUILDING). `/api/routes` returns just the shortest route as
       `routes[0]`, `route_id: "A"`, still an array so the contract shape
@@ -828,6 +846,9 @@ depend on Person 1's real pipeline.
   - done. Verified end to end on both fixture routes, 4 blocks each, no
     interaction. `?route=B` on the root URL walks route B — that is the share
     link format, and it is how to reach route B for testing.
+    - **Superseded in Phase 3:** there is no `?route=` parameter any more
+      (comparison dropped). The share link is
+      `?origin=…&destination=…&datetime=…&fog=…&crowd=…`.
 - [x] **Audio on by default, mute toggle only.** Pass `audio_prompt` through.
       No other audio UI.
   - **Carried over from Checkpoint 1, still unverified.** The spike confirmed
@@ -891,25 +912,85 @@ change from `ConditionControls` (time, fog, crowd) must visibly change the
 cutting to "preparing". Layer it on the smooth continuous walk from the
 Checkpoint 2 fixes.
 
-- [ ] **Spike: what actually changes a live render?** Q1 found the seed's
+- [x] **Spike: what actually changes a live render?** Q1 found the seed's
       lighting beats the prompt. So measure: (a) does a mid-run `set_prompt`
       alone visibly change darkness/fog/crowd within ~2 chunks, and (b) does
       a mid-run `set_image` with a re-graded seed (no `reset`) change it
       faster or more strongly? Record numbers in `docs/reactor-findings.md`.
-- [ ] **Apply condition changes to the live session.** Accept new conditions
+  - **Already measured — Person 1's Q7 ran exactly this.** No new API calls
+    spent, which matters while Orbis is rate-limited hackathon-wide.
+    - **(b) is dead.** All three re-seed paths (`set_image`, `set_image` +
+      prompt, `pause`/`set_image`/`resume`) are accepted and *ignored*. New
+      imagery lands only after `reset` — ~7s and a visible cut. A condition
+      change can never go through the seed. Not a tuning problem; it is how
+      the model behaves.
+    - **(a) is the only lever, and it works.** A changed prompt drifts the
+      render strongly toward its look within ~10s on `-dynamic`; first visible
+      change at the next ~1.8s chunk.
+    - Two corrections to this plan's assumptions, both written up in
+      `docs/reactor-findings.md` ("Phase 3 — what changes a live render"):
+      **~10s is ~5 chunks, not the ~2 assumed here** — the demo line is "watch
+      it change", not "watch it snap"; and a **darkness-only / fog-only /
+      crowd-only** change has never been timed on its own. That single
+      measurement is still open and needs a free session slot.
+- [x] **Apply condition changes to the live session.** Accept new conditions
       from the walk controller mid-block. `set_prompt` / `set_audio_prompt`
       morph right away. Re-grade the current and upcoming seeds from
       `condition.ambient` + `condition.lighting`, and re-condition the
       current block through whichever path the spike proved. No reset, no
       hold card for a condition change.
-- [ ] **Grade driven by ambient light, with a floor.** `nightgrade.ts`
+  - done, prompt path only. `walk-home.tsx` debounces a condition change
+    (250ms), refetches the same route at the new clock via
+    `store.routeForConditions`, and calls `walk.applyConditions(route)`, which
+    bumps a version the walk loop picks up within ~150ms and re-sends the
+    current shot's prompt and audio prompt. No `reset`, no reconnect, no hold
+    card, no return to Setup. Only the newest change wins (ticket guard), and a
+    failed refetch leaves the walk playing on the conditions it has.
+  - **Deviation: "re-grade the current and upcoming seeds" is not done, and
+    cannot be.** The spike above says a live generation cannot be re-seeded, and
+    there are no "upcoming" seeds any more — the continuous walk seeds once, at
+    the start. `darkness` feeds the grade at that one point. The seed carries
+    the geometry; the light changes by text.
+  - **Refused when the geometry differs**, rather than morphed: a prompt for a
+    route we are not walking would narrate a street that isn't on screen. This
+    is what Person 1's "Conditions at a new time without new geometry" task
+    guarantees; until it lands, a geometry change shows a message and the walk
+    continues unchanged.
+- [x] **Grade driven by ambient light, with a floor.** `nightgrade.ts`
       takes `darkness` 0..1, so dusk → night is a continuous change, never
       black. Keep a minimum light floor for the darkest block.
+  - done. New `lib/orbis/ambient.ts` (sibling of `lighting.ts`: that one says
+    *where* the light is, this one *how much*) reads `condition.ambient`, falls
+    back to the "Dark since" fact, and otherwise assumes full night — so the
+    look never regresses while Person 1's field is still landing. `darkness`
+    scales the whole conversion in `nightgrade.ts`: sodium cast, navy→day sky,
+    lamp glow, wet-asphalt sheen, shadow gamma and lamp pools all fade with it.
+  - Exposure interpolates **geometrically** (0.40 day → ~0.095 night), because
+    luma reads as ratios; a linear blend spends the whole dial in the bright
+    half and then falls off a cliff. Dusk (0.5) lands at 0.21.
+  - Checked numerically, not by eye: at `darkness` 1 the dial reproduces the
+    Checkpoint 2 values exactly (0.085 unlit → 0.110 six-lamp), so the look the
+    human reviewed does not move; `MIN_TARGET_LUMA` 0.085 holds at every
+    darkness; lamp-count separation survives at night and collapses to nothing
+    at noon.
+  - **Contract:** `condition.ambient` added to `shared/waypoint.schema.json` and
+    `lib/contract.ts` as **optional**, in the shape Person 1 proposed —
+    `{ phase, sun_altitude_deg, darkness }`. Agreed from this side; `phase`
+    includes `"dawn"` because `backend/conditions.py` `sun_state()` already
+    produces it. **Person 1 still has to emit it**; until then the fallback runs.
 
-- [ ] **Remove comparison from the UI.** Route comparison is dropped (see
+- [x] **Remove comparison from the UI.** Route comparison is dropped (see
       WHAT WE ARE BUILDING). Remove the "Compare routes" button, the
       `?route=B` share-link path and `activeRouteId` switching. The shell walks
       `routes[0]`.
+  - done. Button gone, `activeRouteId`/`setActiveRouteId` gone from the store,
+    `route` gone from `lib/share.ts` (replaced by `fog`/`crowd`, so a shared
+    link reproduces the walk it came from). The shell walks `routes[0]`.
+  - `Minimap.tsx` and `RouteBrief.tsx` keep their existing props and are fed the
+    single route — they are Person 1's stubs and their own PLAN entries already
+    cover dropping comparison inside them.
+  - The backend still returns A and B; that is Person 1's "One route only" task.
+    The frontend is correct either way.
 - ~~**Compare mode / Compare is a mode / Concurrency check.**~~ **DROPPED
   before Checkpoint 3** (human decision, both people): too complicated for
   the timeframe, and with one concurrent Orbis session (Q3) two live walks

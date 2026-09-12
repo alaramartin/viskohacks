@@ -2,12 +2,14 @@
  * What the night grade is allowed to believe about a block's lighting.
  *
  * The honest version of this reads `condition.lighting` — lamp offsets along
- * the block, which side, how many are out — which Person 1 proposes to add in
- * their Phase 2 and which does not exist yet. Until it does, we key off the
- * prose in `facts`, and the look is **generic**: darkness scales with the lamp
- * count and outages, but no lamp is placed anywhere, because we do not know
- * where any lamp is and inventing one would be making the render say something
- * the data does not.
+ * the block, which side, how many are out — which Person 1's Phase 2 now sends.
+ * Without it we key off the prose in `facts` instead, and the look is
+ * **generic**: darkness scales with the lamp count and outages, but no lamp is
+ * placed anywhere, because we do not know where any lamp is and inventing one
+ * would be making the render say something the data does not.
+ *
+ * How bright the scene is overall is a separate question with separate data —
+ * see `ambient.ts`.
  */
 
 import type { Condition, Lighting } from "@/lib/contract";
@@ -115,18 +117,48 @@ export type GradeParams = {
   sheen: number;
   /** Lamps to paint, empty unless we have real positions. */
   pools: LampPool[];
+  /**
+   * 0 = leave the frame in daylight, 1 = the full night conversion. Everything
+   * the grade does — sodium cast, navy sky, lamp glow, exposure — scales along
+   * this, so dusk is a real midpoint and not a switch.
+   */
+  darkness: number;
 };
 
 const LAMP_LATERAL_M = 4.5;
 /** Darkest a seed is ever graded. Below ~0.043 Orbis loses the block (Q1); ~0.06 rendered too dark to see. */
 export const MIN_TARGET_LUMA = 0.085;
+/**
+ * Where the dial lands at `darkness` 0 — roughly the mean luma of the daytime
+ * Mapillary crops themselves, i.e. "don't darken this frame at all".
+ */
+export const DAY_TARGET_LUMA = 0.4;
+
+/**
+ * Interpolate exposure in log space. Luma reads as ratios, not differences, so
+ * a linear blend from 0.40 to 0.095 spends almost the whole dial in the bright
+ * half and then falls off a cliff. Geometric keeps dusk (0.5) at ~0.19 — about
+ * half daylight and about twice night, which is what dusk looks like.
+ */
+function mixLuma(day: number, night: number, darkness: number): number {
+  return Math.exp(Math.log(day) * (1 - darkness) + Math.log(night) * darkness);
+}
 
 /**
  * Turn a lighting estimate into grade knobs. A block with no working lamps must
  * come out visibly darker than one with six, or the render says nothing the
  * facts strip has not already said.
+ *
+ * `darkness` (0..1, from `estimateAmbient`) then scales the whole night look.
+ * Lamp-driven contrast is computed at full night first and faded in with it:
+ * at noon a working streetlight changes nothing you could see, so it should not
+ * change the render either.
  */
-export function gradeParamsFor(lighting: LightingEstimate): GradeParams {
+export function gradeParamsFor(
+  lighting: LightingEstimate,
+  darkness = 1,
+): GradeParams {
+  const dial = Math.min(1, Math.max(0, darkness));
   const working =
     lighting.lampCount === null
       ? null
@@ -135,23 +167,27 @@ export function gradeParamsFor(lighting: LightingEstimate): GradeParams {
   // Floor raised after Checkpoint 2 review: seeds graded to 0.045–0.068 came
   // back from Orbis at ~0.03 on some blocks — too dark to see anything. The
   // darkest block now grades to MIN_TARGET_LUMA; lit blocks sit above it.
-  let targetLuma = 0.095;
+  let nightLuma = 0.095;
   let lampGain = 1;
 
   if (lighting.lit === "no" || working === 0) {
     // Nothing tagged and nothing working: the only light is spill from windows
     // and whatever is at the end of the street.
-    targetLuma = MIN_TARGET_LUMA;
+    nightLuma = MIN_TARGET_LUMA;
     lampGain = 0.35;
   } else if (working !== null) {
     // 1 lamp → dim, 6+ → the reference look.
     const density = Math.min(1, working / 6);
-    targetLuma = MIN_TARGET_LUMA + 0.025 * density;
+    nightLuma = MIN_TARGET_LUMA + 0.025 * density;
     lampGain = 0.55 + 0.55 * density;
   } else if (lighting.outages > 0) {
-    targetLuma = 0.09;
+    nightLuma = 0.09;
     lampGain = 0.8;
   }
+
+  // The floor is what stops a dusk→night slider from bottoming out in black,
+  // so it holds at every darkness, not just at 1.
+  const targetLuma = Math.max(MIN_TARGET_LUMA, mixLuma(DAY_TARGET_LUMA, nightLuma, dial));
 
   // Real curb positions when the backend sends them; the Mapillary seed camera
   // is usually in the roadway, close to the centreline they are measured from.
@@ -166,5 +202,6 @@ export function gradeParamsFor(lighting: LightingEstimate): GradeParams {
         : LAMP_LATERAL_M,
   }));
 
-  return { targetLuma, lampGain, sheen: 0.16 * lampGain, pools };
+  const litGain = lampGain * dial;
+  return { targetLuma, lampGain: litGain, sheen: 0.16 * litGain, pools, darkness: dial };
 }

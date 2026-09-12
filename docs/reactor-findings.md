@@ -437,3 +437,62 @@ horizontal edge (`evidence/13-…`). Fixed in `d0b1ddb`:
 New mask covers 1–31% (sky only), `evidence/14-…`. **Not yet re-checked in a
 live walk.** Watch whether ~0.09 seeds still render as night rather than
 drifting to day.
+
+---
+
+## Phase 3 — what changes a live render (Person 2, 2026-09-12)
+
+PLAN's Phase 3 opens with a spike for Person 2: *(a) does a mid-run `set_prompt`
+alone visibly change darkness / fog / crowd within ~2 chunks, and (b) does a
+mid-run `set_image` with a re-graded seed change it faster or more strongly?*
+
+**Q7 above already ran exactly experiment (b), and (a)'s mechanism, on real
+graded Tenderloin seeds. Both are answered; nothing new was burned on the API.**
+That matters right now because Orbis is rate-limited across the whole hackathon
+and the one session slot is contended (PLAN: walk tuning is paused for this).
+
+### (b) Re-graded seed mid-run — **dead, and not worth retrying**
+
+All three re-seed paths are accepted and ignored: `set_image`, `set_image` +
+`set_prompt`, and `pause` → `set_image` → `resume` (Q7 table). New imagery lands
+only on the next `start`, i.e. after `reset`, which is ~7s of gap and a visible
+cut. So a condition change **cannot** go through the seed. This is not a tuning
+problem to come back to; it is how the model behaves.
+
+Consequence for the build: the seed carries the block's *geometry*, fixed at
+`start`, and conditions change by **text only**. The one place a re-grade still
+matters is the seed itself at walk start — which is why `darkness` feeds
+`gradeParamsFor` there and nowhere else.
+
+### (a) Prompt morph — the only lever, and it works
+
+Q7's side observation is the measurement: with a changed prompt the video
+"drifts strongly toward the prompt's look within ~10s", on `-dynamic`, while the
+seed's lighting sets only the starting point.
+
+Two honest caveats, both recorded rather than papered over:
+
+- **~10s is ~5 chunks, not the ~2 PLAN guessed.** The first change is visible at
+  the next chunk (~1.8s); *settling* takes longer. The demo line should be
+  "watch it change", not "watch it snap".
+- Q7 changed a whole scene prompt. **A darkness-only, fog-only or crowd-only
+  change has not been timed separately** — a smaller delta plausibly settles
+  faster, or is plausibly weaker against a seed that says otherwise. This is the
+  one open measurement here, and it needs a free session slot.
+
+### What was built on this
+
+- `applyConditions(route)` in `use-orbis-walk.ts`: swaps the route for the same
+  geometry recomputed at a new clock, bumps a version the walk loop watches, and
+  re-sends the current shot's prompt within ~150ms. No `reset`, no reconnect, no
+  hold card.
+- Refused when the geometry differs — morphing a prompt for a route we are not
+  walking would narrate a street that isn't on screen.
+- `ambient.ts` + `darkness` through `lighting.ts` and `nightgrade.ts`, so the
+  seed grade is a dial (dusk → night continuous, floored at `MIN_TARGET_LUMA`
+  0.085) rather than a day/night switch.
+
+**Unverified by eye.** The grade dial was checked numerically — at `darkness` 1
+it reproduces the Checkpoint 2 values exactly (0.085–0.110), so the reviewed
+look does not regress — but no live walk has been run through a condition
+change, for the rate-limit reason above.

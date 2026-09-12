@@ -10,8 +10,9 @@ export type ShareParams = {
   destination: string;
   /** ISO 8601 local datetime. */
   datetime: string;
-  /** `route_id` of the route the walker picked, if any. */
-  route?: string;
+  /** Viewer overrides of the modeled conditions, so a shared link reproduces the walk. */
+  fog?: boolean;
+  crowd?: boolean;
 };
 
 export function buildShareUrl(params: ShareParams, origin?: string): string {
@@ -22,7 +23,10 @@ export function buildShareUrl(params: ShareParams, origin?: string): string {
     destination: params.destination,
     datetime: params.datetime,
   });
-  if (params.route) query.set("route", params.route);
+  // There is no `route` parameter any more: comparison was dropped before
+  // Checkpoint 3 and there is only one route to link to.
+  if (params.fog) query.set("fog", "true");
+  if (params.crowd) query.set("crowd", "true");
   return `${base}/?${query.toString()}`;
 }
 
@@ -32,10 +36,10 @@ export function readShareParams(search: string): Partial<ShareParams> {
   const origin = query.get("origin");
   const destination = query.get("destination");
   const datetime = query.get("datetime");
-  const route = query.get("route");
   if (origin) result.origin = origin;
   if (destination) result.destination = destination;
   if (datetime) result.datetime = datetime;
-  if (route) result.route = route;
+  if (query.get("fog") === "true") result.fog = true;
+  if (query.get("crowd") === "true") result.crowd = true;
   return result;
 }

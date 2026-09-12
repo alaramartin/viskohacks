@@ -103,7 +103,30 @@
                     "description": "Rendered verbatim in the evidence readout. Person 1 owns the wording.",
                     "items": { "$ref": "#/$defs/Fact" }
                 },
-                "lighting": { "$ref": "#/$defs/Lighting" }
+                "lighting": { "$ref": "#/$defs/Lighting" },
+                "ambient": { "$ref": "#/$defs/Ambient" }
+            }
+        },
+        "Ambient": {
+            "type": "object",
+            "description": "Numeric ambient light, so the seed grade is a continuous dial rather than a day/night switch (PLAN.md Phase 3; shape proposed by Person 1, agreed by Person 2). Optional in the schema only so an older fixture still validates — without it the grade assumes full night, which is what it did before this field existed.",
+            "required": ["phase", "sun_altitude_deg", "darkness"],
+            "additionalProperties": false,
+            "properties": {
+                "phase": {
+                    "enum": ["day", "dawn", "dusk", "night"],
+                    "description": "astral's phase at the requested time. `dawn` is included because backend/conditions.py sun_state() already produces it."
+                },
+                "sun_altitude_deg": {
+                    "type": "number",
+                    "description": "Solar altitude in degrees; negative below the horizon."
+                },
+                "darkness": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "0 = full daylight, 1 = fully dark (sun at or below astral's dusk, about -6 deg). The renderer grades the seed along this dial, so 7pm -> 11pm is a smooth change and never a cut to black."
+                }
             }
         },
         "Lighting": {

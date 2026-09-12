@@ -3,12 +3,27 @@
 /**
  * STUB — PERSON 1, PHASE 3.
  *
- * Below the minimap. Date and time pickers plus fog and crowd toggles. Changing
- * any of them refetches routes and applies to **both** routes at once (one
- * shared condition clock), so the comparison stays controlled.
+ * Below the minimap. Date and time pickers plus fog and crowd toggles.
  *
- * The shell passes the current settings and an `onChange` that does the refetch
- * and restarts the walk — call it with the full next settings object.
+ * **These must stay usable while a walk is playing** — a viewer moving the time
+ * from 7pm to 11pm and watching the running video get darker is the Phase 3
+ * deliverable. So: no `disabled` while walking, and no confirm step.
+ *
+ * The shell's `onChange` (Person 2, `walk-home.tsx`) does the rest — it
+ * debounces, refetches the same route for the new clock, and morphs the live
+ * Orbis generation via `walk.applyConditions`. It does **not** stop the walk or
+ * return to Setup. Call it with the full next settings object; call it as often
+ * as you like.
+ *
+ * Two things worth knowing before wiring a slider to it:
+ *   - Only the light may change, never the geometry. If `/api/routes` returns a
+ *     different walk for the new settings the shell refuses the morph and says
+ *     so (PLAN.md: "Conditions at a new time without new geometry").
+ *   - The change reaches the screen at the next Orbis chunk, ~1.8s. Anything
+ *     faster than that in the UI is your own optimism, not the render.
+ *
+ * `disabled` is still honoured if you want it for the brief screen; the walk
+ * screen no longer passes it.
  */
 
 export type ConditionSettings = {

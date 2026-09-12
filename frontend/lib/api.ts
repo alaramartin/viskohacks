@@ -18,6 +18,14 @@ export type RouteQuery = {
   destination: string;
   /** ISO 8601, e.g. 2026-09-12T23:00:00 */
   datetime: string;
+  /**
+   * Viewer overrides of the modeled weather and foot traffic (PLAN.md Phase 3,
+   * Person 1's `/api/routes` parameters). Sent only when set — a backend that
+   * does not know them yet ignores unknown query parameters, so the frontend
+   * can be wired ahead of them without breaking.
+   */
+  fog?: boolean;
+  crowd?: boolean;
 };
 
 /** `"2026-09-12"` + `"23:00"` → `"2026-09-12T23:00:00"`. Local time, no zone. */
@@ -35,6 +43,8 @@ export async function fetchRoutes(
     destination: query.destination,
     datetime: query.datetime,
   });
+  if (query.fog) params.set("fog", "true");
+  if (query.crowd) params.set("crowd", "true");
   const response = await fetch(`${API_BASE}/api/routes?${params}`, {
     signal,
     cache: "no-store",

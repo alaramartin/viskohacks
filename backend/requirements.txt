@@ -2,8 +2,13 @@ fastapi==0.115.*
 uvicorn[standard]==0.32.*
 pillow==11.*
 python-dotenv==1.*
+httpx==0.28.*
+osmnx==2.*
+astral==3.*
+scikit-learn==1.*
+numpy==2.*
+mapbox-vector-tile==2.*
 
 # tests
 pytest==8.*
-httpx==0.28.*
 jsonschema==4.*

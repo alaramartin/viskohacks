@@ -629,6 +629,49 @@ Reactor.
 
 ---
 
+# FINAL SUBMISSION — push to the starter repo
+
+**Do this last, only after both people confirm everything is done** (all
+checkpoints passed, Phase 4 finished or abandoned, both branches merged into
+`main`). Either person can run it. Before running it, ask the human for the
+final product and team names.
+
+The hackathon wants our work as a branch named `ProductName-TeamName` on
+https://github.com/Visko-Platform/orbis-hackathon-starter. We built in our own
+repo (`alaramartin/viskohacks`) instead. Our first commit `2a7599d` has the same
+files as their `main` at `f84c47e`, plus `PLAN.md`. So we rebuild that commit on
+top of their `main` and replay our history onto it:
+
+```sh
+git checkout main && git pull
+git remote add visko https://github.com/Visko-Platform/orbis-hackathon-starter.git
+git fetch visko main
+
+# Same files as our import commit, but its parent is their main
+BASE=$(git commit-tree 2a7599d^{tree} -p visko/main -m "chore: add PLAN.md")
+
+# Replay every commit after the import onto it (keeps messages, authors, dates)
+git rebase --onto $BASE 2a7599d main
+
+git push visko main:refs/heads/ProductName-TeamName
+```
+
+Notes:
+
+- The rebase rewrites commit hashes. Do it once, at the very end, so nobody
+  has local work on top of the old hashes. Don't force-push the rewritten
+  `main` back to `origin` unless both people agree.
+- If our history contains merge commits, add `--rebase-merges` to the rebase.
+  If the rebase fails, a fallback is to push unchanged:
+  `git push visko main:refs/heads/ProductName-TeamName`. GitHub will then show
+  the branch as having no history in common with their `main`.
+- **Check push access early, not at the deadline.** Test with
+  `git push visko main:refs/heads/access-test` then
+  `git push visko --delete access-test`. If access is denied, ask the
+  organizers, or fork the repo and push the branch to the fork.
+
+---
+
 # CHECKPOINT LOG
 
 Update this as you go so the human can `/clear` and resume.
@@ -636,3 +679,4 @@ Update this as you go so the human can `/clear` and resume.
 - [ ] Checkpoint 1 — contract handshake
 - [ ] Checkpoint 2 — end-to-end integration
 - [ ] Checkpoint 3 — full demo runthrough
+- [ ] Final submission — branch pushed to Visko-Platform/orbis-hackathon-starter

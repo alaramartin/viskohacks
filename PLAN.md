@@ -795,7 +795,8 @@ Notes:
 
 Update this as you go so the human can `/clear` and resume.
 
-- [ ] Checkpoint 1 — contract handshake
+- [x] Checkpoint 1 — contract handshake — **PASSED**, confirmed by the human.
+      Both sections of Phase 1 are complete and merged to `main`.
   - Person 1: done (schema, fixture, FastAPI serving the fixture, on `main`).
   - Person 2: done (Reactor spike Q1–Q5 plus Q6, `docs/reactor-findings.md`,
     on `main`). Headline: image conditioning works well, but **seeds must be
@@ -813,6 +814,11 @@ Update this as you go so the human can `/clear` and resume.
     - **Concurrency stays at 1.** Reactor staff confirmed it will not be
       raised; prefetch is dropped for good and compare must be pre-generated.
     - **Audio still unheard** — deferred to Checkpoint 2 to check by ear.
+  - **Carried into Phase 2, not blocking this checkpoint:** Person 1 has not
+    yet agreed the `condition.lighting` shape. Person 2 can build the whole
+    session manager and autoplay without it — the night grade just stays
+    generic until it lands. Settle it before Person 1 starts their Phase 2
+    prompt composition, since both read the same lighting data.
 - [ ] Checkpoint 2 — end-to-end integration
 - [ ] Checkpoint 3 — full demo runthrough
 - [ ] Final submission — branch pushed to Visko-Platform/orbis-hackathon-starter

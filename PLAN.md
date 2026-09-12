@@ -619,7 +619,14 @@ ready — a judge may ask.
 # PREP CHECKLIST (before the event)
 
 - [ ] Pull and cache the SF walking graph with `osmnx` — this is slow
-- [ ] Check Mapillary coverage on the target neighborhood
+- [x] Check Mapillary coverage on the target neighborhood
+  - Token works (root `.env.local` or `.env`; backend loads both). Tenderloin
+    fixture waypoints: 20 of 24 have imagery within ~20m. Capture dates are
+    2018–2025, mostly 2021–2025. Most images are **360° panoramas**, so Phase 2
+    must crop the pano to the waypoint heading before seeding Orbis. The
+    ordinary sample photo (Aug 2025) is sharp, daytime, road-level. Gaps: fixture
+    coords are approximate, so re-check against OSM-snapped waypoints in Phase 2.
+    Google key not needed unless real routes show thin coverage.
 - [ ] Set up a Google Cloud billing account + Maps API key as fallback
 - [ ] Download DataSF streetlight + 311 extracts
 - [ ] Both people read SHARED CONTRACT and agree on it

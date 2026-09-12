@@ -357,8 +357,10 @@ California", network_type="walk")`, save to `backend/data/sf_walk.graphml`.
     amount of data") everywhere on Market St, even at 10m. Picks the image
     nearest the walked line (≤18m across, ≤30m behind), newer preferred.
     Coverage: Tenderloin test routes 8/8 blocks, Ferry Building → Civic
-    Center 37/42, Mission 2/2 routes returned. **Google fallback is coded but
-    off: `GOOGLE_MAPS_API_KEY` is empty in `.env.local`.** `/api/routes`
+    Center 37/42, Mission 2/2 routes returned. **No Google fallback** —
+    decided after Phase 2 (too much setup for a one-day hackathon). Blocks
+    without Mapillary are `image_available: false`, and the demo picks
+    routes that avoid them. `/api/routes`
     pre-warms every block's frame in the background, so Person 2's first
     fetch is a cache hit (a cold pano download is ~5–20s).
 - [x] **Crop panoramas to 16:9 at the waypoint heading.** Most Mapillary
@@ -396,18 +398,29 @@ California", network_type="walk")`, save to `backend/data/sf_walk.graphml`.
       0.33–0.54) whatever hour its timestamp claimed, including ones stamped
       22:25 and 04:06 local. Timestamps are not trustworthy for time of day.
       Use `astral` for darkness, as already planned.
-  - done as proposed, **but Person 2 hasn't agreed the shape yet**. The
-    backend emits `condition.lighting = { lit, lamp_count, side,
-    lamp_offsets_m, outages }` on every waypoint. It's in
-    `shared/waypoint.schema.json` as **optional**, so consumers ignoring it
-    still validate. `lamp_offsets_m`: integer metres ahead of this waypoint,
-    along the route, for each lamp still ahead on its block, ascending.
-    `side` is relative to the walked line. `lit` is the OSM tag.
-    `shared/fixture-routes.json` now has example `lighting` derived from its
-    invented facts, so Person 2 can build the grade before merging.
-    Caveat: Mapillary detection density varies by who drove the street, so a
-    well-covered block can read high (14 lamps on a 110m Tenderloin block).
-    Offsets and gaps are the reliable signal, not the absolute count.
+  - done, **final — Person 1 owns this field** (the human's decision). Every
+    waypoint carries `condition.lighting = { lit, lamp_count, side,
+    lamp_offsets_m, lamp_lateral_m, outages }`. It's in the schema, and optional
+    there only so the grade can degrade gracefully.
+    - `lamp_offsets_m`: integer metres ahead of this waypoint along the route,
+      one per lamp still ahead on the block, ascending.
+    - **`lamp_lateral_m`** (added to the proposal): same order, metres right
+      (+) or left (−) of the **street centreline**. The Mapillary seed camera is
+      usually in the roadway, so this places pools where the lamps really are
+      instead of guessing ±4.5m.
+    - `side`: which sides of the centreline the lamps are on. First measured
+      against the walked sidewalk, which was wrong: both curbs' lamps are on the
+      same side of a pedestrian.
+    - `lit`: the OSM tag.
+
+    Lamps come from the street beside the block (nearest parallel street edge).
+    They must be within 20m of its centreline and not past either end of the
+    block, which drops lamps at the corner or up the cross street.
+    Measured over three route pairs (71 blocks): median |lateral| 10m, ~9 lamps
+    per 100m, 66 both / 2 one / 3 none. The fixture carries example values
+    (laterals invented, ±6m). Caveat: Mapillary lamp positions carry a few
+    metres of error, and density depends on capture coverage. Treat offsets
+    and gaps as the signal, not exact counts.
 
 ### 🛑 CHECKPOINT 2 — end-to-end integration
 
@@ -728,6 +741,14 @@ depend on Person 1's real pipeline.
     is. The placement code (`paintLampPools`, a pinhole projection from
     `lamp_offsets_m` + `side`) is written and switched off until Person 1 ships
     the field.
+  - **Person 1, at the Checkpoint 2 merge:** the field has shipped, so pools
+    now paint from real data. Person 1 made one small edit in
+    `lib/orbis/lighting.ts`: `fromStructured` carries `lamp_lateral_m`, and
+    `gradeParamsFor` uses it for `lateralM`. It falls back to the old ±4.5m
+    alternation only when laterals are missing. Nothing else under
+    `lib/orbis/` was touched. The "look is generic" note in
+    `docs/reactor-findings.md` is now out of date for real routes; Person 2
+    should re-check it by eye.
 - [x] **Unavailable segments.** When `image_available` is false, render an
       explicit unavailable state. Do not generate a street from text alone to
       fill the gap.
@@ -886,8 +907,11 @@ ready — a judge may ask.
     ordinary sample photo (Aug 2025) is sharp, daytime, road-level. Gaps: fixture
     coords are approximate, so re-check against OSM-snapped waypoints in Phase 2.
     Google key not needed unless real routes show thin coverage.
-- [ ] Set up a Google Cloud billing account + Maps API key as fallback
-- [ ] Download DataSF streetlight + 311 extracts
+- [x] ~~Set up a Google Cloud billing account + Maps API key as fallback~~
+  - dropped: no Google fallback for the hackathon; fallback code removed.
+- [x] Download DataSF streetlight + 311 extracts
+  - 311 done (`backend/data/311_streetlights.json`). SF has no streetlight
+    inventory on DataSF; lamp positions come from Mapillary + OSM instead.
 - [ ] Both people read SHARED CONTRACT and agree on it
 
 All data prep is offline-cacheable. The only live dependency at the event is
@@ -966,6 +990,9 @@ Update this as you go so the human can `/clear` and resume.
     session manager and autoplay without it — the night grade just stays
     generic until it lands. Settle it before Person 1 starts their Phase 2
     prompt composition, since both read the same lighting data.
+  - **Resolved:** the human assigned `condition.lighting` to Person 1, and it
+    shipped in Person 1's Phase 2 with `lamp_lateral_m` added. See Person 1
+    Phase 2.
 - [ ] Checkpoint 2 — end-to-end integration
 - [ ] Checkpoint 3 — full demo runthrough
 - [ ] Final submission — branch pushed to Visko-Platform/orbis-hackathon-starter

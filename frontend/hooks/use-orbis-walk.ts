@@ -54,15 +54,30 @@ import { VideoGate } from "@/lib/orbis/video-gate";
 const FIRST_FRAME_TIMEOUT_MS = 30_000;
 /** Let the last "coming to a stop" morph play out before closing the session. */
 const ARRIVAL_LINGER_MS = 4_000;
-/** 429 right after a walk: the old session is still being released. */
-const SESSION_BUSY_RETRY_MS = 3_000;
-const SESSION_BUSY_GIVE_UP_MS = 60_000;
+/**
+ * 429 `concurrent_sessions_per_model` right after a walk: the old session is
+ * still being released. Retry slowly and only a few times — every connect
+ * attempt counts against Reactor's separate `sessions_per_minute` limit (10).
+ * A 3s retry loop hit that limit in ~30s in browser testing and turned a short
+ * wait into a lockout.
+ */
+const SESSION_BUSY_RETRY_MS = 15_000;
+const SESSION_BUSY_MAX_ATTEMPTS = 4;
 /** A warmed-up session with no walk started is closed after this. */
 const WARM_IDLE_MS = 90_000;
 
-function isSessionBusy(caught: unknown): boolean {
-  const message = caught instanceof Error ? caught.message : String(caught);
-  return /429|quota_exceeded|concurrent_sessions/i.test(message);
+function errorText(caught: unknown): string {
+  return caught instanceof Error ? caught.message : String(caught);
+}
+
+/** The one session slot is taken (someone else's walk, or ours still closing). */
+function isSlotBusy(caught: unknown): boolean {
+  return /concurrent_sessions_per_model/i.test(errorText(caught));
+}
+
+/** Too many session creations in the last minute. Retrying only makes it worse. */
+function isRateLimited(caught: unknown): boolean {
+  return /sessions_per_minute/i.test(errorText(caught));
 }
 
 export type WalkPhase =
@@ -185,32 +200,48 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
    * up to a minute instead of failing the walk. Seen in human testing: Stop
    * walk, then the setup panel's warm-up reconnected immediately and got 429.
    */
-  const ensureConnected = useCallback(async () => {
-    if (statusRef.current === "ready") return;
-    connecting.current ??= (async () => {
-      const giveUpAt = Date.now() + SESSION_BUSY_GIVE_UP_MS;
-      retryingRef.current = true;
-      try {
-        for (;;) {
-          try {
-            await connect();
-            return;
-          } catch (caught) {
-            if (!isSessionBusy(caught) || Date.now() > giveUpAt) throw caught;
-            patch({ statusText: "Waiting for the previous Orbis session to close" });
-            await disconnect().catch(() => {});
-            await new Promise((resolve) => setTimeout(resolve, SESSION_BUSY_RETRY_MS));
+  const ensureConnected = useCallback(
+    async (waitForSlot: boolean) => {
+      if (statusRef.current === "ready") return;
+      connecting.current ??= (async () => {
+        retryingRef.current = true;
+        try {
+          for (let attempt = 1; ; attempt += 1) {
+            try {
+              await connect();
+              return;
+            } catch (caught) {
+              if (isRateLimited(caught)) {
+                throw new Error(
+                  "Reactor allows 10 new sessions a minute and that limit was just hit. Wait a minute, then try again.",
+                );
+              }
+              // Only a real walk waits for the slot; a warm-up that finds it busy just
+              // gives up quietly rather than spending the per-minute session budget.
+              if (!waitForSlot || !isSlotBusy(caught) || attempt >= SESSION_BUSY_MAX_ATTEMPTS) {
+                if (isSlotBusy(caught)) {
+                  throw new Error(
+                    "Another Orbis session is still using the account's only slot — someone else's walk, or one still closing. Try again in a minute.",
+                  );
+                }
+                throw caught;
+              }
+              patch({ statusText: "Waiting for the previous Orbis session to close" });
+              await disconnect().catch(() => {});
+              await new Promise((resolve) => setTimeout(resolve, SESSION_BUSY_RETRY_MS));
+            }
           }
+        } finally {
+          retryingRef.current = false;
         }
-      } finally {
-        retryingRef.current = false;
-      }
-    })().catch((caught) => {
-      connecting.current = null;
-      throw caught;
-    });
-    await connecting.current;
-  }, [connect, disconnect, patch]);
+      })().catch((caught) => {
+        connecting.current = null;
+        throw caught;
+      });
+      await connecting.current;
+    },
+    [connect, disconnect, patch],
+  );
 
   /**
    * Start connecting the moment someone touches the setup panel (~7s saved).
@@ -219,7 +250,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
    */
   const warmUp = useCallback(() => {
     if (runRef.current) return;
-    void ensureConnected()
+    void ensureConnected(false)
       .then(() => {
         if (idleTimer.current) clearTimeout(idleTimer.current);
         idleTimer.current = setTimeout(() => {
@@ -361,7 +392,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
       try {
         // Opening the session, computing the routes and preparing the seed
         // frame don't depend on each other; stacked, they are the cold start.
-        const connected = ensureConnected();
+        const connected = ensureConnected(true);
         connected.catch(() => {});
         const route = await Promise.resolve(routeSource);
         if (run.cancelled) throw new WalkCancelled();

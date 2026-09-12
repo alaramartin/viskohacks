@@ -1177,7 +1177,11 @@ ready — a judge may ask.
 
 # PREP CHECKLIST (before the event)
 
-- [ ] Pull and cache the SF walking graph with `osmnx` — this is slow
+- [x] Pull and cache the SF walking graph with `osmnx` — this is slow
+  - done and committed: `backend/data/sf_walk.graphml` (80MB) plus the second
+    drivable-street graph `sf_streets.graphml` (25MB) added in Phase 2, because
+    the walk network omits streets whose sidewalks are mapped separately.
+    Fetched by `backend/scripts/fetch_data.py`; never at request time.
 - [x] Check Mapillary coverage on the target neighborhood
   - Token works (root `.env.local` or `.env`; backend loads both). Tenderloin
     fixture waypoints: 20 of 24 have imagery within ~20m. Capture dates are
@@ -1191,7 +1195,11 @@ ready — a judge may ask.
 - [x] Download DataSF streetlight + 311 extracts
   - 311 done (`backend/data/311_streetlights.json`). SF has no streetlight
     inventory on DataSF; lamp positions come from Mapillary + OSM instead.
-- [ ] Both people read SHARED CONTRACT and agree on it
+- [x] Both people read SHARED CONTRACT and agree on it
+  - agreed at Checkpoint 1 (passed, confirmed by the human) and it has held
+    through every change since: `condition.lighting` in Phase 2, `route.shots`
+    for the continuous walk, and `condition.ambient` in Phase 3 — which both
+    people wrote independently in the *same* shape and which merged cleanly.
 
 All data prep is offline-cacheable. The only live dependency at the event is
 Reactor.

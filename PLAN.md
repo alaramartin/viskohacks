@@ -41,10 +41,18 @@ checkpoint.
 ## WHAT WE ARE BUILDING
 
 Input two locations (origin, destination) plus a date and time. The system
-computes **two candidate walking routes** and generates a continuous
-nighttime walk-through of each — grounded in real street-level imagery of
-those exact blocks, with conditions derived from open environmental data.
-Output is a shareable route brief.
+computes **one walking route** and generates a continuous nighttime
+walk-through of it, starting from real street-level imagery of those exact
+blocks, with conditions derived from open environmental data. Conditions
+(time, fog, crowd) can be changed live while the walk plays. Output is a
+shareable route brief.
+
+**Decided before Checkpoint 3 (both people): no route comparison.** The
+original plan computed two candidate routes and compared them side by side.
+Dropped: too complicated for the timeframe, and the account allows only one
+concurrent Orbis session, so two live walks can't exist. The UI takes a start
+and a destination and walks that one route. Everything below about "route B",
+"both routes" or "compare" is superseded.
 
 **It is a familiarization tool.** You see the underpass before you're standing
 in it.
@@ -296,6 +304,9 @@ California", network_type="walk")`, save to `backend/data/sf_walk.graphml`.
     can't geocode `X St & Y St`, so intersections resolve offline from the
     graph's street names; place names use Nominatim (cached); `lat,lng` also
     accepted. Outside SF / no path → 422.
+  - **Superseded before Checkpoint 3:** route comparison is dropped, and only
+    route A is walked. Route B is still computed and served until the "One
+    route only" task in Phase 3 removes it.
 - [x] **Waypoint sampling.** Walk each route's edges and emit waypoints every
       ~25m. `heading` is the bearing to the next waypoint. `block_id` is the
       OSM way id — consecutive waypoints on the same way share it.
@@ -493,8 +504,14 @@ Person 2 Phase 3); Person 1 owns the data and the controls:
       refetch-only behaviour below). Time slider/picker plus fog and crowd
       toggles, usable **while a walk is running**. Debounce, fetch
       conditions for the new setting, and hand them to the walk controller
-      without stopping it. Changes apply to both routes (shared condition
-      clock).
+      without stopping it (`walk.applyConditions(route)` already exists in
+      `use-orbis-walk.ts`). One route only.
+- [ ] **One route only.** Route comparison is dropped (see WHAT WE ARE
+      BUILDING). `/api/routes` returns just the shortest route as
+      `routes[0]`, `route_id: "A"`, still an array so the contract shape
+      holds. Stop computing route B: it roughly halves the cold request's
+      imagery lookups. Update `shared/fixture-routes.json` and the tests to
+      one route.
 
 - [ ] **`EvidenceReadout.tsx`** — horizontal strip beneath the viewport.
       Renders `condition.facts` for the current waypoint verbatim, in two
@@ -504,17 +521,18 @@ Person 2 Phase 3); Person 1 owns the data and the controls:
       from the previous one, briefly emphasize the changed fields. Motion in
       the periphery earns attention only when there's something to see. Keep
       it subtle — no flashing.
-- [ ] **`Minimap.tsx`** — upper right. Draw both routes, the active route
-      highlighted, current position marked. Leaflet or a plain SVG projection
-      of the waypoint coordinates; SVG is fine and has fewer dependencies.
-- [ ] **`ConditionControls.tsx`** — below the minimap. Date and time pickers,
-      plus fog and crowd toggles. Changing any of these refetches routes and
-      **applies to both routes at once** (shared condition clock) so the
-      comparison stays controlled.
-- [ ] **`RouteBrief.tsx`** — the shareable artifact. Both routes, conditions
-      at the chosen time, which was picked, and a share link. Encode
-      origin/destination/datetime/chosen-route in the URL query string —
-      no database, the link just regenerates the preview.
+- [ ] **`Minimap.tsx`** — upper right. Draw the route, with the part
+      already walked distinguished and the current position marked. Leaflet
+      or a plain SVG projection of the waypoint coordinates; SVG is fine and
+      has fewer dependencies. (Was "both routes"; comparison dropped.)
+- [ ] ~~**`ConditionControls.tsx`** — refetches routes and applies to both
+      routes at once.~~ Superseded by "`ConditionControls.tsx` drives the
+      live walk" above: one route, changed live without stopping.
+- [ ] **`RouteBrief.tsx`** — the shareable artifact. The walked route, its
+      conditions at the chosen time, and a share link. Encode
+      origin/destination/datetime in the URL query string — no database, the
+      link just regenerates the preview. (Was "both routes, which was picked,
+      chosen-route"; comparison dropped.)
 
 ### 🛑 CHECKPOINT 3 — full demo runthrough
 
@@ -522,12 +540,12 @@ Print this to your human and stop:
 
 > **Person 1 ready for Checkpoint 3.**
 >
-> All data-display components are filled: evidence readout, minimap, condition
-> controls, route brief.
+> All data-display components are filled: evidence readout, minimap, live
+> condition controls, route brief. The backend serves one route.
 >
 > **Merge with Person 2 into `main`** and do a full demo runthrough together:
-> setup screen → autoplay walk on route A → compare both routes → generate and
-> open a share link.
+> setup screen → continuous walk of the route → change the time (e.g. 7pm →
+> 11pm) mid-walk and watch the render change → generate and open a share link.
 >
 > Time the whole thing. It needs to land in under two minutes.
 >
@@ -549,9 +567,9 @@ of their files.
 
 # PERSON 2 — RENDER LAYER
 
-You own: the Reactor/Orbis integration, session management, the viewport, the
-app shell, and the compare view. You do not touch the backend or the geo
-pipeline. You develop against `shared/fixture-routes.json` until Checkpoint 2.
+You own: the Reactor/Orbis integration, session management, the viewport, and
+the app shell. (The compare view was dropped before Checkpoint 3.) You do not
+touch the backend or the geo pipeline. You develop against `shared/fixture-routes.json` until Checkpoint 2.
 
 ## Phase 1 — Reactor spike (do this before anything else)
 
@@ -864,7 +882,7 @@ Print this to your human and stop:
 >
 > Waiting for your confirmation that this passed.
 
-## Phase 3 — Real-time conditions (CORE) and compare view
+## Phase 3 — Real-time conditions (CORE)
 
 **CORE — real-time condition changes during a walk.** Added after Checkpoint
 2 review; this is what the submission is graded on. While a walk plays, a
@@ -888,18 +906,14 @@ Checkpoint 2 fixes.
       takes `darkness` 0..1, so dusk → night is a continuous change, never
       black. Keep a minimum light floor for the darkest block.
 
-- [ ] **Compare mode.** Two viewports side by side, route A and route B, under
-      one shared condition clock — a condition change applies to both at once
-      so it's a controlled counterfactual, not two loose videos.
-- [ ] **Compare is a mode, not the default.** Entered deliberately via a
-      toggle. The single-route walk stays the default because side-by-side
-      halves the viewport.
-- [ ] **Concurrency check.** Compare mode needs two live sessions. If Q3 said
-      one session at a time, run the two routes sequentially and stitch, or
-      pre-generate both before entering compare.
-  - **Q3 said 1.** Two live viewports are impossible. Plan for pre-generating
-    route B (or both) via `requestClip()`/`requestRecording()` and playing the
-    recordings side by side, or sequence the two routes on the one session.
+- [ ] **Remove comparison from the UI.** Route comparison is dropped (see
+      WHAT WE ARE BUILDING). Remove the "Compare routes" button, the
+      `?route=B` share-link path and `activeRouteId` switching. The shell walks
+      `routes[0]`.
+- ~~**Compare mode / Compare is a mode / Concurrency check.**~~ **DROPPED
+  before Checkpoint 3** (human decision, both people): too complicated for
+  the timeframe, and with one concurrent Orbis session (Q3) two live walks
+  can't exist anyway.
 
 ### 🛑 CHECKPOINT 3 — full demo runthrough
 
@@ -907,11 +921,11 @@ Print this to your human and stop:
 
 > **Person 2 ready for Checkpoint 3.**
 >
-> Compare view works with a shared condition clock.
+> Live condition changes reach the running walk without restarting it.
 >
 > **Merge with Person 1 into `main`** and do a full demo runthrough together:
-> setup screen → autoplay walk on route A → compare both routes → generate and
-> open a share link.
+> setup screen → continuous walk of the route → change the time (e.g. 7pm →
+> 11pm) mid-walk and watch the render change → generate and open a share link.
 >
 > Time the whole thing. It needs to land in under two minutes.
 >
@@ -1126,4 +1140,9 @@ Update this as you go so the human can `/clear` and resume.
       search radius too small).
   - Not yet checked: audio by ear.
 - [ ] Checkpoint 3 — full demo runthrough
+  - **Scope change (human decision, before Checkpoint 3): no route
+    comparison.** One start, one destination, one route walked. Reasons: too
+    complicated for the timeframe, and only one concurrent Orbis session.
+    PLAN updated for both people: Person 1 "One route only" and Person 2
+    "Remove comparison from the UI" tasks added; compare tasks dropped.
 - [ ] Final submission — branch pushed to Visko-Platform/orbis-hackathon-starter

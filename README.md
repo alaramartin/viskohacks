@@ -30,33 +30,11 @@ It's a familiarisation tool that can help us better understand the path we're wa
 - **Backend:** FastAPI, osmnx, networkx, scikit-learn, astral
 - **Data:** OpenStreetMap, Mapillary, DataSF 311, Open-Meteo
 
-## Run it
-
-You need a Reactor API key and a Mapillary access token.
-
-```sh
-# keys
-cp .env.example .env                           # set MAPILLARY_ACCESS_TOKEN
-cp frontend/.env.example frontend/.env.local   # set REACTOR_API_KEY
-
-# backend, port 8000
-cd backend
-python3.11 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --port 8000
-
-# frontend, port 3000 (in another terminal)
-cd frontend
-npm install
-npm run dev
-```
-
-Open http://localhost:3000. The map and data files are already in `backend/data/`, so nothing needs to be downloaded first.
-
 ## Limitations
 
 - Street image data only exists for the center of the road.
 - Orbis continues from its start image, so reference images that don't match the intended output need to be preprocessed.
+- Latency causes real-time updates to lag a few seconds behind user interactions.
 
 ## More
 

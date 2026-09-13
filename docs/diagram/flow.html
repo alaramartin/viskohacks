@@ -1,0 +1,114 @@
+<meta charset="utf-8">
+<title>Walk Home flowchart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  html.light {
+    --bg: #FBFCFD;
+    --box: #FFFFFF;
+    --ink: #14181C;
+    --muted: #6B7683;
+    --line: #B9C4CF;
+    --accent: #B2700F;
+  }
+  html.dark {
+    --bg: #0E1115;
+    --box: #171B21;
+    --ink: #E9EDF2;
+    --muted: #939EAB;
+    --line: #39424D;
+    --accent: #EBAA53;
+  }
+  * { margin: 0; padding: 0; }
+  body { background: var(--bg); }
+  svg { display: block; }
+  text { font-family: "IBM Plex Sans", sans-serif; }
+</style>
+
+<svg width="1600" height="900" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg" role="img"
+     aria-label="Flowchart: two addresses and a time produce one route with conditions; a street photo of each block is graded to night and seeded into one continuous Orbis generation, which plays as the walk on screen. Changing the time, fog or crowd re-costs the route and sends a new prompt straight to the running generation, skipping the seed step entirely.">
+  <defs>
+    <marker id="h" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--ink)"/>
+    </marker>
+    <marker id="ha" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="var(--bg)"/>
+
+  <text x="80" y="116" font-size="34" font-weight="600" fill="var(--ink)" letter-spacing="-0.5">Walk Home</text>
+  <text x="80" y="148" font-size="16" fill="var(--muted)">How one walk gets made</text>
+
+  <!-- ── day → night, above the one step that needs a picture ── -->
+  <g>
+    <rect x="730" y="230" width="56" height="56" fill="#C6D6E6" stroke="var(--line)"/>
+    <rect x="730" y="266" width="56" height="20" fill="#9BA5AF"/>
+    <rect x="740" y="246" width="14" height="20" fill="#9BA5AF"/>
+    <rect x="762" y="241" width="14" height="25" fill="#A9B4BF"/>
+
+    <path d="M 794 258 L 812 258" stroke="var(--accent)" stroke-width="1.8" marker-end="url(#ha)"/>
+
+    <rect x="820" y="230" width="56" height="56" fill="#0C1122" stroke="var(--accent)"/>
+    <rect x="820" y="266" width="56" height="20" fill="#141922"/>
+    <rect x="830" y="246" width="14" height="20" fill="#1E2530"/>
+    <rect x="852" y="241" width="14" height="25" fill="#222A36"/>
+    <circle cx="847" cy="250" r="9" fill="#EBAA53" opacity="0.32"/>
+    <circle cx="847" cy="250" r="2.6" fill="#FFD79A"/>
+  </g>
+
+  <!-- ── the five steps ── -->
+  <g fill="var(--box)" stroke="var(--line)" stroke-width="1.5">
+    <rect x="80"   y="310" width="200" height="150"/>
+    <rect x="390"  y="310" width="200" height="150"/>
+    <rect x="1010" y="310" width="200" height="150"/>
+    <rect x="1320" y="310" width="200" height="150"/>
+  </g>
+  <rect x="700" y="310" width="200" height="150" fill="var(--box)" stroke="var(--accent)" stroke-width="2"/>
+
+  <g font-size="19" font-weight="500" fill="var(--ink)" text-anchor="middle">
+    <text x="180"  y="377">Two addresses</text>
+    <text x="180"  y="403">and a time</text>
+    <text x="490"  y="377">One route,</text>
+    <text x="490"  y="403">with conditions</text>
+    <text x="800"  y="377">Street photo,</text>
+    <text x="800"  y="403">graded to night</text>
+    <text x="1110" y="377">One continuous</text>
+    <text x="1110" y="403">generation</text>
+    <text x="1420" y="377">The walk,</text>
+    <text x="1420" y="403">on screen</text>
+  </g>
+
+  <!-- ── spine ── -->
+  <g stroke="var(--ink)" stroke-width="1.8" fill="none">
+    <path d="M 286 385 L 384 385" marker-end="url(#h)"/>
+    <path d="M 596 385 L 694 385" marker-end="url(#h)"/>
+    <path d="M 906 385 L 1004 385" marker-end="url(#h)"/>
+    <path d="M 1216 385 L 1314 385" marker-end="url(#h)"/>
+  </g>
+  <g font-size="12" fill="var(--muted)" text-anchor="middle">
+    <text x="335"  y="360">submit</text>
+    <text x="645"  y="360">real imagery</text>
+    <text x="955"  y="360">set_image</text>
+    <text x="1265" y="360">first frame ≈9s</text>
+  </g>
+
+  <!-- ── the loop, and the step it deliberately skips ── -->
+  <g stroke="var(--accent)" stroke-width="1.8" fill="none">
+    <path d="M 550 464 L 550 572 Q 550 580 558 580 L 1102 580 Q 1110 580 1110 572 L 1110 466" marker-end="url(#ha)"/>
+    <path d="M 1420 464 L 1420 692 Q 1420 700 1412 700 L 498 700 Q 490 700 490 692 L 490 466" marker-end="url(#ha)"/>
+  </g>
+  <g font-size="13.5" font-weight="500" fill="var(--accent)" text-anchor="middle">
+    <text x="830" y="569">new prompt only — the seed is never swapped</text>
+    <text x="955" y="689">change the time, fog or crowd while it plays</text>
+  </g>
+
+  <text x="80" y="800" font-size="13.5" fill="var(--muted)">Orbis takes its light from the seed, so the photo is graded to night before upload — and a live generation cannot be re-seeded, which is why a condition change arrives as a prompt.</text>
+</svg>
+
+<script>
+  document.documentElement.className = location.search.indexOf("dark") >= 0 ? "dark" : "light";
+</script>

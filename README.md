@@ -55,10 +55,8 @@ Open http://localhost:3000. The map and data files are already in `backend/data/
 
 ## Limitations
 
-- San Francisco only.
-- Reactor allows one Orbis session per account, so only one walk can play at a time.
-- Changes of time, fog or crowd take several seconds to show.
-- Orbis stays close to the real photo for about 25 seconds. After that the streets are generated, so later blocks may not match the real route exactly.
+- Street image data only exists for the center of the road.
+- Orbis continues from its start image, so reference images that don't match the intended output need to be preprocessed.
 
 ## More
 

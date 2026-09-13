@@ -568,3 +568,27 @@ boolean. Only Person 1's numeric `darkness` fixes that.
 
 **Still unverified by eye.** No live walk has been run through a condition
 change, for the rate-limit reason above.
+
+## Walk trace — does the continuous walk follow the route? (2026-09-12, after Checkpoint 3)
+
+Human review: the walk doesn't follow the route, and turns happen at random. Traced with
+`?trace=<run>` (dev-only, `lib/orbis/walk-trace.ts`): every command with its timestamp, every
+non-chunk message, the shot and waypoint the script is on, and a frame every 1.5s. Route: Eddy &
+Jones → Turk & Hyde, 12:00, two turns. Traces are in `docs/spike/runs/trace-eddy-turk-*/trace.txt`
+(frames are not committed).
+
+- **One image grounds the whole walk.** The only `set_image` is before `start`; everything after
+  ~20s is invented from that frame.
+- **Turn prompts arrive on time and are not followed.** `set_prompt` is accepted within ~2s of each
+  shot boundary. Neither turn happens during its 9s cue in either run. Run 1 kept walking straight
+  and drifted right ~10s late, ending facing a wall. Run 2 slid off the road into a parked car.
+- **Mid-run `set_image` is still ignored** (run 2, `?reseed=image`). The real Leavenworth and Turk
+  frames were injected without `reset` and got `image_accepted` in ~1.7s / ~0.5s. Neither street
+  appeared. This repeats Q7, inside the real walk.
+- **The script runs faster than the footage.** It claims 425m in 91s (4.7 m/s, and up to 60 m/s
+  on legs clamped to `WALK_MAX_MS`). The footage covers roughly 2 m/s. The minimap follows the
+  script clock, so it runs blocks ahead of the picture.
+
+**Status:** the only way to put a real street image into the video is `reset` + `set_image` +
+`start` (~2.3s of commands, then ~5–6s until frames appear). Pure prompting did not turn the
+camera in any traced run. How to handle corners is an open human decision.

@@ -32,10 +32,15 @@ from geo import Block, RouteGeometry
 SCREEN_SPEED_MPS = 4.5  # route metres per second of screen time — brisk, so ~500m fits a 2-minute demo
 WALK_MIN_MS = 6_000
 WALK_MAX_MS = 20_000  # an unchanged prompt held much longer drifts; long legs just go by faster
-TURN_MS = 4_000  # ~2 Orbis chunks
+# A prompt change shows at the next ~1.8s chunk but takes ~10s to settle (reactor-findings Q7).
+# At 4s the next leg's "straight ahead" took over mid-turn and the camera drifted across the
+# street instead of rounding the corner.
+TURN_MS = 9_000
 ARRIVE_MS = 4_000
 # Symmetric on purpose: naming one side for the cars pulled the camera toward that curb.
-STREET_LAYOUT = "parked cars along both curbs, buildings lining both sides of the street"
+# "No moving traffic" replaces the old "empty street", which also emptied the sidewalks and
+# cancelled the crowd override.
+STREET_LAYOUT = "parked cars along both curbs, buildings lining both sides of the street, no moving traffic"
 
 
 def _turn(before: Block, after: Block) -> str | None:
@@ -47,8 +52,18 @@ def _mode(values: list[str]) -> str:
     return Counter(values).most_common(1)[0][0]
 
 
-def build_shots(model: ConditionModel, geom: RouteGeometry, scenes: list[str], audios: list[str]) -> list[dict]:
-    """`scenes` / `audios`: each waypoint's scene description and audio prompt, in waypoint order."""
+def build_shots(
+    model: ConditionModel, geom: RouteGeometry, scenes: list[str], audios: list[str], light: str
+) -> list[dict]:
+    """`scenes` / `audios`: each waypoint's scene description and audio prompt, in waypoint order.
+    `light`: the route-wide time-of-day phrase (`ConditionModel.light_prompt`), said second in
+    every prompt so a change of the clock outweighs the seed's light.
+
+    Order inside a prompt is camera → light → motion → scene → layout: what must change the
+    render when the viewer moves a control comes first."""
+    lead = f"{CAMERA_ANCHOR}, walking steadily forward and looking straight ahead, {light}"
+    # No "looking straight ahead" while turning: it told the camera not to turn.
+    turn_lead = f"{CAMERA_ANCHOR}, walking steadily forward, {light}"
     by_block: dict[str, list[int]] = {}
     for wp in geom.waypoints:
         by_block.setdefault(wp.block.block_id, []).append(wp.index)
@@ -100,19 +115,24 @@ def build_shots(model: ConditionModel, geom: RouteGeometry, scenes: list[str], a
         if previous is not None:
             onto = model._street_name(geom, longest, " onto")
             # The street being left is still what's on screen, so its scene carries the turn.
-            # "Empty intersection, clear road ahead": a turn is when the camera meets cross traffic.
+            # The turn is the whole point of this prompt, so it is said twice and concretely:
+            # what a head-mounted camera sees while rounding a corner. "Clear road ahead": a
+            # turn is when the camera meets cross traffic.
+            side = merged_turns[k - 1]
             add(
                 "turn",
-                f"{CAMERA_ANCHOR}, turning {merged_turns[k - 1]} at the empty intersection{onto} "
-                f"in one wide smooth turn, clear road ahead, {previous['scene']}",
+                f"{turn_lead}, reaching the intersection and turning {side} around the corner{onto}, "
+                f"the view swinging a quarter turn to the {side} as the corner building slides past "
+                f"and the new street opens up straight ahead, still walking forward, clear road ahead, "
+                f"{previous['scene']}",
                 previous["audio"], TURN_MS, indices[0], indices[0],
             )
 
         length = sum(block.end - block.start for block in leg)
         add(
             "walk",
-            f"{CAMERA_ANCHOR}, walking straight ahead down the middle of the empty street{on}, "
-            f"the street stretching ahead toward the vanishing point, {STREET_LAYOUT}, {scene}",
+            f"{lead}, walking straight ahead down the middle of the street{on}, "
+            f"the street stretching ahead toward the vanishing point, {scene}, {STREET_LAYOUT}",
             audio, min(WALK_MAX_MS, max(WALK_MIN_MS, length / SCREEN_SPEED_MPS * 1000)), indices[0], indices[-1],
         )
         previous = {"scene": scene, "audio": audio, "on": on, "end": indices[-1]}
@@ -120,8 +140,8 @@ def build_shots(model: ConditionModel, geom: RouteGeometry, scenes: list[str], a
     assert previous is not None  # a route always has at least one waypoint
     add(
         "arrive",
-        f"{CAMERA_ANCHOR}, walking straight ahead down the middle of the empty street{previous['on']} "
-        f"and slowing to a gentle stop, the street stretching ahead, {STREET_LAYOUT}, {previous['scene']}",
+        f"{lead}, walking straight ahead down the middle of the street{previous['on']} "
+        f"and slowing to a gentle stop, the street stretching ahead, {previous['scene']}, {STREET_LAYOUT}",
         previous["audio"], ARRIVE_MS, previous["end"], previous["end"],
     )
     return shots

@@ -42,12 +42,10 @@ STREET_HALF_WIDTH_M = 20  # curb lamps sit within this of the centreline even on
 WEATHER_TTL_S = 3600
 # Identical at the front of every shot prompt (backend/shots.py). Without a camera anchor a
 # 2-minute generation let the camera sink toward the ground and the colour drift green
-# (docs/spike/runs/continuous-walk-script).
-CAMERA_ANCHOR = (
-    "smooth first-person footage from a camera at head height, walking steadily forward and looking "
-    "straight ahead, dark night with deep shadows between streetlights, natural color balance, "
-    "warm amber and white streetlight glow"
-)
+# (docs/spike/runs/continuous-walk-script). The light is NOT in here: it used to say "dark
+# night" unconditionally, so a noon walk rendered as a bright night. See `light_prompt`.
+CAMERA_ANCHOR = "smooth first-person footage from a camera at head height, natural color balance"
+FOG_WEATHER = {"weather_code": 45, "visibility": 300}
 TURN_CUE_DEG = 35
 
 STREET_TYPES = {
@@ -379,7 +377,7 @@ class ConditionModel:
         # Viewer overrides steer what the render is told; the facts below keep the data's values.
         prompt_open = max(open_now, CROWD_OPEN) if overrides.get("crowd") else open_now
         prompt_nearby = max(len(nearby), prompt_open)
-        prompt_weather = {**(weather or {}), "weather_code": 45, "visibility": 300} if overrides.get("fog") else weather
+        prompt_weather = self.prompt_weather(weather, overrides)
         unknown = sum(s is None for s in states)
 
         ahead = [(s, right) for s, right in light["lamps"] if wp.s <= s <= wp.block.end]
@@ -497,6 +495,34 @@ class ConditionModel:
     # --- prompts ----------------------------------------------------------
 
     @staticmethod
+    def prompt_weather(weather: dict | None, overrides: dict | None) -> dict | None:
+        """The weather the render is told about: the data's, or fog when the viewer set it."""
+        return {**(weather or {}), **FOG_WEATHER} if (overrides or {}).get("fog") else weather
+
+    @staticmethod
+    def light_prompt(sun: dict, weather: dict | None) -> str:
+        """Time-of-day light, said right after the camera anchor in every shot. It leads the
+        prompt because a mid-walk time change reaches the render by text alone (a live
+        generation can't be re-seeded, docs/reactor-findings.md Q7), and it has to outweigh
+        the light the seed started with."""
+        code = weather["weather_code"] if weather else None
+        if sun["phase"] == "night":
+            return "dark night with deep shadows between streetlights, warm amber and white streetlight glow"
+        if sun["phase"] == "dusk":
+            return "dusk twilight, deep blue evening sky glowing orange at the horizon, streetlights just switching on"
+        if sun["phase"] == "dawn":
+            return "dawn twilight, pale blue morning sky brightening at the horizon, streetlights still on"
+        if code in (45, 48):
+            sky = "bright grey fog, soft diffuse daylight"
+        elif code is not None and code >= 51:
+            sky = "grey rainy sky, soft diffuse daylight"
+        elif code == 3:
+            sky = "overcast white sky, soft daylight"
+        else:
+            sky = "clear blue sky, bright sunlight, crisp shadows on the pavement"
+        return f"bright daytime, {sky}, sunlit building facades, streetlights off"
+
+    @staticmethod
     def _video_prompt(street, lighting, sun, weather, nearby, open_now, own_type, footway) -> str:
         kind = (first(street.get("highway")) or "") if street else ""
         if street is None:
@@ -514,6 +540,17 @@ class ConditionModel:
         # No "seen from the sidewalk": the seed camera is in the roadway, and telling Orbis
         # otherwise pulled it toward the curb at turns (backend/shots.py).
         parts = [f"{road} {when}"]
+
+        # Foot traffic straight after the road: at the tail of a long prompt the crowd
+        # override was simply not rendered.
+        if open_now >= 4:
+            parts.append("busy sidewalks crowded with people walking in both directions, lit storefronts")
+        elif open_now >= 1:
+            parts.append("a lit storefront, a couple of pedestrians")
+        elif nearby:
+            parts.append("storefronts closed with shutters down, no pedestrians")
+        else:
+            parts.append("no pedestrians")
 
         if sun["phase"] in ("night", "dusk", "dawn"):
             n, side = lighting["lamp_count"], lighting["side"]
@@ -540,14 +577,6 @@ class ConditionModel:
         if kind in ("residential", "tertiary", "secondary", "unclassified", "living_street"):
             # "Not moving": a car drove straight at the camera and another stopped mid-street.
             parts.append("cars parked neatly along the curb, not moving")
-        if open_now >= 4:
-            parts.append("lit storefronts, people walking on the sidewalk")
-        elif open_now >= 1:
-            parts.append("a lit storefront, a couple of pedestrians")
-        elif nearby:
-            parts.append("storefronts closed with shutters down, no pedestrians")
-        else:
-            parts.append("no pedestrians")
         return ", ".join(parts)
 
     @staticmethod
@@ -566,6 +595,6 @@ class ConditionModel:
         if weather and (weather.get("wind_speed_10m") or 0) > 25:
             parts.append("gusty wind")
         if open_now >= 4:
-            parts.append("voices and music from open businesses")
+            parts.append("busy crowd chatter, voices and music from open businesses")
         parts.append("footsteps on pavement")
         return f"{'city street at night' if sun['dark'] else 'city street'}, " + ", ".join(parts)

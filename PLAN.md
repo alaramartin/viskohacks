@@ -1437,6 +1437,43 @@ Update this as you go so the human can `/clear` and resume.
 
 ---
 
+## Refinements after Checkpoint 3 (2026-09-12)
+
+Human review of the merged build: turns not made (the render "crosses the
+street" instead), Crowd shows no crowd, a daytime clock looks like a bright
+night, and too few times to switch between.
+
+**Human decision: the walk stays one continuous take. No `reset` / re-seed
+cuts, not even at turns or night↔day — cuts defeat the point of a real-time
+model.** Everything below is prompt-side.
+
+- [x] **Turns.** `TURN_MS` 4s → 9s (a morph takes ~10s to settle, so the
+      next leg's "straight ahead" prompt used to cut in mid-turn), and the cue
+      now describes what the camera sees rounding the corner ("the view
+      swinging a quarter turn to the right as the corner building slides
+      past…"). Turn prompts drop "looking straight ahead".
+  - The route and minimap were checked against the graph for Eddy & Jones →
+    Golden Gate & Hyde and are correct (Jones S → right Turk → left
+    Leavenworth → right Golden Gate). The minimap advances on the script clock,
+    so when the render misses a turn the two disagree. **Not yet watched live.**
+- [x] **Light leads every prompt.** `CAMERA_ANCHOR` hardcoded "dark night…
+      streetlight glow" into every shot at every hour. Light is now
+      `ConditionModel.light_prompt(sun, weather)`, said straight after the
+      camera: night / dusk / dawn / day, and by day a clear blue sky, overcast,
+      rain or fog from the weather data (fog override included). Order is
+      camera → light → motion → scene → layout.
+- [x] **Crowd.** "Empty street" / "empty intersection" cancelled it; replaced
+      by "no moving traffic". Foot traffic moved to the front of the scene and
+      strengthened ("busy sidewalks crowded with people walking in both
+      directions"); audio adds crowd chatter.
+- [x] **Time presets: whole day in 4h steps** (12am, 4am, 8am, 12pm, 4pm,
+      8pm); default time 00:00. **Scope change (human):** daytime is now in
+      the product, not only night.
+- [x] **Day sky in the seed grade** is blue paling to the horizon instead of
+      flat overcast grey. At `darkness` 1 the grade is unchanged (the day terms
+      multiply by zero). The seed is still graded once, at walk start; a
+      mid-walk night → day change relies on the prompt.
+
 # LATER, IF THERE IS TIME — richer OSM conditions
 
 > **Status (Person 1, merged 2026-09-12):** mostly already done in Phase 2,

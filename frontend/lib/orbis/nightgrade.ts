@@ -33,8 +33,13 @@ const SODIUM = [1.25, 0.82, 0.45] as const;
 const LAMP = [1.0, 0.72, 0.36] as const;
 const SKY = [8 / 255, 11 / 255, 24 / 255] as const;
 const SKY_HAZE = [0.1, 0.07, 0.05] as const;
-/** SF overcast, which is what the seeds mostly show. The sky at `darkness` 0. */
-const DAY_SKY = [0.66, 0.71, 0.78] as const;
+/**
+ * The sky at `darkness` 0: blue overhead, paler toward the horizon. It was flat
+ * overcast grey, which with the frame's own light made daytime read as "a
+ * bright night" rather than day.
+ */
+const DAY_SKY = [0.3, 0.52, 0.86] as const;
+const DAY_SKY_HORIZON = [0.62, 0.76, 0.93] as const;
 /** Added to every pixel before the sky, so no block grades to pure black. */
 const AMBIENT_FLOOR = 0.012;
 const BASE_EXPOSURE = 0.2;
@@ -245,7 +250,10 @@ function grade(pre: Precomputed, exposure: number, params: GradeParams): Float32
   const cast = SODIUM.map((channel) => mix(1, channel, darkness));
   const lampTint = LAMP.map((channel) => mix(1, channel, darkness));
   const skyTint = SKY.map((channel, index) => mix(DAY_SKY[index], channel, darkness));
-  const hazeTint = SKY_HAZE.map((channel) => channel * darkness);
+  // Night: navy plus a sodium haze toward the horizon. Day: blue paling toward it.
+  const hazeTint = SKY_HAZE.map(
+    (channel, index) => mix(DAY_SKY_HORIZON[index] - DAY_SKY[index], channel, darkness),
+  );
   const floor = AMBIENT_FLOOR * darkness;
 
   for (let p = 0; p < width * height; p += 1) {

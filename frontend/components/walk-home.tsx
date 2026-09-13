@@ -25,7 +25,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ConditionControls, type ConditionSettings } from "@/components/ConditionControls";
 import { EvidenceReadout } from "@/components/EvidenceReadout";
-import { Minimap } from "@/components/Minimap";
 import { RouteBrief } from "@/components/RouteBrief";
 import { SetupPanel } from "@/components/setup-panel";
 import { Viewport } from "@/components/Viewport";
@@ -240,10 +239,6 @@ function WalkShell({ onDisconnected }: { onDisconnected: () => void }) {
             />
           ) : (
             <>
-              <Minimap
-                route={walk.route ?? store.routes[0] ?? null}
-                waypointIndex={walk.waypointIndex}
-              />
               {/* Usable *while* the walk runs — that is the whole point of it. */}
               <ConditionControls
                 settings={store.conditions}

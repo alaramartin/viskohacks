@@ -50,6 +50,70 @@ import {
 } from "@/lib/orbis/session";
 import { OrbisSignals } from "@/lib/orbis/signals";
 import { VideoGate } from "@/lib/orbis/video-gate";
+import { WalkTrace } from "@/lib/orbis/walk-trace";
+
+/**
+ * Keep feeding the live generation real imagery: every time the walk reaches a
+ * new block, that block's frame (graded for the current conditions) goes in with
+ * `set_image` while the generation keeps running — no `reset`, no cut, and the
+ * photo itself is never shown. Human decision after the corner-transition
+ * experiment read as a slideshow. `?reseed=off` disables it for comparison.
+ *
+ * Measured caveat (docs/reactor-findings.md, "Walk trace"): in the traced run
+ * Orbis answered `image_accepted` to each mid-run image but the frames did not
+ * visibly change toward it.
+ */
+function reseedMode(): string | null {
+  // Off by default: feeding a different block's frame made Orbis invent its own
+  // bridge between the two views (walking under a truck, out under a road).
+  if (typeof window === "undefined" || process.env.NODE_ENV === "production") return null;
+  return new URLSearchParams(window.location.search).get("reseed") === "image" ? "image" : null;
+}
+
+type ReactorIntrospection = { getSchema?: () => unknown; getCapabilities?: () => unknown };
+
+/**
+ * A big change of light leads the prompt with the change itself for this long
+ * ("the light is changing: night turns into bright daylight…"), then the normal
+ * prompt takes over. The frame is re-sent when it ends, to reinforce it.
+ */
+const LIGHT_TRANSITION_MS = 14_000;
+/**
+ * Re-send the re-graded frame this often during a change of light. Traced at
+ * 8am: two sends turned the sky blue in ~12s but left the street amber-lit and
+ * dim for 30s — the running render's own light keeps pulling it back.
+ */
+const LIGHT_FEED_EVERY_MS = 3_000;
+/** Darkness delta (0..1) that counts as a change worth narrating. */
+const LIGHT_CHANGE_MIN = 0.3;
+
+/**
+ * During a change of light the normal ~600-character prompt (camera, motion,
+ * scene, layout) is replaced by one short prompt that is only about the light.
+ * Traced twice with the light buried in the long prompt plus re-graded frames:
+ * the sky went blue but the street stayed amber-lit for 30s.
+ */
+function lightTransitionPrompt(fromDarkness: number, toDarkness: number): string | null {
+  if (toDarkness <= fromDarkness - LIGHT_CHANGE_MIN) {
+    return (
+      "change the sky to blue and the lighting to daylight, bright sunny daytime city street, " +
+      "clear blue sky, strong white sunlight on the buildings and the pavement, streetlights off, " +
+      "first-person view walking forward down the middle of the street"
+    );
+  }
+  if (toDarkness >= fromDarkness + LIGHT_CHANGE_MIN) {
+    return (
+      "change the sky to black and the lighting to night, dark night city street, black sky, " +
+      "amber streetlights glowing, lit windows, first-person view walking forward down the middle of the street"
+    );
+  }
+  return null;
+}
+
+/** `?relight=image` also feeds re-graded frames during a change of light; default is text only. */
+function relightWithImages(): boolean {
+  return typeof window !== "undefined" && new URLSearchParams(window.location.search).get("relight") === "image";
+}
 
 /** Cold start is ~12–16s (Q4); this is the giving-up point. */
 const FIRST_FRAME_TIMEOUT_MS = 30_000;
@@ -159,13 +223,15 @@ export type UseOrbisWalkOptions = {
 };
 
 export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
-  const { status, connect, disconnect, sendCommand, uploadFile } = useReactor(
+  const { status, connect, disconnect, sendCommand, uploadFile, reactor } = useReactor(
     (state) => ({
       status: state.status,
       connect: state.connect,
       disconnect: state.disconnect,
       sendCommand: state.sendCommand,
       uploadFile: state.uploadFile,
+      // Dev trace only: the model's own command schema.
+      reactor: (state as unknown as { internal?: { reactor?: ReactorIntrospection } }).internal?.reactor,
     }),
   );
 
@@ -174,6 +240,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
 
   const signals = useMemo(() => new OrbisSignals(), []);
   const gate = useMemo(() => new VideoGate(), []);
+  const trace = useMemo(() => new WalkTrace(), []);
   const runRef = useRef<RunHandle | null>(null);
   const routeRef = useRef<Route | null>(null);
   const statusRef = useRef(status);
@@ -183,7 +250,14 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
   onFirstFrame.current = options.onFirstFrame;
   statusRef.current = status;
 
-  useReactorMessage((message) => signals.handle(message));
+  useReactorMessage((message) => {
+    signals.handle(message);
+    if (trace.enabled) {
+      const type = (message as { type?: string; data?: { type?: string } })?.data?.type
+        ?? (message as { type?: string })?.type;
+      if (!/chunk/i.test(String(type))) trace.log("message", message);
+    }
+  });
 
   const patch = useCallback((next: Partial<WalkSnapshot>) => {
     setSnapshot((current) => ({ ...current, ...next }));
@@ -269,11 +343,17 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
 
   const context = useMemo<OrbisContext>(
     () => ({
-      sendCommand: (command, data) => sendCommand(command, data ?? {}),
+      sendCommand: (command, data) => {
+        trace.log("command", {
+          command,
+          data: data && JSON.parse(JSON.stringify(data, (_key, value) => (value instanceof Blob ? "<file>" : value))),
+        });
+        return sendCommand(command, data ?? {});
+      },
       uploadFile: (file, fileOptions) => uploadFile(file, fileOptions),
       signals,
     }),
-    [sendCommand, signals, uploadFile],
+    [sendCommand, signals, trace, uploadFile],
   );
 
   const sleep = useCallback(async (ms: number, run: RunHandle, wakeOnConditions = false) => {
@@ -326,10 +406,51 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
       let sentVideo: string | null = shotsOf(initial)[0]?.video_prompt ?? null;
       let sentAudio: string | null = shotsOf(initial)[0]?.audio_prompt ?? null;
       let shownIndex = -1;
+      // Conditions already baked into the live render (the seed was graded for these).
+      let litVersion = run.conditionsVersion;
+      let litRoute = initial;
+      let transition: { prefix: string; until: number; file: File | null; fedAt: number } | null = null;
+      const promptFor = (videoPrompt: string) => (transition ? transition.prefix : videoPrompt);
+      const feedFrame = async (file: File, name: string) => {
+        const uploaded = await context.uploadFile(file, { name });
+        await context.sendCommand("set_image", { image: uploaded });
+      };
+      const reseed = reseedMode();
+      const seeded = new Set<string>([blocks.find((block) => block.imageAvailable)?.blockId ?? ""]);
+      // Grade every block's frame up front so a set_image lands on the shot boundary, not ~1s after.
+      const prepared = new Map<string, Promise<File | null>>();
+      if (reseed) {
+        for (const block of blocks) {
+          if (!block.imageAvailable || seeded.has(block.blockId)) continue;
+          const file = prepareSeed(block).then((result) => result.graded.file, () => null);
+          prepared.set(block.blockId, file);
+        }
+      }
 
       for (let s = 0; s < shotCount; s += 1) {
         const startedAt = Date.now();
         let version = -1;
+        {
+          const shot = shotsOf(routeRef.current ?? initial)[s];
+          const blockId = (routeRef.current ?? initial).waypoints[shot.waypoint_start].block_id;
+          if (reseed && !seeded.has(blockId) && prepared.has(blockId)) {
+            seeded.add(blockId);
+            const file = await prepared.get(blockId);
+            if (file) {
+              trace.log("reseed", { mode: reseed, block_id: blockId });
+              const uploaded = await context.uploadFile(file, { name: `seed-${blockId}.jpg` });
+              await context.sendCommand("set_image", { image: uploaded });
+            }
+          }
+          trace.log("shot_start", {
+            index: s,
+            kind: shot.kind,
+            duration_ms: shot.duration_ms,
+            waypoint_start: shot.waypoint_start,
+            waypoint_end: shot.waypoint_end,
+            video_prompt: shot.video_prompt,
+          });
+        }
         for (;;) {
           if (run.cancelled) throw new WalkCancelled();
           const route = routeRef.current ?? initial;
@@ -340,14 +461,71 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
           if (version !== run.conditionsVersion) {
             version = run.conditionsVersion;
             patch({ route });
-            if (shot.video_prompt && shot.video_prompt !== sentVideo) {
-              await morphPrompt(context, shot.video_prompt);
-              sentVideo = shot.video_prompt;
+            if (litVersion !== run.conditionsVersion) {
+              litVersion = run.conditionsVersion;
+              // TIME CHANGES. The prompt alone barely moves the light of a running
+              // render — the seed's light wins (Q1) — but a mid-run set_image does
+              // take hold. So re-grade the real frame of the block being walked for
+              // the new conditions and feed it in with the new prompt. Same street
+              // as on screen, so the model has only the light to change.
+              const hereIndex = Math.max(0, shownIndex);
+              const before = estimateAmbient(litRoute.waypoints[hereIndex].condition).darkness;
+              const after = estimateAmbient(route.waypoints[hereIndex].condition).darkness;
+              litRoute = route;
+              const prefix = lightTransitionPrompt(before, after);
+              if (prefix) {
+                // Say the change out loud first — no waiting on the frame grade.
+                transition = { prefix, until: Date.now() + LIGHT_TRANSITION_MS, file: null, fedAt: 0 };
+                trace.log("light_transition", { from: before, to: after });
+                await morphPrompt(context, promptFor(shot.video_prompt));
+                sentVideo = promptFor(shot.video_prompt);
+              }
+              const here = route.waypoints[hereIndex]?.block_id;
+              const routeBlocks = groupIntoBlocks(route);
+              const at = routeBlocks.findIndex((block) => block.blockId === here);
+              const lit =
+                routeBlocks.slice(0, at + 1).reverse().find((block) => block.imageAvailable) ??
+                routeBlocks.find((block) => block.imageAvailable);
+              if (lit && relightWithImages()) {
+                try {
+                  const { graded, ambient } = await prepareSeed(lit);
+                  if (run.cancelled) throw new WalkCancelled();
+                  trace.log("relight", { block_id: lit.blockId, darkness: ambient.darkness });
+                  await feedFrame(graded.file, `relight-${lit.blockId}.jpg`);
+                  if (transition) {
+                    transition.file = graded.file;
+                    transition.fedAt = Date.now();
+                  }
+                } catch (caught) {
+                  if (caught instanceof WalkCancelled) throw caught;
+                  // A failed re-grade leaves the prompt to do what it can.
+                }
+              }
+            }
+            if (shot.video_prompt && promptFor(shot.video_prompt) !== sentVideo) {
+              await morphPrompt(context, promptFor(shot.video_prompt));
+              sentVideo = promptFor(shot.video_prompt);
             }
             if (shot.audio_prompt && shot.audio_prompt !== sentAudio) {
               // Audio morphing mid-run is unverified; never let it stop the walk.
               await morphAudioPrompt(context, shot.audio_prompt).catch(() => {});
               sentAudio = shot.audio_prompt;
+            }
+          }
+
+          if (transition?.file && Date.now() < transition.until && Date.now() - transition.fedAt >= LIGHT_FEED_EVERY_MS) {
+            transition.fedAt = Date.now();
+            trace.log("light_feed");
+            await feedFrame(transition.file, "relight-again.jpg").catch(() => {});
+          }
+          if (transition && Date.now() >= transition.until) {
+            const file = transition.file;
+            transition = null;
+            trace.log("light_transition_end");
+            if (file) await feedFrame(file, "relight-again.jpg").catch(() => {});
+            if (shot.video_prompt !== sentVideo) {
+              await morphPrompt(context, shot.video_prompt);
+              sentVideo = shot.video_prompt;
             }
           }
 
@@ -357,6 +535,24 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
           );
           if (index !== shownIndex) {
             shownIndex = index;
+            // A new block mid-shot: feed its real frame to the running generation.
+            const reachedBlock = route.waypoints[index].block_id;
+            if (reseed && !seeded.has(reachedBlock) && prepared.has(reachedBlock)) {
+              seeded.add(reachedBlock);
+              void prepared.get(reachedBlock)!.then(async (file) => {
+                if (!file || run.cancelled) return;
+                trace.log("reseed", { mode: reseed, block_id: reachedBlock });
+                const uploaded = await context.uploadFile(file, { name: `seed-${reachedBlock}.jpg` });
+                await context.sendCommand("set_image", { image: uploaded });
+              }).catch(() => {});
+            }
+            trace.log("waypoint", {
+              index,
+              lat: route.waypoints[index].lat,
+              lng: route.waypoints[index].lng,
+              heading: route.waypoints[index].heading,
+              block_id: route.waypoints[index].block_id,
+            });
             patch({
               waypointIndex: index,
               blockIndex: blockOf.get(route.waypoints[index].block_id) ?? 0,
@@ -366,7 +562,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
         }
       }
     },
-    [context, patch, sleep],
+    [context, patch, prepareSeed, sleep, trace],
   );
 
   const stop = useCallback(() => {
@@ -426,6 +622,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
         const route = await Promise.resolve(routeSource);
         if (run.cancelled) throw new WalkCancelled();
         routeRef.current = route;
+        trace.begin({ route });
 
         const blocks = groupIntoBlocks(route);
         patch({ route, blocks });
@@ -440,6 +637,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
 
         await connected;
         if (run.cancelled) throw new WalkCancelled();
+        trace.log("model_schema", { schema: reactor?.getSchema?.(), capabilities: reactor?.getCapabilities?.() });
 
         await pinRouteSession(context, {
           // Pinned so weather and lighting realisation stay stable for the walk.
@@ -447,7 +645,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
           resolution: ORBIS_RESOLUTION,
         });
 
-        patch({ phase: "preparing", statusText: "Converting the first block to night" });
+        patch({ phase: "preparing", statusText: "Grading the first block for the time of day" });
         // The daytime frame is converted before it reaches Orbis and is never
         // displayed either way — it is an intermediate, not an answer.
         const { graded, lighting, ambient } = await prepared;
@@ -472,6 +670,8 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
         if (outcome === "cancelled") throw new WalkCancelled();
 
         gate.release();
+        trace.log("first_frame");
+        trace.startFrames(document.querySelector<HTMLVideoElement>("video"));
         patch({ phase: "walking", statusText: "Walking" });
         onFirstFrame.current?.();
 
@@ -495,6 +695,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
         // Q3: a leaked session holds the account's only slot until it ages out,
         // and there is no REST endpoint to kill it. Always disconnect.
         signals.abort("Session closed.");
+        void trace.end();
         try {
           await disconnect();
         } catch {
@@ -503,7 +704,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
         runRef.current = null;
       }
     },
-    [context, disconnect, ensureConnected, gate, patch, prepareSeed, signals, sleep, walkRoute],
+    [context, disconnect, ensureConnected, gate, patch, prepareSeed, reactor, signals, sleep, trace, walkRoute],
   );
 
   // Same rule on unmount: a closed tab must not take the slot with it.

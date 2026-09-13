@@ -77,15 +77,22 @@ type ReactorIntrospection = { getSchema?: () => unknown; getCapabilities?: () =>
  * ("the light is changing: night turns into bright daylight…"), then the normal
  * prompt takes over. The frame is re-sent when it ends, to reinforce it.
  */
-const LIGHT_TRANSITION_MS = 8_000;
+const LIGHT_TRANSITION_MS = 14_000;
+/**
+ * Re-send the re-graded frame this often during a change of light. Traced at
+ * 8am: two sends turned the sky blue in ~12s but left the street amber-lit and
+ * dim for 30s — the running render's own light keeps pulling it back.
+ */
+const LIGHT_FEED_EVERY_MS = 3_000;
 /** Darkness delta (0..1) that counts as a change worth narrating. */
 const LIGHT_CHANGE_MIN = 0.3;
 
 function lightTransitionPrefix(fromDarkness: number, toDarkness: number): string | null {
   if (toDarkness <= fromDarkness - LIGHT_CHANGE_MIN) {
     return (
-      "the light is changing: night turns into bright daylight, the dark sky brightens to clear blue, " +
-      "sunlight floods the street and the building facades, streetlights switch off, "
+      "the light is changing: night turns into bright midday daylight, the whole scene brightens, " +
+      "clear bright blue sky, cool white sunlight floods the street and the building facades, " +
+      "streetlights switch off, the warm amber glow disappears, bright daytime colours, "
     );
   }
   if (toDarkness >= fromDarkness + LIGHT_CHANGE_MIN) {
@@ -391,7 +398,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
       // Conditions already baked into the live render (the seed was graded for these).
       let litVersion = run.conditionsVersion;
       let litRoute = initial;
-      let transition: { prefix: string; until: number; file: File | null } | null = null;
+      let transition: { prefix: string; until: number; file: File | null; fedAt: number } | null = null;
       const promptFor = (videoPrompt: string) => (transition ? transition.prefix + videoPrompt : videoPrompt);
       const feedFrame = async (file: File, name: string) => {
         const uploaded = await context.uploadFile(file, { name });
@@ -457,7 +464,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
               const prefix = lightTransitionPrefix(before, after);
               if (prefix) {
                 // Say the change out loud first — no waiting on the frame grade.
-                transition = { prefix, until: Date.now() + LIGHT_TRANSITION_MS, file: null };
+                transition = { prefix, until: Date.now() + LIGHT_TRANSITION_MS, file: null, fedAt: 0 };
                 trace.log("light_transition", { from: before, to: after });
                 await morphPrompt(context, promptFor(shot.video_prompt));
                 sentVideo = promptFor(shot.video_prompt);
@@ -474,7 +481,10 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
                   if (run.cancelled) throw new WalkCancelled();
                   trace.log("relight", { block_id: lit.blockId, darkness: ambient.darkness });
                   await feedFrame(graded.file, `relight-${lit.blockId}.jpg`);
-                  if (transition) transition.file = graded.file;
+                  if (transition) {
+                    transition.file = graded.file;
+                    transition.fedAt = Date.now();
+                  }
                 } catch (caught) {
                   if (caught instanceof WalkCancelled) throw caught;
                   // A failed re-grade leaves the prompt to do what it can.
@@ -492,6 +502,11 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
             }
           }
 
+          if (transition?.file && Date.now() < transition.until && Date.now() - transition.fedAt >= LIGHT_FEED_EVERY_MS) {
+            transition.fedAt = Date.now();
+            trace.log("light_feed");
+            await feedFrame(transition.file, "relight-again.jpg").catch(() => {});
+          }
           if (transition && Date.now() >= transition.until) {
             const file = transition.file;
             transition = null;

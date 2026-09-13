@@ -1,18 +1,28 @@
 # SafePath
 
-By Berkeley Bunch, for the Live Models Hackathon (Visko, Reactor, Nebius).
+By Berkeley Bunch (Carolina and Alara). Built for the Live Models Hackathon, hosted by Visko, Reactor and Nebius. Powered by Reactor and Visko's Orbis.
 
-SafePath shows you a walk before you take it. Enter a start, a destination, a date and a time in San Francisco. SafePath plans a walking route and plays a first-person video of it, generated live by Visko Orbis and started from real street-level photos of the route. Change the time, or turn fog or crowds on, while the video plays and the scene updates without restarting.
+## Why we built it
 
-It helps you get to know a route. It does not score how safe a route is, and it uses no crime data. The panel beside the video lists what the data says about each block: streetlights, reported outages, open businesses, sidewalks and weather. Values are labelled as estimates, and any setting you changed yourself says so.
+No woman is a stranger to the hyper-awareness we must have when walking alone. Constantly looking behind, listening out for footsteps to make sure we aren't followed. In fact, almost 90% of women have reported feeling unsafe walking alone at night.
+
+It especially doesn't help when navigating new spaces. As two freshmen at UC Berkeley, everywhere we walk is unfamiliar, so we have to consider our safety every time we leave our dorms.
+
+This was our motivation behind SafePath. It allows us to visualize our path before we walk it, giving us better situational awareness and helping us feel safer.
+
+## What it does
+
+Type two addresses and a time, and SafePath generates a video of you walking that route at night. It starts from real street-level photos of those exact blocks, with the lighting and weather modelled from open data. You can change the time, fog or crowd while the video is playing, and it changes without restarting.
+
+It's a familiarisation tool that can help us better understand the path we're walking at night. It is not a safety score and uses no crime data. Beside the video, SafePath lists what the data says about each block: streetlights, reported outages, open businesses, sidewalks and weather.
 
 ## How it works
 
-1. The backend finds the shortest walking route on a cached OpenStreetMap graph of San Francisco and splits it into blocks.
-2. For each block it gathers conditions: sunset and darkness (astral), weather (Open-Meteo), streetlights (Mapillary and OSM), outage reports (DataSF 311), business hours (OSM), and a Mapillary photo.
-3. It turns the route into a short script of prompts: one per straight stretch, one per turn, and one for arriving.
-4. The browser adjusts the first block's photo for the chosen time of day and uses it to start one continuous Orbis video.
-5. The walk is steered by prompt changes as it plays. When you change the time, a short prompt about the light takes over for 14 seconds, then the normal prompt returns.
+- **Route:** the backend finds the shortest walking route through San Francisco from OpenStreetMap and splits it into blocks.
+- **Conditions:** for each block it pulls darkness and sunset times, weather (Open-Meteo), streetlights (Mapillary and OSM), streetlight outage reports (DataSF 311) and business hours (OSM).
+- **Seed image:** the video starts at night, but that is processing done behind the scenes. The original photo (from Mapillary) is taken in daylight, graded to night in the browser, and used as the seed image to start the video.
+- **Walking the route:** the walk is steered by a script of prompts, one for each straight stretch and one for each turn.
+- **Live changes:** we use Orbis's real-time prompt steering to update the scene as you press different buttons to simulate different times of day, fog or crowds. There is a bit of latency: a change of time takes about 15 seconds to fully show.
 
 ## Stack
 
@@ -26,7 +36,7 @@ You need a Reactor API key and a Mapillary access token.
 
 ```sh
 # keys
-cp .env.example .env                        # set MAPILLARY_ACCESS_TOKEN
+cp .env.example .env                           # set MAPILLARY_ACCESS_TOKEN
 cp frontend/.env.example frontend/.env.local   # set REACTOR_API_KEY
 
 # backend, port 8000
@@ -41,14 +51,14 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. The map and data files are committed in `backend/data/`, so nothing needs to be downloaded first. The backend takes about 10 seconds to start.
+Open http://localhost:3000. The map and data files are already in `backend/data/`, so nothing needs to be downloaded first.
 
-## Known limits
+## Limitations
 
 - San Francisco only.
 - Reactor allows one Orbis session per account, so only one walk can play at a time.
-- A time change takes about 15 seconds to show fully.
-- Orbis stays close to the real photo for about 25 seconds. After that the streets are generated, so the video may not match the real route. The data panel says when a block has no photo behind it.
+- Changes of time, fog or crowd take several seconds to show.
+- Orbis stays close to the real photo for about 25 seconds. After that the streets are generated, so later blocks may not match the real route exactly.
 
 ## More
 

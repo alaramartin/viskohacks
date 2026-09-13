@@ -72,6 +72,31 @@ function reseedMode(): string | null {
 
 type ReactorIntrospection = { getSchema?: () => unknown; getCapabilities?: () => unknown };
 
+/**
+ * A big change of light leads the prompt with the change itself for this long
+ * ("the light is changing: night turns into bright daylight…"), then the normal
+ * prompt takes over. The frame is re-sent when it ends, to reinforce it.
+ */
+const LIGHT_TRANSITION_MS = 8_000;
+/** Darkness delta (0..1) that counts as a change worth narrating. */
+const LIGHT_CHANGE_MIN = 0.3;
+
+function lightTransitionPrefix(fromDarkness: number, toDarkness: number): string | null {
+  if (toDarkness <= fromDarkness - LIGHT_CHANGE_MIN) {
+    return (
+      "the light is changing: night turns into bright daylight, the dark sky brightens to clear blue, " +
+      "sunlight floods the street and the building facades, streetlights switch off, "
+    );
+  }
+  if (toDarkness >= fromDarkness + LIGHT_CHANGE_MIN) {
+    return (
+      "the light is changing: daylight fades into dark night, the sky turns deep black, " +
+      "streetlights switch on and glow amber, windows light up, "
+    );
+  }
+  return null;
+}
+
 /** Cold start is ~12–16s (Q4); this is the giving-up point. */
 const FIRST_FRAME_TIMEOUT_MS = 30_000;
 /** Let the last "coming to a stop" morph play out before closing the session. */
@@ -365,6 +390,13 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
       let shownIndex = -1;
       // Conditions already baked into the live render (the seed was graded for these).
       let litVersion = run.conditionsVersion;
+      let litRoute = initial;
+      let transition: { prefix: string; until: number; file: File | null } | null = null;
+      const promptFor = (videoPrompt: string) => (transition ? transition.prefix + videoPrompt : videoPrompt);
+      const feedFrame = async (file: File, name: string) => {
+        const uploaded = await context.uploadFile(file, { name });
+        await context.sendCommand("set_image", { image: uploaded });
+      };
       const reseed = reseedMode();
       const seeded = new Set<string>([blocks.find((block) => block.imageAvailable)?.blockId ?? ""]);
       // Grade every block's frame up front so a set_image lands on the shot boundary, not ~1s after.
@@ -418,7 +450,19 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
               // take hold. So re-grade the real frame of the block being walked for
               // the new conditions and feed it in with the new prompt. Same street
               // as on screen, so the model has only the light to change.
-              const here = route.waypoints[Math.max(0, shownIndex)]?.block_id;
+              const hereIndex = Math.max(0, shownIndex);
+              const before = estimateAmbient(litRoute.waypoints[hereIndex].condition).darkness;
+              const after = estimateAmbient(route.waypoints[hereIndex].condition).darkness;
+              litRoute = route;
+              const prefix = lightTransitionPrefix(before, after);
+              if (prefix) {
+                // Say the change out loud first — no waiting on the frame grade.
+                transition = { prefix, until: Date.now() + LIGHT_TRANSITION_MS, file: null };
+                trace.log("light_transition", { from: before, to: after });
+                await morphPrompt(context, promptFor(shot.video_prompt));
+                sentVideo = promptFor(shot.video_prompt);
+              }
+              const here = route.waypoints[hereIndex]?.block_id;
               const routeBlocks = groupIntoBlocks(route);
               const at = routeBlocks.findIndex((block) => block.blockId === here);
               const lit =
@@ -429,22 +473,33 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
                   const { graded, ambient } = await prepareSeed(lit);
                   if (run.cancelled) throw new WalkCancelled();
                   trace.log("relight", { block_id: lit.blockId, darkness: ambient.darkness });
-                  const uploaded = await context.uploadFile(graded.file, { name: `relight-${lit.blockId}.jpg` });
-                  await context.sendCommand("set_image", { image: uploaded });
+                  await feedFrame(graded.file, `relight-${lit.blockId}.jpg`);
+                  if (transition) transition.file = graded.file;
                 } catch (caught) {
                   if (caught instanceof WalkCancelled) throw caught;
                   // A failed re-grade leaves the prompt to do what it can.
                 }
               }
             }
-            if (shot.video_prompt && shot.video_prompt !== sentVideo) {
-              await morphPrompt(context, shot.video_prompt);
-              sentVideo = shot.video_prompt;
+            if (shot.video_prompt && promptFor(shot.video_prompt) !== sentVideo) {
+              await morphPrompt(context, promptFor(shot.video_prompt));
+              sentVideo = promptFor(shot.video_prompt);
             }
             if (shot.audio_prompt && shot.audio_prompt !== sentAudio) {
               // Audio morphing mid-run is unverified; never let it stop the walk.
               await morphAudioPrompt(context, shot.audio_prompt).catch(() => {});
               sentAudio = shot.audio_prompt;
+            }
+          }
+
+          if (transition && Date.now() >= transition.until) {
+            const file = transition.file;
+            transition = null;
+            trace.log("light_transition_end");
+            if (file) await feedFrame(file, "relight-again.jpg").catch(() => {});
+            if (shot.video_prompt !== sentVideo) {
+              await morphPrompt(context, shot.video_prompt);
+              sentVideo = shot.video_prompt;
             }
           }
 

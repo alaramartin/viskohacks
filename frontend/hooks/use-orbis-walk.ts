@@ -87,21 +87,32 @@ const LIGHT_FEED_EVERY_MS = 3_000;
 /** Darkness delta (0..1) that counts as a change worth narrating. */
 const LIGHT_CHANGE_MIN = 0.3;
 
-function lightTransitionPrefix(fromDarkness: number, toDarkness: number): string | null {
+/**
+ * During a change of light the normal ~600-character prompt (camera, motion,
+ * scene, layout) is replaced by one short prompt that is only about the light.
+ * Traced twice with the light buried in the long prompt plus re-graded frames:
+ * the sky went blue but the street stayed amber-lit for 30s.
+ */
+function lightTransitionPrompt(fromDarkness: number, toDarkness: number): string | null {
   if (toDarkness <= fromDarkness - LIGHT_CHANGE_MIN) {
     return (
-      "the light is changing: night turns into bright midday daylight, the whole scene brightens, " +
-      "clear bright blue sky, cool white sunlight floods the street and the building facades, " +
-      "streetlights switch off, the warm amber glow disappears, bright daytime colours, "
+      "change the sky to blue and the lighting to daylight, bright sunny daytime city street, " +
+      "clear blue sky, strong white sunlight on the buildings and the pavement, streetlights off, " +
+      "first-person view walking forward down the middle of the street"
     );
   }
   if (toDarkness >= fromDarkness + LIGHT_CHANGE_MIN) {
     return (
-      "the light is changing: daylight fades into dark night, the sky turns deep black, " +
-      "streetlights switch on and glow amber, windows light up, "
+      "change the sky to black and the lighting to night, dark night city street, black sky, " +
+      "amber streetlights glowing, lit windows, first-person view walking forward down the middle of the street"
     );
   }
   return null;
+}
+
+/** `?relight=image` also feeds re-graded frames during a change of light; default is text only. */
+function relightWithImages(): boolean {
+  return typeof window !== "undefined" && new URLSearchParams(window.location.search).get("relight") === "image";
 }
 
 /** Cold start is ~12–16s (Q4); this is the giving-up point. */
@@ -399,7 +410,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
       let litVersion = run.conditionsVersion;
       let litRoute = initial;
       let transition: { prefix: string; until: number; file: File | null; fedAt: number } | null = null;
-      const promptFor = (videoPrompt: string) => (transition ? transition.prefix + videoPrompt : videoPrompt);
+      const promptFor = (videoPrompt: string) => (transition ? transition.prefix : videoPrompt);
       const feedFrame = async (file: File, name: string) => {
         const uploaded = await context.uploadFile(file, { name });
         await context.sendCommand("set_image", { image: uploaded });
@@ -461,7 +472,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
               const before = estimateAmbient(litRoute.waypoints[hereIndex].condition).darkness;
               const after = estimateAmbient(route.waypoints[hereIndex].condition).darkness;
               litRoute = route;
-              const prefix = lightTransitionPrefix(before, after);
+              const prefix = lightTransitionPrompt(before, after);
               if (prefix) {
                 // Say the change out loud first — no waiting on the frame grade.
                 transition = { prefix, until: Date.now() + LIGHT_TRANSITION_MS, file: null, fedAt: 0 };
@@ -475,7 +486,7 @@ export function useOrbisWalk(options: UseOrbisWalkOptions = {}) {
               const lit =
                 routeBlocks.slice(0, at + 1).reverse().find((block) => block.imageAvailable) ??
                 routeBlocks.find((block) => block.imageAvailable);
-              if (lit) {
+              if (lit && relightWithImages()) {
                 try {
                   const { graded, ambient } = await prepareSeed(lit);
                   if (run.cancelled) throw new WalkCancelled();
